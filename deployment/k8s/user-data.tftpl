@@ -1,7 +1,12 @@
 #!/bin/bash -xe
 exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
-
-sudo apt update -y
+  while true; do
+    sudo apt-get update -y
+    if [ $? -eq 0 ]; then
+      break
+    fi
+    sleep 5
+  done
 
 #disable swap
 sudo swapoff -a
@@ -33,12 +38,32 @@ echo "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers
 echo "deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$CRIO_VERSION/$OS/ /"|sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION.list
 curl -L https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION/$OS/Release.key | sudo apt-key add -
 curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/Release.key | sudo apt-key add -
-sudo apt update -y 
-sudo apt install cri-o cri-o-runc cri-tools -y
+
+  while true; do
+    sudo apt-get update -y
+    if [ $? -eq 0 ]; then
+      break
+    fi
+    sleep 5
+  done
+
+sudo apt-get install cri-o cri-o-runc cri-tools -y
 sudo systemctl start crio
 sudo systemctl enable crio
-sudo apt-get update -y
+
+  while true; do
+    sudo apt-get update -y
+    if [ $? -eq 0 ]; then
+      break
+    fi
+    sleep 5
+  done
+
+
 sudo apt-get -y install containernetworking-plugins
+#sudo wget -c http://archive.ubuntu.com/ubuntu/pool/universe/g/golang-github-containernetworking-plugins/containernetworking-plugins_0.9.1+ds1-1_amd64.deb
+#sudo dpkg -i containernetworking-plugins_0.9.1+ds1-1_amd64.deb
+
 sudo sed -i  's/# network_dir/network_dir/g' /etc/crio/crio.conf
 sudo  sed -i '/# plugin_dirs/{a\
 plugin_dirs = [\n"/opt/cni/bin/",\n"/usr/lib/cni/",\n]\n
@@ -50,13 +75,22 @@ sudo apt-get install -y apt-transport-https ca-certificates curl
 sudo curl -fsSLo /etc/apt/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
 echo "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
 
-sudo apt update -y
-sudo apt install -y
+  while true; do
+    sudo apt-get update -y
+    if [ $? -eq 0 ]; then
+      break
+    fi
+    sleep 5
+  done
 
 
-sudo apt install kubelet  -y
-sudo apt install kubectl -y
-sudo apt install kubeadm -y
+sudo apt-get install -y
+
+
+sudo apt-get install kubelet  -y
+sudo apt-get install kubectl -y
+sudo apt-get install kubeadm -y
+
 sudo apt-mark hold kubelet kubeadm kubectl
 
 sudo kubeadm config images pull --cri-socket unix:///var/run/crio/crio.sock --v=5
@@ -163,4 +197,5 @@ cat /home/ubuntu/202301/eastwest/3_cfosdeployment.yaml | kubectl --kubeconfig /h
 cat /home/ubuntu/202301/eastwest/4_fedora_pod_br-10-1-128.yaml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f -
 cat /home/ubuntu/202301/eastwest/5_fedora_pod_br-10-2-128.yaml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f - 
 touch /home/ubuntu/deploymentcompleted
+
 
