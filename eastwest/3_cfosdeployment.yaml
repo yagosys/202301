@@ -19,6 +19,7 @@ spec:
       containers:
       - name: fos
         image: interbeing/fos:v7231x86
+
         securityContext:
           capabilities:
               add: ["NET_ADMIN","SYS_ADMIN","NET_RAW"]
@@ -38,6 +39,8 @@ spec:
         volumeMounts:
         - mountPath: /data
           name: data-volume
+      imagePullSecrets:
+      - name: dockerinterbeing
       volumes:
       - name: data-volume
         persistentVolumeClaim:
