@@ -79,18 +79,28 @@ resource "aws_instance" "k8slab" {
     source = var.cfosLicense
     destination ="/home/ubuntu/fos_license.yaml"
    }
+ 
+  provisioner "file" {
+    source = "/home/i/202301/deployment/k8s/check.sh"
+    destination = "/home/ubuntu/check.sh"
+  } 
 
   tags = {
     Name = "k8slab"
   }
 
+#   provisioner "remote-exec" {
+#     inline = [
+#      "chmod +x /home/ubuntu/check.sh",
+#      "/home/ubuntu/check.sh",
+#    ]
+#   }
   connection {
     host = "${aws_instance.k8slab.public_ip}"
     type = "ssh"
     port = "22"
     user = "ubuntu"
     timeout = "180s"
-#    private_key = file("/home/i/aw-key-fortigate.pem")
     private_key = "${file("${var.key_location}")}"
   }
 }
