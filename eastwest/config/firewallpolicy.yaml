@@ -1,24 +1,15 @@
 ---
 apiVersion: v1
-kind: Secret
-metadata:
-  name: ipsec-psks
-type: generic
-data:
-  psk1: Zm9ydGluZXQ=  #fortinet
-
----
-apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: foscfg-ipsec
+  name: foscfgfirewallpolicy
   labels:
       app: fos
       category: config
 data:
   type: partial
-   config: |-
-          config firewall policy
+  config: |-
+    config firewall policy
              edit "1"
                set name "net1-net2-east-west"
                set utm-status enable
@@ -64,4 +55,4 @@ data:
                set nat enable
                set logtraffic all
            next
-        end
+       end

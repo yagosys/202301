@@ -1,0 +1,39 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ipsec-psks
+type: generic
+data:
+  psk1: Zm9ydGluZXQ=  #fortinet
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: foscfg-ipsec 
+  labels:
+      app: fos
+      category: config
+data:
+  type: partial
+  config: |-
+    config vpn ipsec phase1-interface
+        edit "test-p1"
+           set interface "eth0"
+           set peertype any
+           set proposal aes128-sha256 aes256-sha256 aes128gcm-prfsha256 aes256gcm-prfsha384 chacha20poly1305-prfsha256
+           set psksecret {{ipsec-psks:psk1}}
+           set auto-negotiate disable
+         next
+     end
+    config vpn ipsec phase2-interface
+        edit "test-p2"
+            set phase1name "test-p1"
+            set proposal aes128-sha1 aes256-sha1 aes128-sha256 aes256-sha256 aes128gcm aes256gcm chacha20poly1305
+            set dhgrp 14 15 5
+            set src-subnet 10.4.96.0 255.255.240.0
+            set dst-subnet 10.0.4.0 255.255.255.0
+        next
+    end
+
