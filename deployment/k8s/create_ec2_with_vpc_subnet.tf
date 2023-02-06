@@ -85,6 +85,10 @@ resource "aws_instance" "k8slab" {
     destination = "/home/ubuntu/check.sh"
   } 
 
+  provisioner "file" {
+    source = "/home/i/202301/deployment/private/dockerinterbeing.yaml"
+    destination = "/home/ubuntu/.dockerinterbeing.yaml"
+  }
   tags = {
     Name = "k8slab"
   }
