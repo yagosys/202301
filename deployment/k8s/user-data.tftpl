@@ -37,7 +37,8 @@ sudo apt update -y
 sudo apt install cri-o cri-o-runc cri-tools -y
 sudo systemctl start crio
 sudo systemctl enable crio
-sudo apt install containernetworking-plugins -y
+sudo apt-get update -y
+sudo apt-get -y install containernetworking-plugins
 sudo sed -i  's/# network_dir/network_dir/g' /etc/crio/crio.conf
 sudo  sed -i '/# plugin_dirs/{a\
 plugin_dirs = [\n"/opt/cni/bin/",\n"/usr/lib/cni/",\n]\n
@@ -155,6 +156,11 @@ mkdir /home/ubuntu/data -p
 git clone https://github.com/yagosys/202301.git 
 
 cat /home/ubuntu/fos_license.yaml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f -
-
+cat /home/ubuntu/202301/eastwest/0_pv_pvc_role.yaml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f -
+cat /home/ubuntu/202301/eastwest/1_net_attach_10_1_128.yaml  | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f -
+cat /home/ubuntu/202301/eastwest/2_net_attach_10_2_128.yaml  | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f - 
+cat /home/ubuntu/202301/eastwest/3_cfosdeployment.yaml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f - 
+cat /home/ubuntu/202301/eastwest/4_fedora_pod_br-10-1-128.yaml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f -
+cat /home/ubuntu/202301/eastwest/5_fedora_pod_br-10-2-128.yaml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f - 
 touch /home/ubuntu/deploymentcompleted
 
