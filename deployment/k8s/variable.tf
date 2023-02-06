@@ -9,7 +9,7 @@ variable "tcpport" {
 }
 
 variable "ami_image_id" {
-   default ="ami-0b7e55206a0a22afc" 
+   default =""
 }
 
 variable "hostname" {
