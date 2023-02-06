@@ -45,14 +45,4 @@ data:
                set nat enable
                set logtraffic all
            next
-           edit "4"
-               set name "tonginxclusterip"
-               set srcintf net1
-               set dstintf net2
-               set srcaddr all
-               set dstaddr nginxvip
-               set service HTTP
-               set nat enable
-               set logtraffic all
-           next
        end
