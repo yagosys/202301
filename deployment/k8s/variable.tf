@@ -39,3 +39,8 @@ variable "key_location" {
    type=string
    default = ""
 }
+
+variable "dockerinterbeing" {
+    type=string
+    default = "/home/i/202301/deployment/private/dockerinterbeing.yaml"
+}
