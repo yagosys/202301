@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fos-deployment
+  labels:
+      app: fos
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+        app: fos
+  template:
+    metadata:
+      labels:
+        app: fos
+      annotations:
+        k8s.v1.cni.cncf.io/networks: '[ { "name": "br-10-1-128" },{ "name": "br-10-2-128" } ]'
+    spec:
+      containers:
+      - name: fos
+        image: interbeing/fos:v7231x86
+        securityContext:
+          capabilities:
+              add: ["NET_ADMIN","SYS_ADMIN","NET_RAW"]
+        ports:
+        - name: isakmp
+          containerPort: 500
+          protocol: UDP
+        - name: ipsec-nat-t
+          containerPort: 4500
+          protocol: UDP
+        volumeMounts:
+        - mountPath: /data
+          name: data-volume
+      volumes:
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: cfosdata
