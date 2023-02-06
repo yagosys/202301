@@ -29,6 +29,12 @@ spec:
         - name: ipsec-nat-t
           containerPort: 4500
           protocol: UDP
+        env:
+        - name: MY_VAR
+          valueFrom:
+            configMapKeyRef:
+              name: foscfgfirewallvip
+              key: VAR_CLUSTERIPADDRESS
         volumeMounts:
         - mountPath: /data
           name: data-volume
