@@ -1,0 +1,67 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ipsec-psks
+type: generic
+data:
+  psk1: Zm9ydGluZXQ=  #fortinet
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: foscfg-ipsec
+  labels:
+      app: fos
+      category: config
+data:
+  type: partial
+   config: |-
+          config firewall policy
+             edit "1"
+               set name "net1-net2-east-west"
+               set utm-status enable
+               set srcintf net1
+               set dstintf net2
+               set srcaddr all
+               set dstaddr all
+               set service HTTP
+               set ssl-ssh-profile "deep-inspection"
+               set ips-sensor "default"
+               set nat enable
+               set logtraffic all
+           next
+           edit "2"
+               set name "net1-net2-east-west-ping_noNAT"
+               set srcintf net1
+               set dstintf net2
+               set srcaddr all
+               set dstaddr all
+               set service PING
+               set logtraffic all
+           next
+           edit "3"
+               set utm-status enable
+               set name "pod_to_internet_HTTPS_HTTP"
+               set srcintf any
+               set dstintf eth0
+               set srcaddr all
+               set dstaddr all
+               set service HTTPS HTTP
+               set ssl-ssh-profile "deep-inspection"
+               set ips-sensor "default"
+               set nat enable
+               set logtraffic all
+           next
+           edit "4"
+               set name "tonginxclusterip"
+               set srcintf net1
+               set dstintf net2
+               set srcaddr all
+               set dstaddr nginxvip
+               set service HTTP
+               set nat enable
+               set logtraffic all
+           next
+        end
