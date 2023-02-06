@@ -184,6 +184,9 @@ spec:
               add: ["NET_ADMIN","SYS_ADMIN","NET_RAW"]
 EOF
 
+cat /home/ubuntu/.dockerinterbeing.yaml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f -
+
+
 kubectl --kubeconfig /home/ubuntu/.kube/config get pod -A 
 cd /home/ubuntu
 mkdir /home/ubuntu/data -p
