@@ -1,0 +1,160 @@
+#!/bin/bash -xe
+exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
+
+sudo apt update -y
+
+#disable swap
+sudo swapoff -a
+sudo sed -e '/swap/ s/^#*/#/' -i /etc/fstab
+
+#install dep module for cri-o runtime
+cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
+overlay
+br_netfilter
+EOF
+
+sudo modprobe overlay
+sudo modprobe br_netfilter
+
+
+# sysctl params required by setup, params persist across reboots
+cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
+net.bridge.bridge-nf-call-iptables  = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+net.ipv4.ip_forward                 = 1
+EOF
+
+sudo sysctl --system
+
+##instal cri-o
+export OS=xUbuntu_22.04
+export CRIO_VERSION=1.25
+echo "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/ /"| sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
+echo "deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$CRIO_VERSION/$OS/ /"|sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION.list
+curl -L https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION/$OS/Release.key | sudo apt-key add -
+curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/Release.key | sudo apt-key add -
+sudo apt update -y 
+sudo apt install cri-o cri-o-runc cri-tools -y
+sudo systemctl start crio
+sudo systemctl enable crio
+sudo apt install containernetworking-plugins -y
+sudo sed -i  's/# network_dir/network_dir/g' /etc/crio/crio.conf
+sudo  sed -i '/# plugin_dirs/{a\
+plugin_dirs = [\n"/opt/cni/bin/",\n"/usr/lib/cni/",\n]\n
+}' /etc/crio/crio.conf
+sudo systemctl restart crio
+
+sudo apt-get install -y apt-transport-https ca-certificates curl
+
+sudo curl -fsSLo /etc/apt/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+echo "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+
+sudo apt update -y
+sudo apt install -y
+
+
+sudo apt install kubelet  -y
+sudo apt install kubectl -y
+sudo apt install kubeadm -y
+sudo apt-mark hold kubelet kubeadm kubectl
+
+sudo kubeadm config images pull --cri-socket unix:///var/run/crio/crio.sock --v=5
+
+local_ip=$(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}')
+cat <<EOF | sudo tee /etc/default/kubelet
+KUBELET_EXTRA_ARGS=--node-ip=$local_ip
+EOF
+
+IPADDR=$local_ip
+NODENAME=`hostname | tr -d '-'`
+POD_CIDR="10.10.0.0/16"
+
+sudo kubeadm init --cri-socket=unix:///var/run/crio/crio.sock --apiserver-advertise-address=$IPADDR  --apiserver-cert-extra-sans=$IPADDR  --pod-network-cidr=$POD_CIDR --node-name $NODENAME  --v=5
+
+sleep 10
+mkdir -p /home/ubuntu/.kube
+sudo cp -i /etc/kubernetes/admin.conf /home/ubuntu/.kube/config
+sudo chown ubuntu:ubuntu /home/ubuntu/.kube/config
+sudo mkdir -p /root/.kube
+sudo cp /home/ubuntu/.kube/config /root/.kube/config
+
+kubectl --kubeconfig /home/ubuntu/.kube/config config set-cluster kubernetes --server "https://$local_ip:6443"
+
+sudo crictl pull ghcr.io/k8snetworkplumbingwg/multus-cni:stable
+
+cd /home/ubuntu
+git clone https://github.com/intel/multus-cni.git
+sudo chown ubuntu:ubuntu /home/ubuntu/multus-cni
+#git clone https://github.com/intel/multus-cni.git && cd /multus-cni
+cat /home/ubuntu/multus-cni/deployments/multus-daemonset.yml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f -
+
+#install whereabout ipam plugin
+cd /home/ubuntu
+git clone https://github.com/k8snetworkplumbingwg/whereabouts && cd whereabouts
+kubectl --kubeconfig /home/ubuntu/.kube/config apply \
+    -f doc/crds/daemonset-install.yaml \
+    -f doc/crds/whereabouts.cni.cncf.io_ippools.yaml \
+    -f doc/crds/whereabouts.cni.cncf.io_overlappingrangeipreservations.yaml
+
+#allow use controlplane node to create user workload
+
+kubectl --kubeconfig /home/ubuntu/.kube/config taint nodes --all node-role.kubernetes.io/control-plane- 
+
+#create a net-attach-def 
+cat <<EOF | kubectl --kubeconfig /home/ubuntu/.kube/config  apply -f - 
+---
+apiVersion: "k8s.cni.cncf.io/v1"
+kind: NetworkAttachmentDefinition
+metadata:
+  name: backend10-86-1
+spec:
+  config: '{
+      "cniVersion": "0.3.0",
+      "type": "bridge",
+      "bridge": "br-10.86-1",
+      "promiscMode": true,
+      "ipam": {
+          "type": "host-local",
+          "ranges": [
+              [
+                 {
+                     "subnet": "10.86.1.0/24",
+                     "rangeStart": "10.86.1.11",
+                     "rangeEnd": "10.86.1.20"
+                 }
+              ]
+         ],
+                "routes": [
+                ]
+      }
+    }'
+EOF
+
+cat <<EOF | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f -
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+  annotations:
+    k8s.v1.cni.cncf.io/networks: backend10-86-1@eth1
+spec:
+  containers:
+  - name: nginx
+    image: nginx:latest
+    securityContext:
+          capabilities:
+              add: ["NET_ADMIN","SYS_ADMIN","NET_RAW"]
+EOF
+
+kubectl --kubeconfig /home/ubuntu/.kube/config get pod -A 
+cd /home/ubuntu
+mkdir /home/ubuntu/data -p
+git clone https://github.com/yagosys/202301.git 
+
+cat /home/ubuntu/fos_license.yaml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f -
+
+touch /home/ubuntu/deploymentcompleted
+
