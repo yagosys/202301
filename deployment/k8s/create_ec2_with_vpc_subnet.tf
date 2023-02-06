@@ -65,7 +65,8 @@ resource "aws_security_group" "k8slab" {
 }
 
 resource "aws_instance" "k8slab" {
-  ami           = var.ami_image_id
+  #ami           = var.ami_image_id
+  ami           = local.ec2_image_id_map[var.region]
   instance_type = var.instance_type
   subnet_id     = aws_subnet.k8slab.id
   security_groups = [aws_security_group.k8slab.id]
