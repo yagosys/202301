@@ -86,19 +86,21 @@ resource "aws_instance" "k8slab" {
   } 
 
   provisioner "file" {
-    source = "/home/i/202301/deployment/private/dockerinterbeing.yaml"
+#    source = "/home/i/202301/deployment/private/dockerinterbeing.yaml"
+    source = var.dockerinterbeing
     destination = "/home/ubuntu/.dockerinterbeing.yaml"
   }
   tags = {
     Name = "k8slab"
   }
 
-#   provisioner "remote-exec" {
-#     inline = [
+   provisioner "remote-exec" {
+     inline = [
+      "tail -f /var/log/user-data.log --retry | sed '/deploymentcompleted/q' ",
 #      "chmod +x /home/ubuntu/check.sh",
 #      "/home/ubuntu/check.sh",
-#    ]
-#   }
+    ]
+   }
   connection {
     host = "${aws_instance.k8slab.public_ip}"
     type = "ssh"
