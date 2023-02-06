@@ -1,5 +1,8 @@
 #!/bin/bash -xe
+
+export DEBIAN_FRONTEND=noninteractive
 exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
+
   while true; do
     sudo apt-get update -y
     if [ $? -eq 0 ]; then
