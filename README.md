@@ -16,7 +16,7 @@ terraform apply -auto-approve
 
 **once execute sucessfully** 
 ```bash
-Plan: 7 to add, 0 to change, 0 to destroy.
+Plan: 8 to add, 0 to change, 0 to destroy.
 
 Changes to Outputs:
   + instance_public_ip = (known after apply)
@@ -39,47 +39,20 @@ aws_instance.k8slab: Provisioning with 'file'...
 aws_instance.k8slab: Still creating... [20s elapsed]
 aws_instance.k8slab: Creation complete after 25s [id=i-017cd36753c6c97cb]
 
-Apply complete! Resources: 7 added, 0 changed, 0 destroyed.
+aws_instance.k8slab (remote-exec): pod/fedora-net1-10-2-128 created
+aws_instance.k8slab (remote-exec): + touch /home/ubuntu/deploymentcompleted
+aws_instance.k8slab: Creation complete after 3m10s [id=i-0097d26c0c05b2cef]
+
+Apply complete! Resources: 8 added, 0 changed, 0 destroyed.
 
 Outputs:
 
 instance_public_ip = "52.221.244.192"
 ```
-**wait around 5 minutes for complete the k8s installation**
 
-then shell into this vm use ssh -i ~/aw-key-fortigate.pem ubuntu@52.221.244.192 
-
+then shell into this vm use ssh  ubuntu@52.221.244.192 
 
 
-```
-i@um690:~/202301/deployment/k8s$ ssh -i ~/aw-key-fortigate.pem ubuntu@52.221.244.192
-The authenticity of host '52.221.244.192 (52.221.244.192)' can't be established.
-ED25519 key fingerprint is SHA256:Ec27WJdu8OQNW/LQ2OcKuAZXs6b9tdrJnubzTmm5ECM.
-This key is not known by any other names
-Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
-Warning: Permanently added '52.221.244.192' (ED25519) to the list of known hosts.
-Welcome to Ubuntu 22.04.1 LTS (GNU/Linux 5.15.0-1028-aws x86_64)
-
- * Documentation:  https://help.ubuntu.com
- * Management:     https://landscape.canonical.com
- * Support:        https://ubuntu.com/advantage
-
-  System information as of Mon Feb  6 08:03:54 UTC 2023
-
-  System load:  0.85302734375     Users logged in:       0
-  Usage of /:   49.0% of 7.57GB   IPv4 address for cni0: 10.85.0.1
-  Memory usage: 11%               IPv6 address for cni0: 1100:200::1
-  Swap usage:   0%                IPv4 address for ens5: 10.0.1.218
-  Processes:    134
-
-
-26 updates can be applied immediately.
-16 of these updates are standard security updates.
-To see these additional updates run: apt list --upgradable
-
-
-To run a command as administrator (user "root"), use "sudo <command>".
-See "man sudo_root" for details.
 
 ubuntu@ip-10-0-1-218:~$
 ```

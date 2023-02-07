@@ -1,3 +1,11 @@
+data "aws_availability_zones" "selected" {
+  state = "available"
+  filter {
+    name   = "opt-in-status"
+    values = ["opt-in-not-required"]
+  }
+}
+
 resource "aws_vpc" "k8slab" {
   cidr_block = "10.0.0.0/16"
 
@@ -18,8 +26,8 @@ resource "aws_internet_gateway" "k8slab" {
 resource "aws_subnet" "k8slab" {
   vpc_id            = aws_vpc.k8slab.id
   cidr_block        = "10.0.1.0/24"
-  availability_zone = "${var.region}a"
-  //availability_zone = "us-east-1a"
+  //availability_zone = "${var.region}a"
+  availability_zone = data.aws_availability_zones.selected.names[0]
   map_public_ip_on_launch = true
 
   tags = {
@@ -70,13 +78,11 @@ resource "aws_key_pair" "k8slabkey" {
 }
 
 resource "aws_instance" "k8slab" {
-  #ami           = var.ami_image_id
   ami           = local.ec2_image_id_map[var.region]
   instance_type = var.instance_type
   subnet_id     = aws_subnet.k8slab.id
   security_groups = [aws_security_group.k8slab.id]
-  #key_name = var.key_name
-   key_name =aws_key_pair.k8slabkey.key_name
+  key_name =aws_key_pair.k8slabkey.key_name
   user_data     = templatefile(
 	"${path.module}/user-data.tftpl",
 	 {
@@ -93,7 +99,6 @@ resource "aws_instance" "k8slab" {
   } 
 
   provisioner "file" {
-#    source = "/home/i/202301/deployment/private/dockerinterbeing.yaml"
     source = var.dockerinterbeing
     destination = "/home/ubuntu/.dockerinterbeing.yaml"
   }
@@ -112,7 +117,6 @@ resource "aws_instance" "k8slab" {
     port = "22"
     user = "ubuntu"
     timeout = "180s"
-    #private_key = "${file("~/.ssh/id_rsa")}"
     private_key = "${file("${var.key_location}")}"
   }
 }

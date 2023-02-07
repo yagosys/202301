@@ -4,3 +4,4 @@ sudo ./aws/install
 aws configure
 aws s3 ls
 sudo snap install terraform --classic
+ssh-keygen 
