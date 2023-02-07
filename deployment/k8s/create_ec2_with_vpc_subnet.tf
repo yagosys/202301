@@ -7,7 +7,7 @@ data "aws_availability_zones" "selected" {
 }
 
 resource "aws_vpc" "k8slab" {
-  cidr_block = "10.0.0.0/16"
+  cidr_block = var.vpc_cidr
 
   tags = {
     Name = "k8slab-vpc"
@@ -25,8 +25,7 @@ resource "aws_internet_gateway" "k8slab" {
 
 resource "aws_subnet" "k8slab" {
   vpc_id            = aws_vpc.k8slab.id
-  cidr_block        = "10.0.1.0/24"
-  //availability_zone = "${var.region}a"
+  cidr_block        = var.vpc_subnet0
   availability_zone = data.aws_availability_zones.selected.names[0]
   map_public_ip_on_launch = true
 
@@ -34,6 +33,8 @@ resource "aws_subnet" "k8slab" {
     Name = "k8slab-public-subnet"
   }
 }
+
+
 
 resource "aws_route_table" "k8slab" {
   vpc_id = aws_vpc.k8slab.id
@@ -58,8 +59,8 @@ resource "aws_security_group" "k8slab" {
   vpc_id = aws_vpc.k8slab.id
 
   ingress {
-    from_port   = var.tcpport
-    to_port     = var.tcpport
+    from_port   = var.tcp_from_port
+    to_port     = var.tcp_to_port
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -82,7 +83,11 @@ resource "aws_instance" "k8slab" {
   instance_type = var.instance_type
   subnet_id     = aws_subnet.k8slab.id
   security_groups = [aws_security_group.k8slab.id]
-  key_name =aws_key_pair.k8slabkey.key_name
+  key_name = aws_key_pair.k8slabkey.key_name
+  source_dest_check = false 
+  private_ip = cidrhost(var.vpc_subnet0, 100)
+
+
   user_data     = templatefile(
 	"${path.module}/user-data.tftpl",
 	 {
@@ -93,10 +98,6 @@ resource "aws_instance" "k8slab" {
     destination ="/home/ubuntu/fos_license.yaml"
    }
  
-  provisioner "file" {
-    source = "/home/i/202301/deployment/k8s/check.sh"
-    destination = "/home/ubuntu/check.sh"
-  } 
 
   provisioner "file" {
     source = var.dockerinterbeing

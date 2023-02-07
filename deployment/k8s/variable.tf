@@ -1,15 +1,25 @@
+variable "vpc_cidr" {
+  type = string 
+  default = "10.0.0.0/16"
+}
+
+variable "vpc_subnet0" {
+  type = string
+  default = "10.0.1.0/24"
+}
+
 variable "instance_type" {
   type        = string
   default     = "t3.large"
 }
 
 
-variable "tcpport" {
-  default ="22"
+variable "tcp_from_port" {
+  default = "0"
 }
 
-variable "ami_image_id" {
-   default =""
+variable "tcp_to_port" {
+  default = "65535"
 }
 
 variable "hostname" {
