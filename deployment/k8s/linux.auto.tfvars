@@ -2,7 +2,7 @@
 
 region="ap-southeast-1"
 instance_type="t3.large" 
-key_name="aw-key-fortigate"
-key_location="/home/i/aw-key-fortigate.pem"
+#key_name="aw-key-fortigate"
+#key_location="/home/i/aw-key-fortigate.pem"
 cfosLicense="/home/i/202301/deployment/k8s/fos_license.yaml"
 dockerinterbeing="/home/i/202301/deployment/private/dockerinterbeing.yaml"

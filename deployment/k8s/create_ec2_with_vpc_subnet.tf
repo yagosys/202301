@@ -64,13 +64,19 @@ resource "aws_security_group" "k8slab" {
   }
 }
 
+resource "aws_key_pair" "k8slabkey" {
+  key_name   = "k8slabkeypair"
+  public_key = file("~/.ssh/id_rsa.pub")
+}
+
 resource "aws_instance" "k8slab" {
   #ami           = var.ami_image_id
   ami           = local.ec2_image_id_map[var.region]
   instance_type = var.instance_type
   subnet_id     = aws_subnet.k8slab.id
   security_groups = [aws_security_group.k8slab.id]
-  key_name = var.key_name
+  #key_name = var.key_name
+   key_name =aws_key_pair.k8slabkey.key_name
   user_data     = templatefile(
 	"${path.module}/user-data.tftpl",
 	 {
@@ -98,8 +104,6 @@ resource "aws_instance" "k8slab" {
    provisioner "remote-exec" {
      inline = [
       "tail -f /var/log/user-data.log --retry | sed '/deploymentcompleted/q' ",
-#      "chmod +x /home/ubuntu/check.sh",
-#      "/home/ubuntu/check.sh",
     ]
    }
   connection {
@@ -108,6 +112,7 @@ resource "aws_instance" "k8slab" {
     port = "22"
     user = "ubuntu"
     timeout = "180s"
+    #private_key = "${file("~/.ssh/id_rsa")}"
     private_key = "${file("${var.key_location}")}"
   }
 }

@@ -37,7 +37,7 @@ variable "cfosLicense" {
 
 variable "key_location" {
    type=string
-   default = ""
+   default = "~/.ssh/id_rsa"
 }
 
 variable "dockerinterbeing" {
