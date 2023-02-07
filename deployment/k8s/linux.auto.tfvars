@@ -1,5 +1,4 @@
 region="ap-southeast-1"
-#region="us-west-1"
 instance_type="t3.large" 
 cfosLicense="/home/i/202301/deployment/k8s/fos_license.yaml"
 key_location="~/.ssh/id_rsa"

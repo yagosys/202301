@@ -1,15 +1,19 @@
 #!/bin/bash -xe
 
-export DEBIAN_FRONTEND=noninteractive
-exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
-
-  while true; do
-    sudo apt-get update -y
+function aptgetupdate {
+    while true; do
+         sudo apt-get update -y
     if [ $? -eq 0 ]; then
       break
     fi
     sleep 5
   done
+}
+
+export DEBIAN_FRONTEND=noninteractive
+exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
+
+aptgetupdate
 
 #disable swap
 sudo swapoff -a
@@ -42,25 +46,14 @@ echo "deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:
 curl -L https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION/$OS/Release.key | sudo apt-key add -
 curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/Release.key | sudo apt-key add -
 
-  while true; do
-    sudo apt-get update -y
-    if [ $? -eq 0 ]; then
-      break
-    fi
-    sleep 5
-  done
+aptgetupdate
+
 
 sudo apt-get install cri-o cri-o-runc cri-tools -y
 sudo systemctl start crio
 sudo systemctl enable crio
 
-  while true; do
-    sudo apt-get update -y
-    if [ $? -eq 0 ]; then
-      break
-    fi
-    sleep 5
-  done
+aptgetupdate
 
 
 sudo apt-get -y install containernetworking-plugins
@@ -78,13 +71,7 @@ sudo apt-get install -y apt-transport-https ca-certificates curl
 sudo curl -fsSLo /etc/apt/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
 echo "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
 
-  while true; do
-    sudo apt-get update -y
-    if [ $? -eq 0 ]; then
-      break
-    fi
-    sleep 5
-  done
+aptgetupdate
 
 
 sudo apt-get install -y
