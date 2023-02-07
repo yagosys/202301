@@ -6,6 +6,10 @@ metadata:
   annotations:
     k8s.v1.cni.cncf.io/networks: '[ { "name": "br-10-1-128" } ]'
 spec:
+  initContainers:
+    - name: init-wait
+      image: alpine
+      command: ["sh", "-c", "for i in $(seq 1 300); do nc -zvw1 fos-deployment 80 && exit 0 || sleep 3; done; exit 1"]
   containers:
   - name: multitool
     image: praqma/network-multitool

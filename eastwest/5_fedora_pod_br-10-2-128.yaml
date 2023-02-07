@@ -8,6 +8,10 @@ metadata:
   annotations:
     k8s.v1.cni.cncf.io/networks: '[ { "name": "br-10-2-128" } ]'
 spec:
+  initContainers:
+    - name: init-wait
+      image: alpine
+      command: ["sh", "-c", "for i in $(seq 1 300); do nc -zvw1 fos-deployment 80 && exit 0 || sleep 3; done; exit 1"]
   containers:
   - name: nginx-10-2-128
     image: praqma/network-multitool

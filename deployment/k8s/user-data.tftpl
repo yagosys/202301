@@ -155,24 +155,6 @@ spec:
     }'
 EOF
 
-cat <<EOF | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f -
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: nginx
-  labels:
-    app: nginx
-  annotations:
-    k8s.v1.cni.cncf.io/networks: backend10-86-1@eth1
-spec:
-  containers:
-  - name: nginx
-    image: nginx:latest
-    securityContext:
-          capabilities:
-              add: ["NET_ADMIN","SYS_ADMIN","NET_RAW"]
-EOF
 
 cat /home/ubuntu/.dockerinterbeing.yaml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f -
 
@@ -187,6 +169,7 @@ cat /home/ubuntu/202301/eastwest/0_pv_pvc_role.yaml | kubectl --kubeconfig /home
 cat /home/ubuntu/202301/eastwest/1_net_attach_10_1_128.yaml  | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f -
 cat /home/ubuntu/202301/eastwest/2_net_attach_10_2_128.yaml  | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f - 
 cat /home/ubuntu/202301/eastwest/3_cfosdeployment.yaml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f - 
+sleep 60 
 cat /home/ubuntu/202301/eastwest/4_fedora_pod_br-10-1-128.yaml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f -
 cat /home/ubuntu/202301/eastwest/5_fedora_pod_br-10-2-128.yaml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f - 
 touch /home/ubuntu/deploymentcompleted

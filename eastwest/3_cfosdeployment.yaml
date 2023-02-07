@@ -1,3 +1,21 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: fos
+  name: fos-deployment
+  namespace: default
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: fos
+  type: ClusterIP
+---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
