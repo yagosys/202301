@@ -2,20 +2,21 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: fedora-net1-10-2-128
+  name: ngnix-10-2-128
   labels:
      app: nginx
   annotations:
     k8s.v1.cni.cncf.io/networks: '[ { "name": "br-10-2-128" } ]'
 spec:
   containers:
-  - name: fedora-net1-10-2-128
-    image: ghcr.io/redhat-nfvpe/multus-service-demo:fedora-tools
+  - name: nginx-10-2-128
+    image: praqma/network-multitool
     imagePullPolicy: Always
     command: ["/bin/sh","-c"]
     args:
       - ip route add 10.1.128.0/24 via 10.2.128.2;
         ip route add 1.1.1.1/32 via 10.2.128.2;
-        /sbin/init;
+        /usr/sbin/nginx -g "daemon off;"
+        #/sbin/init;
     securityContext:
       privileged: true
