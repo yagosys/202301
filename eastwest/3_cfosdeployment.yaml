@@ -32,7 +32,8 @@ spec:
       labels:
         app: fos
       annotations:
-        k8s.v1.cni.cncf.io/networks: '[ { "name": "br-10-1-128" },{ "name": "br-10-2-128" } ]'
+        #        k8s.v1.cni.cncf.io/networks: '[ { "name": "br-10-1-128" },{ "name": "br-10-2-128" } ]'
+        k8s.v1.cni.cncf.io/networks: '[ { "name": "br-10-1-128-2-static" },{ "name": "br-10-2-128-2-static" } ]'
     spec:
       containers:
       - name: fos
