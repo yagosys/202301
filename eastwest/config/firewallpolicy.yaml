@@ -39,7 +39,7 @@ data:
                set dstintf eth0
                set srcaddr all
                set dstaddr all
-               set service HTTPS HTTP
+               set service HTTPS HTTP PING
                set ssl-ssh-profile "deep-inspection"
                set ips-sensor "default"
                set nat enable
