@@ -1,0 +1,50 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: nginx
+  name: nginx-deployment
+  namespace: default
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: nginx
+  type: ClusterIP
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+      app: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+        app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+      annotations:
+        k8s.v1.cni.cncf.io/networks: '[ { "name": "br-10-2-128" } ]'
+    spec:
+      initContainers:
+      - name: init-wait
+        image: alpine
+        command: ["sh", "-c", "for i in $(seq 1 300); do nc -zvw1 fos-deployment 80 && exit 0 || sleep 3; done; exit 1"]
+      containers:
+      - name: nginx-10-2-128
+        image: praqma/network-multitool
+        imagePullPolicy: Always
+        command: ["/bin/sh","-c"]
+        args:
+          -  /usr/sbin/nginx -g "daemon off;"
+        securityContext:
+          privileged: true
