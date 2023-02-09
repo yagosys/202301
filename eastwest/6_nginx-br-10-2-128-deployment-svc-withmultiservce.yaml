@@ -5,7 +5,7 @@ metadata:
   labels:
     service.kubernetes.io/service-proxy-name: multus-proxy
   annotations:
-    k8s.v1.cni.cncf.io/service-network: 'br-10-2-128,br-10-2-128-2-static'
+    k8s.v1.cni.cncf.io/service-network: 'br-10-2-128'
 spec:
   selector:
     app: nginx
