@@ -126,34 +126,34 @@ kubectl --kubeconfig /home/ubuntu/.kube/config apply \
 kubectl --kubeconfig /home/ubuntu/.kube/config taint nodes --all node-role.kubernetes.io/control-plane- 
 
 #create a net-attach-def 
-cat <<EOF | kubectl --kubeconfig /home/ubuntu/.kube/config  apply -f - 
----
-apiVersion: "k8s.cni.cncf.io/v1"
-kind: NetworkAttachmentDefinition
-metadata:
-  name: backend10-86-1
-spec:
-  config: '{
-      "cniVersion": "0.3.0",
-      "type": "bridge",
-      "bridge": "br-10.86-1",
-      "promiscMode": true,
-      "ipam": {
-          "type": "host-local",
-          "ranges": [
-              [
-                 {
-                     "subnet": "10.86.1.0/24",
-                     "rangeStart": "10.86.1.11",
-                     "rangeEnd": "10.86.1.20"
-                 }
-              ]
-         ],
-                "routes": [
-                ]
-      }
-    }'
-EOF
+#cat <<EOF | kubectl --kubeconfig /home/ubuntu/.kube/config  apply -f - 
+#---
+#apiVersion: "k8s.cni.cncf.io/v1"
+#kind: NetworkAttachmentDefinition
+#metadata:
+#  name: backend10-86-1
+#spec:
+#  config: '{
+#      "cniVersion": "0.3.0",
+#      "type": "bridge",
+#      "bridge": "br-10.86-1",
+#      "promiscMode": true,
+#      "ipam": {
+#          "type": "host-local",
+#          "ranges": [
+#              [
+#                 {
+#                     "subnet": "10.86.1.0/24",
+#                     "rangeStart": "10.86.1.11",
+#                     "rangeEnd": "10.86.1.20"
+#                 }
+#              ]
+#         ],
+#                "routes": [
+#                ]
+#      }
+#    }'
+#EOF
 
 
 cat /home/ubuntu/.dockerinterbeing.yaml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f -
@@ -172,7 +172,8 @@ cat /home/ubuntu/202301/eastwest/br-10-1-128-1-static-for_cfos.yaml | kubectl --
 cat /home/ubuntu/202301/eastwest/br-10-2-128-1-static-for-cfos.yaml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f -
 cat /home/ubuntu/202301/eastwest/3_cfosdeployment.yaml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f - 
 cat /home/ubuntu/202301/eastwest/4_frontend_pod_br-10-1-128.yaml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f -
-cat /home/ubuntu/202301/eastwest/5_nginx_pod_br-10-2-128.yaml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f - 
+#cat /home/ubuntu/202301/eastwest/5_nginx_pod_br-10-2-128.yaml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f - 
+cat /home/ubuntu/202301/eastwest/5_nginx_pod_br-10-2-128-deployment.yaml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f - 
 touch /home/ubuntu/deploymentcompleted
 
 
