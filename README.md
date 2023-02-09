@@ -4,7 +4,14 @@ prepare terraform enviroment to deploy . for example ,in linux enviroment. insta
 **clone the repository**
 ```bash
 git clone https://github.com/yagosys/202301.git
+```
+**deploy k8s on ubuntu22.04**
+```
 cd 202301/deployment/k8s/
+```
+**or deploy k8s on ubuntu20.04**
+```
+cd 202301/deployment/k8s2004
 ```
 
 **deploy**
