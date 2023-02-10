@@ -10,4 +10,5 @@ ip route add 8.8.8.8/32 via 10.1.128.2 vrf test1
 default via 10.1.128.2 dev net1
 1.1.1.1 via 10.1.128.2 dev net1
 10.1.128.0/24 dev net1 proto kernel scope link src 10.1.128.3
+kubectl exec -it po/fos-deployment-b9cfcc98-4nn74 -- tail -f /data/var/log/log/ips.0
 
