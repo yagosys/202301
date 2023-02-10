@@ -35,9 +35,5 @@ spec:
                     ]
                 }
              },
-             {
-               "type": "vrf",
-               "vrfname": "test1"
-             }
             ]
     }

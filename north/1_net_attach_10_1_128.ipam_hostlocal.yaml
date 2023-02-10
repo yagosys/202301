@@ -31,9 +31,5 @@ spec:
                     "dataDir": "/run/my-orchestrator/container-ipam-state"
                 }
              },
-             {
-               "type": "vrf",
-               "vrfname": "test1"
-             }
             ] 
     }
