@@ -9,6 +9,13 @@ network_dir="/etc/cni/net.d/" Path to the directory where CNI configuration file
 
 plugin_dirs=["/opt/cni/bin/",] List of paths to directories where CNI plugin binaries are located.
 
+systemctl -f -u crio
+eb 11 11:22:32 um690 crio[465208]: time="2023-02-11 11:22:32.511086986+08:00" level=info msg="CNI monitoring event WRITE         \"/etc/cni/net.d/00-multus.conf\""
+Feb 11 11:22:32 um690 crio[465208]: time="2023-02-11 11:22:32.516149480+08:00" level=info msg="Found CNI network multus-cni-network (type=multus) at /etc/cni/net.d/00-multus.conf"
+Feb 11 11:22:32 um690 crio[465208]: time="2023-02-11 11:22:32.516885137+08:00" level=info msg="Found CNI network crio (type=bridge) at /etc/cni/net.d/100-crio-bridge.conf"
+Feb 11 11:22:32 um690 crio[465208]: time="2023-02-11 11:22:32.517894392+08:00" level=info msg="Found CNI network 200-loopback.conf (type=loopback) at /etc/cni/net.d/200-loopback.conf"
+Feb 11 11:22:32 um690 crio[465208]: time="2023-02-11 11:22:32.517910022+08:00" level=info msg="Updated default CNI network name to multus-cni-network"
+Feb 11 11:22:32 um690 crio[465208]: time="2023-02-11 11:22:32.517933027+08:00" level=info msg="CNI monitoring event CHMOD         \"/etc/cni/net.d/00-multus.conf\""
 **procedure to use route-override**
 
 
