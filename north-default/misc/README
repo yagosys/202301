@@ -1,0 +1,23 @@
+post kubernete 1.24
+the CNI no longer managed by kubelet. instead ,it is CNI manager (normally a DS).
+https://github.com/cri-o/cri-o/blob/main/docs/crio.conf.5.md
+The crio.network table containers settings pertaining to the management of CNI plugins.
+
+cni_default_network="" The default CNI network name to be selected. If not set or "", then CRI-O will pick-up the first one found in network_dir.
+
+network_dir="/etc/cni/net.d/" Path to the directory where CNI configuration files are located.
+
+plugin_dirs=["/opt/cni/bin/",] List of paths to directories where CNI plugin binaries are located.
+
+**procedure to use route-override**
+
+
+1. post 1.24 k8s, cni is no longer managed by kubelet, but the container runtime, in this case is crio
+2. check crio can found it load the cni configuration from the default localtion "etc/cni/net.d". as this system has multus installed. it use multus config
+3. the multus config use ds to config. need reload ds to re-load the config
+  ```
+   kubectl rollout restart daemonset kube-multus-ds -n kube-system
+  ```
+4. the ds multus will regenerate new config based on the master CNI configuration which is bridge in my case.
+5. the new created pod will use new CNI configuration.
+6. therefore the change the CNI config. change the master CNI config. then reload daemonset of multus
