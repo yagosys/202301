@@ -75,7 +75,8 @@ resource "aws_security_group" "k8slab" {
 
 resource "aws_key_pair" "k8slabkey" {
   key_name   = "k8slabkeypair"
-  public_key = file("~/.ssh/id_rsa.pub")
+  #public_key = file("~/.ssh/id_rsa.pub") this will not work in macos 
+  public_key = file("~/.ssh/id_ed25519.pub")
 }
 
 resource "aws_instance" "k8slab" {
@@ -93,6 +94,7 @@ resource "aws_instance" "k8slab" {
 	 {
 	 }
   )
+
   provisioner "file" {
     source = var.cfosLicense
     destination ="/home/ubuntu/fos_license.yaml"
@@ -103,6 +105,7 @@ resource "aws_instance" "k8slab" {
     source = var.dockerinterbeing
     destination = "/home/ubuntu/.dockerinterbeing.yaml"
   }
+
   tags = {
     Name = "k8slab"
   }
@@ -117,13 +120,12 @@ resource "aws_instance" "k8slab" {
     type = "ssh"
     port = "22"
     user = "ubuntu"
-    timeout = "180s"
+    timeout = "120s"
     private_key = "${file("${var.key_location}")}"
+    agent= false
   }
 }
 
 output "instance_public_ip" {
   value = aws_instance.k8slab.public_ip
 }
-
-
