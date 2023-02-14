@@ -1,0 +1,65 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: fos
+  name: fos-deployment-254
+  namespace: test
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: fos
+  type: ClusterIP
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fos-deployment-254
+  labels:
+      app: fos-254
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+        app: fos-254
+  template:
+    metadata:
+      labels:
+        app: fos-254
+      annotations:
+        k8s.v1.cni.cncf.io/networks: '[ { "name": "br-10-1-128-254-static" } ]'
+    spec:
+      containers:
+      - name: fos
+        image: interbeing/fos:v7231x86
+
+        securityContext:
+          capabilities:
+              add: ["NET_ADMIN","SYS_ADMIN","NET_RAW"]
+        ports:
+        - name: isakmp
+          containerPort: 500
+          protocol: UDP
+        - name: ipsec-nat-t
+          containerPort: 4500
+          protocol: UDP
+            #        env:
+            #        - name: MY_VAR
+            #          valueFrom:
+            #            configMapKeyRef:
+            #              name: foscfgfirewallvip
+            #              key: VAR_CLUSTERIPADDRESS
+        volumeMounts:
+        - mountPath: /data
+          name: data-volume
+      imagePullSecrets:
+      - name: dockerinterbeing
+      volumes:
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: cfosdata
