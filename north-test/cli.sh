@@ -3,7 +3,7 @@ cfospod=`kubectl get pod | grep fos | grep -v 254 | grep -v terminated | cut -d 
 kubectl exec -it po/$cfospod -- ip  -4 -p -h -br a
 
 echo 'multitool pod interface addaddress and default route'
-multpod=`kubectl get pod | grep mult | grep -v 254 | grep -v terminated  cut -d ' ' -f 1 | tail -n -1`
+multpod=`kubectl get pod | grep mult | grep -v 254 | grep -v terminated |  cut -d ' ' -f 1 | tail -n -1`
 kubectl exec -it po/$multpod -- ip  -4 -p -h -br a
 kubectl exec -it po/$multpod -- ip -4 -p -h -br  route | grep default
 
