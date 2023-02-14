@@ -24,3 +24,8 @@ kubectl apply -f 3_cfosdeployment.yaml
 kubectl apply -f deployment_tool_net1.yaml
 kubectl apply -f cfosdefaultroute.yaml
 kubectl apply -f firewallpolicy.yaml
+sleep 10
+kubectl delete -f 3_cfosdeployment.yaml
+sleep 10
+kubectl apply -f 3_cfosdeployment.yaml
+
