@@ -34,7 +34,8 @@ fi
 
 function generate_rsa_keypair {
 if [ ! -f "$HOME/.ssh/id_rsa" ]; then
-  ssh-keygen -f "$HOME/.ssh/id_rsa" -t rsa -b 4096 -N "" -q
+  #ssh-keygen -f "$HOME/.ssh/id_rsa" -t rsa -b 4096 -N "" -q
+  ssh-keygen -t ed25519 -N "" -f ~/.ssh/id_ed25519cfoslab
 fi
 }
 
