@@ -8,6 +8,11 @@ variable "vpc_subnet0" {
   default = "10.0.1.0/24"
 }
 
+variable "vpc_subnet1" {
+   type = string 
+   default = "10.0.2.0/24"
+}
+
 variable "instance_type" {
   type        = string
   default     = "t3.large"
@@ -44,4 +49,14 @@ variable "key_location" {
 variable "dockerinterbeing" {
     type=string
     default = ""
+}
+
+variable "podCIDR" {
+   type=string
+   default = "10.244.0.0/16"
+}
+
+variable "worker_count" {
+   type = string
+   default = 0
 }

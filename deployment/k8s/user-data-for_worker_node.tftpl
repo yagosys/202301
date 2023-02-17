@@ -95,56 +95,15 @@ EOF
 
 IPADDR=$local_ip
 NODENAME=`hostname | tr -d '-'`
-POD_CIDR="10.10.0.0/16"
+#POD_CIDR="10.244.0.0/16"
+POD_CIDR="${POD_CIDR}"
 
-sudo kubeadm init --cri-socket=unix:///var/run/crio/crio.sock --apiserver-advertise-address=$IPADDR  --apiserver-cert-extra-sans=$IPADDR  --pod-network-cidr=$POD_CIDR --node-name $NODENAME  --v=5
-
-sleep 10
-mkdir -p /home/ubuntu/.kube
-sudo cp -i /etc/kubernetes/admin.conf /home/ubuntu/.kube/config
-sudo chown ubuntu:ubuntu /home/ubuntu/.kube/config
-sudo mkdir -p /root/.kube
-sudo cp /home/ubuntu/.kube/config /root/.kube/config
-
-kubectl --kubeconfig /home/ubuntu/.kube/config config set-cluster kubernetes --server "https://$local_ip:6443"
-
-sudo crictl pull ghcr.io/k8snetworkplumbingwg/multus-cni:stable
-
-cd /home/ubuntu
-git clone https://github.com/intel/multus-cni.git
-sudo chown ubuntu:ubuntu /home/ubuntu/multus-cni
-#git clone https://github.com/intel/multus-cni.git && cd /multus-cni
-cat /home/ubuntu/multus-cni/deployments/multus-daemonset.yml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f -
-
-#install whereabout ipam plugin
-cd /home/ubuntu
-git clone https://github.com/k8snetworkplumbingwg/whereabouts && cd whereabouts
-kubectl --kubeconfig /home/ubuntu/.kube/config apply \
-    -f doc/crds/daemonset-install.yaml \
-    -f doc/crds/whereabouts.cni.cncf.io_ippools.yaml \
-    -f doc/crds/whereabouts.cni.cncf.io_overlappingrangeipreservations.yaml
-
-#allow use controlplane node to create user workload
-
-kubectl --kubeconfig /home/ubuntu/.kube/config taint nodes --all node-role.kubernetes.io/control-plane- 
-
-cat /home/ubuntu/.dockerinterbeing.yaml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f -
-
-
-kubectl --kubeconfig /home/ubuntu/.kube/config get pod -A 
-cd /home/ubuntu
-mkdir /home/ubuntu/data -p
-git clone https://github.com/yagosys/202301.git 
-
-cat /home/ubuntu/fos_license.yaml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f -
-#cat /home/ubuntu/202301/eastwest/0_pv_pvc_role.yaml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f -
-#cat /home/ubuntu/202301/eastwest/1_net_attach_10_1_128.yaml  | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f -
-#cat /home/ubuntu/202301/eastwest/2_net_attach_10_2_128.yaml  | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f - 
-#cat /home/ubuntu/202301/eastwest/br-10-1-128-1-static-for_cfos.yaml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f -
-#cat /home/ubuntu/202301/eastwest/br-10-2-128-1-static-for-cfos.yaml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f -
-#cat /home/ubuntu/202301/eastwest/3_cfosdeployment.yaml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f - 
-#cat /home/ubuntu/202301/eastwest/4_frontend_pod_br-10-1-128.yaml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f -
-#cat /home/ubuntu/202301/eastwest/5_nginx_pod_br-10-2-128-deployment.yaml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f - 
+sudo chmod 0600 /home/ubuntu/.ssh/id_ed25519
+sudo -u ubuntu scp -i /home/ubuntu/.ssh/id_ed25519  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null 10.0.1.100:workloadtojoin.sh /home/ubuntu/workloadtojoin.sh
+sudo chmod +x /home/ubuntu/workloadtojoin.sh
+sudo /home/ubuntu/workloadtojoin.sh
+sudo -u ubuntu mkdir /home/ubuntu/.kube
+sudo -u ubuntu scp -i /home/ubuntu/.ssh/id_ed25519  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  10.0.1.100:/home/ubuntu/.kube/config /home/ubuntu/.kube/config
 touch /home/ubuntu/deploymentcompleted
 
 
