@@ -14,4 +14,4 @@ dnsserver=$(grep nameserver  /run/systemd/resolve/resolv.conf | awk  '{print $2}
 sudo sed -i 's/"dst": "0.0.0.0\/0"/"dst": "10.96.0.0\/12", "gw": "10.85.0.1"},\n            { "dst": "'"$dnsserver"'\/32", "gw": "10.85.0.1"/g' /etc/cni/net.d/100-crio-bridge.conf
 kubectl rollout restart ds/kube-multus-ds -n kube-system
 waitforMultusReady
-sudo tail -f 00-multus.conf --retry | sed '/10.96/q'
+sudo tail -f /etc/cni/net.d/00-multus.conf --retry | sed '/10.96/q'
