@@ -1,5 +1,6 @@
 create net-attach-def default as the default network for application POD
 
+0 sudo mkdir -p /etc/cni/multus/net.d 
 1  copy below file to /etc/cni/multus/net.d/
 
 ```
