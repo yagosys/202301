@@ -7,3 +7,4 @@ kubectl create -f 04_cfosfirewallpolicy.yaml
 kubectl create -f 05_cfos_dns.yaml
 kubectl create -f cfosdeployment.yaml
 kubectl create -f application.yaml
+#after deployment, the cfos may not work. run checkcfosreadiness.sh to fix it
