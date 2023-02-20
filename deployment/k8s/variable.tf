@@ -60,3 +60,13 @@ variable "worker_count" {
    type = string
    default = 0
 }
+
+variable "serviceCIDR" {
+   type = string
+   default = "10.96.0.0/12"
+}
+   
+variable "clusterdnsip" {
+   type = string
+   default = "10.96.0.10"
+}

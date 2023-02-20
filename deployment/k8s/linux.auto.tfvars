@@ -1,4 +1,4 @@
-region="ap-east-1"
+region="ap-southeast-1"
 instance_type="t3.large" 
 worker_count=0
 cfosLicense="/Users/ubuntu/fos_license.yaml"

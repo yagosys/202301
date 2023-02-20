@@ -104,6 +104,17 @@ sudo chmod +x /home/ubuntu/workloadtojoin.sh
 sudo /home/ubuntu/workloadtojoin.sh
 sudo -u ubuntu mkdir /home/ubuntu/.kube
 sudo -u ubuntu scp -i /home/ubuntu/.ssh/id_ed25519  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  10.0.1.100:/home/ubuntu/.kube/config /home/ubuntu/.kube/config
+sudo -u ubuntu scp -i /home/ubuntu/.ssh/id_ed25519  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  10.0.1.100:/etc/cni/net.d/5-crio-bridge.conf /home/ubuntu/5-crio-bridge.conf 
+sudo mv /home/ubuntu/5-crio-bridge.conf /etc/cni/net.d/5-crio-bridge.conf 
+if ip link show cni0 >/dev/null 2>&1; then
+  echo "Deleting interface cni0"
+  sudo ip link delete cni0
+else
+  echo "Interface cni0 not found"
+fi
+
+sudo kubectl --kubeconfig /home/ubuntu/.kube/config rollout restart ds/kube-multus-ds -n kube-system
+
 touch /home/ubuntu/deploymentcompleted
 
 

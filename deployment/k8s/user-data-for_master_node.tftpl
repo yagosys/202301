@@ -37,6 +37,8 @@ cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
 net.bridge.bridge-nf-call-iptables  = 1
 net.bridge.bridge-nf-call-ip6tables = 1
 net.ipv4.ip_forward                 = 1
+net.ipv4.conf.all.accept_redirects  = 0
+net.ipv4.conf.default.accept_redirects = 0
 EOF
 
 sudo sysctl --system
@@ -88,17 +90,20 @@ sudo apt-mark hold kubelet kubeadm kubectl
 
 sudo kubeadm config images pull --cri-socket unix:///var/run/crio/crio.sock --v=5
 
+#https://kubernetes.io/docs/reference/command-line-tools-reference/kubelet/ kubelet params 
 local_ip=$(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}')
+CLUSTERDNSIP="${CLUSTERDNSIP}"
 cat <<EOF | sudo tee /etc/default/kubelet
-KUBELET_EXTRA_ARGS=--node-ip=$local_ip
+KUBELET_EXTRA_ARGS=--node-ip=$local_ip,--cluster-dns=$CLUSTERDNSIP
 EOF
 
 IPADDR=$local_ip
 NODENAME=`hostname | tr -d '-'`
 #POD_CIDR="10.244.0.0/16"
 POD_CIDR="${POD_CIDR}"
+SERVICE_CIDR="${SERVICE_CIDR}"
 
-sudo kubeadm init --cri-socket=unix:///var/run/crio/crio.sock --apiserver-advertise-address=$IPADDR  --apiserver-cert-extra-sans=$IPADDR  --pod-network-cidr=$POD_CIDR --node-name $NODENAME  --v=5
+sudo kubeadm init --cri-socket=unix:///var/run/crio/crio.sock --apiserver-advertise-address=$IPADDR  --apiserver-cert-extra-sans=$IPADDR  --service-cidr=$SERVICE_CIDR --pod-network-cidr=$POD_CIDR --node-name $NODENAME  --token-ttl=0 -v=5
 
 sleep 10
 mkdir -p /home/ubuntu/.kube
@@ -109,13 +114,6 @@ sudo cp /home/ubuntu/.kube/config /root/.kube/config
 
 kubectl --kubeconfig /home/ubuntu/.kube/config config set-cluster kubernetes --server "https://$local_ip:6443"
 
-sudo crictl pull ghcr.io/k8snetworkplumbingwg/multus-cni:stable
-
-cd /home/ubuntu
-git clone https://github.com/intel/multus-cni.git
-sudo chown ubuntu:ubuntu /home/ubuntu/multus-cni
-#git clone https://github.com/intel/multus-cni.git && cd /multus-cni
-cat /home/ubuntu/multus-cni/deployments/multus-daemonset.yml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f -
 
 #install whereabout ipam plugin
 cd /home/ubuntu
@@ -128,10 +126,44 @@ kubectl --kubeconfig /home/ubuntu/.kube/config apply \
 #allow use controlplane node to create user workload
 
 WORKER_COUNT="${WORKER_COUNT}"
-if [ $WORKER_COUNT  -eq 0 ]; then 
-kubectl --kubeconfig /home/ubuntu/.kube/config taint nodes --all node-role.kubernetes.io/control-plane- 
+if [ $WORKER_COUNT  -eq 0 ]
+then 
+  kubectl --kubeconfig /home/ubuntu/.kube/config taint nodes --all node-role.kubernetes.io/control-plane- 
+else
+ kubectl --kubeconfig /home/ubuntu/.kube/config apply -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
+ sudo sed -i 's/10\.85/10.244/g' /etc/cni/net.d/100-crio-bridge.conf
+ sudo mv /etc/cni/net.d/100-crio-bridge.conf /etc/cni/net.d/5-crio-bridge.conf
 fi 
 
+#install multus CNI
+
+sudo crictl pull ghcr.io/k8snetworkplumbingwg/multus-cni:stable
+cd /home/ubuntu
+git clone https://github.com/intel/multus-cni.git
+sudo chown ubuntu:ubuntu /home/ubuntu/multus-cni
+
+if [ $WORKER_COUNT  -eq 0 ]
+then 
+	echo 'use multus default where multus configuration will be auto generatd'
+else
+	echo 'multus configuration will be set to use 70-multus.config'
+        sudo sed -i 's/multus-conf-file=auto/multus-conf-file=\/tmp\/multus-conf\/70-multus.conf/g' /home/ubuntu/multus-cni/deployments/multus-daemonset.yml
+fi 
+
+cat /home/ubuntu/multus-cni/deployments/multus-daemonset.yml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f -
+
+if [ $WORKER_COUNT  -eq 0 ]
+then
+	echo ''
+else
+       if ip link show cni0 >/dev/null 2>&1; then
+         echo "Deleting interface cni0"
+         sudo ip link delete cni0
+       else
+         echo "Interface cni0 not found"
+       fi
+fi
+       #install docker pull secret
 cat /home/ubuntu/.dockerinterbeing.yaml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f -
 
 
@@ -141,16 +173,22 @@ mkdir /home/ubuntu/data -p
 git clone https://github.com/yagosys/202301.git 
 
 cat /home/ubuntu/fos_license.yaml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f -
-#cat /home/ubuntu/202301/eastwest/0_pv_pvc_role.yaml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f -
-#cat /home/ubuntu/202301/eastwest/1_net_attach_10_1_128.yaml  | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f -
-#cat /home/ubuntu/202301/eastwest/2_net_attach_10_2_128.yaml  | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f - 
-#cat /home/ubuntu/202301/eastwest/br-10-1-128-1-static-for_cfos.yaml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f -
-#cat /home/ubuntu/202301/eastwest/br-10-2-128-1-static-for-cfos.yaml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f -
-#cat /home/ubuntu/202301/eastwest/3_cfosdeployment.yaml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f - 
-#cat /home/ubuntu/202301/eastwest/4_frontend_pod_br-10-1-128.yaml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f -
-#cat /home/ubuntu/202301/eastwest/5_nginx_pod_br-10-2-128-deployment.yaml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f - 
+
 grep discovery-token-ca-cert /var/log/user-data.log -B 1 | head -n 2 | tr -d '\n' | tr -d '\\' > /home/ubuntu/workloadtojoin.sh
 chmod +x /home/ubuntu/workloadtojoin.sh
+
+if [ $WORKER_COUNT  -eq 0 ]
+then
+kubectl --kubeconfig /home/ubuntu/.kube/config get pod -A -o wide
+else
+kubectl --kubeconfig /home/ubuntu/.kube/config rollout restart ds/kube-multus-ds -n kube-system
+sleep 10
+kubectl --kubeconfig /home/ubuntu/.kube/config rollout restart deployment/coredns -n kube-system
+kubectl --kubeconfig /home/ubuntu/.kube/config get pod -A -o wide
+
+fi
+
+
 touch /home/ubuntu/deploymentcompleted
 
 

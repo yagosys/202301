@@ -119,6 +119,8 @@ resource "aws_instance" "k8slab" {
 	 {
 		POD_CIDR=var.podCIDR
                 WORKER_COUNT=var.worker_count
+		SERVICE_CIDR=var.serviceCIDR
+		CLUSTERDNSIP=var.clusterdnsip
 	 }
   )
 
