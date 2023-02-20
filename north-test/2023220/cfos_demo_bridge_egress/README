@@ -1,4 +1,5 @@
-create net-attach-def default as the default network for application POD
+create net-attach-def default as the default network for application POD in step 2, this default NetworkAttachmentDefinition has no spec 
+If NetworkAttachmentDefinition has no spec, multus find a file in defaultConfDir ('/etc/cni/multus/net.d', with same name in the 'name' field of CNI config.
 
 0 sudo mkdir -p /etc/cni/multus/net.d 
 1  copy below file to /etc/cni/multus/net.d/
@@ -10,7 +11,7 @@ ubuntu@ip-10-0-1-100:~/new$ cat cfosdefaultcni5.conf
     "name": "cfosdefaultcni5",
        "type": "bridge",
        "bridge": "cni5",
-       "isGateway": false,
+       "isGateway": true,
        "ipMasq": true,
        "hairpinMode": true,
        "ipam": {
