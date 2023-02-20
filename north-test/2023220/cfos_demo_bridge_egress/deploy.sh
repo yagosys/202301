@@ -15,11 +15,36 @@ while true; do
     echo "Both pods are ready!"
     break
   fi
-  sleep 5
+    sleep 5
 done
+
 }
 
 deploymentReady
-kubectl rollout restart deployment fos-deployment
-deploymentReady
+
+function ping_1_1_1_1() {
+
+cfospod=`kubectl get pod | grep fos | grep -v terminat | cut -d ' ' -f 1 | tail -n -1`
+multpod=`kubectl get pod | grep multitool01 |  grep -v terminat |  cut -d ' ' -f 1 | tail -n -1`
+
+kubectl exec -it po/$multpod -- ping -c 1 1.1.1.1 > /dev/null 2>&1
+
+   if [ $? -eq 0 ]; then
+     return 0
+   else
+     return 1
+   fi
+}
+
+   ping_1_1_1_1
+   result=$?
+   if [ $result -eq 0 ] ; then
+        echo cfos is able to reach 1.1.1.1
+   else
+        echo cfos is not reach 1.1.1.1, restart
+        kubectl rollout restart deployment fos-deployment
+        sleep 10
+        deploymentReady
+   fi
+
 #after deployment, the cfos may not work. run checkcfosreadiness.sh to fix it
