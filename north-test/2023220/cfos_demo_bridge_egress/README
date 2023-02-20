@@ -1,0 +1,217 @@
+create net-attach-def default as the default network for application POD
+
+1  copy below file to /etc/cni/multus/net.d/
+
+```
+ubuntu@ip-10-0-1-100:~/new$ cat cfosdefaultcni5.conf
+{
+    "cniVersion": "0.3.1",
+    "name": "cfosdefaultcni5",
+       "type": "bridge",
+       "bridge": "cni5",
+       "isGateway": false,
+       "ipMasq": true,
+       "hairpinMode": true,
+       "ipam": {
+           "type": "host-local",
+           "routes": [
+               { "dst": "10.96.0.0/12","gw": "10.86.0.1" },
+               { "dst": "10.0.0.2/32", "gw": "10.86.0.1" }
+           ],
+           "ranges": [
+               [{ "subnet": "10.86.0.0/16" }]
+           ]
+       }
+}
+```
+
+2 create net-attach-def to use multus config with same name
+
+
+ubuntu@ip-10-0-1-100:~/new$ cat net_default_10_86_0.yaml
+apiVersion: "k8s.cni.cncf.io/v1"
+kind: NetworkAttachmentDefinition
+metadata:
+  name: cfosdefaultcni5
+
+
+ubuntu@ip-10-0-1-100:~/new$ kubectl create -f net_default_10_86_0.yaml
+networkattachmentdefinition.k8s.cni.cncf.io/cfosdefaultcni5 created
+
+
+3. create net-attach-def for secondary network 
+```
+ubuntu@ip-10-0-1-100:~/new$ cat net_10_1_128.yaml
+---
+apiVersion: "k8s.cni.cncf.io/v1"
+kind: NetworkAttachmentDefinition
+metadata:
+  name: br-10-1-128
+spec:
+  config: |-
+    {
+            "cniVersion": "0.4.0",
+            "plugins": [
+              {
+                "name": "cfosnet1",
+                "type": "bridge",
+                "bridge": "cni6",
+                "ipMasq": false,
+                "ipam": {
+                    "type": "whereabouts",
+                    "range": "10.1.128.0/24",
+                    "gateway": "10.1.128.2",
+                    "log_file": "/tmp/whereabouts.log",
+                    "log_level": "debug",
+                    "routes": [
+                      {
+                        "dst": "10.2.128.0/24",
+                        "gw": "10.1.128.2"
+                      }
+                    ],
+                    "exclude": [
+                      "10.1.128.1/32",
+                      "10.1.128.2/32",
+                      "10.1.128.254/32"
+                    ]
+                }
+             }
+            ]
+    }
+```
+
+4. create cfos deployment
+
+kubectl create -f 00_pv_pvc.yaml
+kubectl create -f 01_cfos_account.yaml
+kubectl create -f 03_cfos_defaultroute.yaml
+kubectl create -f 04_cfosfirewallpolicy.yaml
+kubectl create -f 05_cfos_dns.yaml
+cat cfosdeployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fos-deployment
+  labels:
+      app: fos
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+        app: fos
+  template:
+    metadata:
+      labels:
+        app: fos
+      annotations:
+        v1.multus-cni.io/default-network: default/cfosdefaultcni5
+        k8s.v1.cni.cncf.io/networks: '[ { "name": "br-10-1-128" , "ips": [ "10.1.128.2/32" ],"mac": "CA:FE:C0:FF:EE:02" } ]'
+    spec:
+      containers:
+      - name: fos
+        image: interbeing/fos:v7231x86
+
+        securityContext:
+          capabilities:
+              add: ["NET_ADMIN","SYS_ADMIN","NET_RAW"]
+        ports:
+        - name: isakmp
+          containerPort: 500
+          protocol: UDP
+        - name: ipsec-nat-t
+          containerPort: 4500
+          protocol: UDP
+            #        env:
+            #        - name: MY_VAR
+            #          valueFrom:
+            #            configMapKeyRef:
+            #              name: foscfgfirewallvip
+            #              key: VAR_CLUSTERIPADDRESS
+        volumeMounts:
+        - mountPath: /data
+          name: data-volume
+      imagePullSecrets:
+      - name: dockerinterbeing
+      volumes:
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: cfosdata
+
+5. create application deployment
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: multitool01-deployment
+  labels:
+      app: multitool01
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+        app: multitool01
+  template:
+    metadata:
+      labels:
+        app: multitool01
+      annotations:
+        v1.multus-cni.io/default-network: default/cfosdefaultcni5
+        k8s.v1.cni.cncf.io/networks: '[ { "name": "br-10-1-128"  , "default-route": ["10.1.128.2"] } ]'
+          #k8s.v1.cni.cncf.io/networks: '[ { "name": "br-10-1-128" } ]'
+    spec:
+      containers:
+        - name: multitool01
+          image: praqma/network-multitool
+          imagePullPolicy: Always
+            #command: ["/bin/sh","-c"]
+          args:
+            - /bin/sh
+            - -c
+            - /usr/sbin/nginx -g "daemon off;"
+          securityContext:
+            privileged: true
+
+
+
+
+
+
+
+ubuntu@ip-10-0-1-100:~/new$ kubectl exec -it po/multitool01-deployment-8678cdff6-bq2fq -- sh
+/ # ip r
+default via 10.1.128.2 dev net1
+10.0.0.2 via 10.86.0.1 dev eth0
+10.1.128.0/24 dev net1 proto kernel scope link src 10.1.128.4
+10.2.128.0/24 via 10.1.128.2 dev net1
+10.86.0.0/16 dev eth0 proto kernel scope link src 10.86.0.12
+10.96.0.0/12 via 10.86.0.1 dev eth0
+/ # ping 1.1.1.1
+PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
+64 bytes from 1.1.1.1: icmp_seq=1 ttl=51 time=2.17 ms
+^C
+--- 1.1.1.1 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 2.170/2.170/2.170/0.000 ms
+/ # curl https://1.1.1.1
+curl: (60) SSL certificate problem: unable to get local issuer certificate
+More details here: https://curl.se/docs/sslcerts.html
+
+curl failed to verify the legitimacy of the server and therefore could not
+establish a secure connection to it. To learn more about this situation and
+how to fix it, please visit the web page mentioned above.
+
+attack on application pod and check log on cfos 
+/ # curl --max-time 5  -k -H "User-Agent: () { :; }; /bin/ls" https://1.1.1.1
+curl: (28) Operation timed out after 5001 milliseconds with 0 bytes received
+
+
+# tail -f ips.0
+date=2023-02-20 time=02:12:20 eventtime=1676859140 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.128.4 dstip=1.1.1.1 srcintf="net1" dstintf="eth0" sessionid=5 action="dropped" proto=6 service="HTTPS" policyid=3 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=57668 dstport=443 hostname="1.1.1.1" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=30408705 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-02-20 time=02:12:25 eventtime=1676859145 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.128.4 dstip=1.1.1.1 srcintf="net1" dstintf="eth0" sessionid=7 action="dropped" proto=6 service="HTTPS" policyid=3 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=43338 dstport=443 hostname="1.1.1.1" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=30408706 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-02-20 time=02:12:26 eventtime=1676859146 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.128.4 dstip=1.1.1.1 srcintf="net1" dstintf="eth0" sessionid=9 action="dropped" proto=6 service="HTTPS" policyid=3 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=43350 dstport=443 hostname="1.1.1.1" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=30408707 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-02-20 time=02:12:35 eventtime=1676859155 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.128.4 dstip=1.1.1.1 srcintf="net1" dstintf="eth0" sessionid=11 action="dropped" proto=6 service="HTTPS" policyid=3 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=43362 dstport=443 hostname="1.1.1.1" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=30408708 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-02-20 time=02:13:25 eventtime=1676859205 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.128.4 dstip=1.1.1.1 srcintf="net1" dstintf="eth0" sessionid=13 action="dropped" proto=6 service="HTTPS" policyid=3 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=53518 dstport=443 hostname="1.1.1.1" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=30408709 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-02-20 time=02:13:27 eventtime=1676859207 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.128.4 dstip=1.1.1.1 srcintf="net1" dstintf="eth0" sessionid=15 action="dropped" proto=6 service="HTTPS" policyid=3 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=53534 dstport=443 hostname="1.1.1.1" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=30408710 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-02-20 time=02:13:33 eventtime=1676859213 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.128.4 dstip=1.1.1.1 srcintf="net1" dstintf="eth0" sessionid=17 action="dropped" proto=6 service="HTTPS" policyid=3 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=53540 dstport=443 hostname="1.1.1.1" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=30408711 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-02-20 time=02:13:35 eventtime=1676859215 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.128.4 dstip=1.1.1.1 srcintf="net1" dstintf="eth0" sessionid=19 action="dropped" proto=6 service="HTTPS" policyid=3 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=53550 dstport=443 hostname="1.1.1.1" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=30408712 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
