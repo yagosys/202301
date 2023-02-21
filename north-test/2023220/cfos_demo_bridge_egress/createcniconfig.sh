@@ -37,7 +37,7 @@ if [ -f /run/systemd/resolve/resolv.conf ]; then
 else
   dnsserver=8.8.8.8
 fi
-clusterip="10.96.0.0/12"
+serviceSubnet=$(kubectl get cm kubeadm-config -n kube-system -o yaml | grep serviceSubnet | awk '{print $2}')
 podsubnet="10.86.0"
 # Set the directory path
 directory="/etc/cni/multus/net.d/"
@@ -63,7 +63,7 @@ cat << EOF  | sudo tee "$file"
     "ipam": {
         "type": "host-local",
         "routes": [
-            { "dst": "$clusterip","gw": "$podsubnet.1" },
+            { "dst": "$serviceSubnet","gw": "$podsubnet.1" },
             { "dst": "$dnsserver/32", "gw": "$podsubnet.1" }
         ],
         "ranges": [
@@ -72,4 +72,4 @@ cat << EOF  | sudo tee "$file"
     }
 }
 EOF
-
+echo place above under $directory
