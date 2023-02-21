@@ -1,0 +1,32 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test01-deployment
+  labels:
+      app: test01
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+        app: test01
+  template:
+    metadata:
+      labels:
+        app: test01
+      annotations:
+        k8s.v1.cni.cncf.io/networks: '[ { "name": "br-10-244-2",  "ips": [ "10.244.2.3/32"], "default-route": ["10.244.2.2"]  } ]'
+    spec:
+      containers:
+        - name: test01
+          #image: wbitt/network-test
+          image: docker.io/wbitt/network-multitool
+            #image: nginx:latest
+          imagePullPolicy: Always
+            #command: ["/bin/sh","-c"]
+          args:
+            - /bin/sh
+            - -c
+            - /usr/sbin/nginx -g "daemon off;"
+          securityContext:
+            privileged: true

@@ -1,0 +1,4 @@
+apiVersion: "k8s.cni.cncf.io/v1"
+kind: NetworkAttachmentDefinition
+metadata:
+  name: match_the_one_under_/etc/cni/multus/net.d/xxx.conf
