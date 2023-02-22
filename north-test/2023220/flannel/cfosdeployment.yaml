@@ -33,7 +33,7 @@ spec:
         app: fos
       annotations:
         v1.multus-cni.io/default-network: br-default-flannel
-        k8s.v1.cni.cncf.io/networks: '[ { "name": "default/cfosdefaultcni5",  "ips": [ "10.1.128.2/32" ], "mac": "CA:FE:C0:FF:00:02" } ]'
+        k8s.v1.cni.cncf.io/networks: '[ { "name": "cfosdefaultcni5",  "ips": [ "10.1.128.2/32" ], "mac": "CA:FE:C0:FF:00:02" } ]'
     spec:
       containers:
       - name: fos
