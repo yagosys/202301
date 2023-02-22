@@ -15,7 +15,9 @@ spec:
       labels:
         app: test01
       annotations:
-        k8s.v1.cni.cncf.io/networks: '[ { "name": "br-10-244-2",  "ips": [ "10.244.2.3/32"], "default-route": ["10.244.2.2"]  } ]'
+        #k8s.v1.cni.cncf.io/networks: '[ { "name": "br-10-244-2",  "ips": [ "10.244.2.3/32"], "default-route": ["10.244.2.2"]  } ]'
+        v1.multus-cni.io/default-network: default/cfosdefaultcni5
+        k8s.v1.cni.cncf.io/networks: '[ { "name": "br-10-244-0" } ]'
     spec:
       containers:
         - name: test01
