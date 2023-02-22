@@ -38,7 +38,7 @@ else
   dnsserver=8.8.8.8
 fi
 serviceSubnet=$(kubectl get cm kubeadm-config -n kube-system -o yaml | grep serviceSubnet | awk '{print $2}')
-podsubnet="10.86.0"
+podsubnet="10.1.128"
 # Set the directory path
 directory="/etc/cni/multus/net.d/"
 
@@ -67,7 +67,7 @@ cat << EOF  | sudo tee "$file"
             { "dst": "$dnsserver/32", "gw": "$podsubnet.1" }
         ],
         "ranges": [
-            [{ "subnet": "$podsubnet.0/16" }]
+            [{ "subnet": "$podsubnet.0/24" }]
         ]
     }
 }
