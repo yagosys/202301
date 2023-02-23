@@ -5,5 +5,3 @@ kubectl create -f 05_cfos_dns.yaml
 kubectl create -f net_bridge_secondary_network.yaml
 kubectl create -f net_new_default_network_for_cfos.yaml
 kubectl create -f cfosdeployment.yaml
-kubectl scale deployment cfos-deployment --replicas=2
-kubectl create -f app.yaml
