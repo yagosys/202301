@@ -113,6 +113,7 @@ else
   echo "Interface cni0 not found"
 fi
 
+sudo kubectl --kubeconfig /home/ubuntu/.kube/config label nodes $NODENAME kubernetes.io/role=worker
 sudo kubectl --kubeconfig /home/ubuntu/.kube/config rollout restart ds/kube-multus-ds -n kube-system
 
 touch /home/ubuntu/deploymentcompleted
