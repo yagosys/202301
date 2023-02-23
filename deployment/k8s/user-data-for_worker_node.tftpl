@@ -104,8 +104,22 @@ sudo chmod +x /home/ubuntu/workloadtojoin.sh
 sudo /home/ubuntu/workloadtojoin.sh
 sudo -u ubuntu mkdir /home/ubuntu/.kube
 sudo -u ubuntu scp -i /home/ubuntu/.ssh/id_ed25519  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  10.0.1.100:/home/ubuntu/.kube/config /home/ubuntu/.kube/config
-sudo -u ubuntu scp -i /home/ubuntu/.ssh/id_ed25519  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  10.0.1.100:/etc/cni/net.d/5-crio-bridge.conf /home/ubuntu/5-crio-bridge.conf 
-sudo mv /home/ubuntu/5-crio-bridge.conf /etc/cni/net.d/5-crio-bridge.conf 
+source_file="ubuntu@10.0.1.100:/etc/cni/net.d/00-multus.conf"
+sudo -u ubuntu scp -i /home/ubuntu/.ssh/id_ed25519  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  $source_file/home/ubuntu/00-multus.conf 
+if [ $? -ne 0 ]; then
+  echo "SCP command failed"
+else
+  sudo mv /home/ubuntu/00-multus.conf /etc/cni/net.d/
+  echo "00-multus.conf placed under /etc/cni/net.d"
+   cni_file="/etc/cni/net.d/100-crio-bridge.conf"
+     if [ -f "$cni_file" ]; then
+        sudo rm $cni_file
+        echo "remove $cni_file"
+     else
+        echo "$cni_file not exist, do nothing"
+     fi
+fi
+#sudo mv /home/ubuntu/00-multus.conf /etc/cni/net.d/00-multus.conf
 if ip link show cni0 >/dev/null 2>&1; then
   echo "Deleting interface cni0"
   sudo ip link delete cni0
@@ -113,8 +127,13 @@ else
   echo "Interface cni0 not found"
 fi
 
-sudo kubectl --kubeconfig /home/ubuntu/.kube/config label nodes $NODENAME kubernetes.io/role=worker
-sudo kubectl --kubeconfig /home/ubuntu/.kube/config rollout restart ds/kube-multus-ds -n kube-system
+#sudo kubectl --kubeconfig /home/ubuntu/.kube/config rollout restart ds/kube-multus-ds -n kube-system
+
+function function_restart_coredns_deployment_after_install_multus () {
+sudo kubectl --kubeconfig /home/ubuntu/.kube/config rollout restart deployment/coredns -n kube-system
+}
+
+function_restart_coredns_deployment_after_install_multus
 
 touch /home/ubuntu/deploymentcompleted
 
