@@ -19,11 +19,10 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: fos-deployment
+  name: DaemonSet
   labels:
       app: fos
 spec:
-  replicas: 2
   selector:
     matchLabels:
         app: fos
