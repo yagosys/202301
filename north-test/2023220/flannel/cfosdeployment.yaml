@@ -17,9 +17,9 @@ spec:
 ---
 
 apiVersion: apps/v1
-kind: Deployment
+kind: DaemonSet
 metadata:
-  name: DaemonSet
+  name: fos-deployment
   labels:
       app: fos
 spec:
