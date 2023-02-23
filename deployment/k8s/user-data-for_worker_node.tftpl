@@ -105,7 +105,7 @@ sudo /home/ubuntu/workloadtojoin.sh
 sudo -u ubuntu mkdir /home/ubuntu/.kube
 sudo -u ubuntu scp -i /home/ubuntu/.ssh/id_ed25519  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  10.0.1.100:/home/ubuntu/.kube/config /home/ubuntu/.kube/config
 source_file="ubuntu@10.0.1.100:/etc/cni/net.d/00-multus.conf"
-sudo -u ubuntu  scp -i /home/ubuntu/.ssh/id_ed25519  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  $source_file /home/ubuntu/00-multus.conf 
+sudo -u ubuntu  scp -i /home/ubuntu/.ssh/id_ed25519  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  $source_file /home/ubuntu/00-multus.conf
 if [ $? -ne 0 ]; then
   echo "SCP command failed"
 else
