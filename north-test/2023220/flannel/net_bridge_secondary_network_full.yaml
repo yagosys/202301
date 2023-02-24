@@ -5,21 +5,21 @@ metadata:
 spec:
   config: |-
     {
-    "cniVersion": "0.3.1",
-    "name": "cfosdefaultcni5",
-    "type": "bridge",
-    "bridge": "cni5",
-    "isGateway": true,
-    "ipMasq": true,
-    "hairpinMode": true,
-    "ipam": {
-        "type": "host-local",
-        "routes": [
-            { "dst": "10.96.0.0/12","gw": "10.1.128.1" },
-            { "dst": "10.0.0.2/32", "gw": "10.1.128.1" }
-        ],
-        "ranges": [
-            [{ "subnet": "10.1.128/24" }]
-        ]
+      "cniVersion": "0.3.1",
+      "name": "cfosdefaultcni5",
+      "type": "bridge",
+      "bridge": "cni5",
+      "isGateway": true,
+      "ipMasq": true,
+      "hairpinMode": true,
+      "ipam": {
+          "type": "host-local",
+          "routes": [
+              { "dst": "10.96.0.0/12","gw": "10.1.128.1" },
+              { "dst": "10.0.0.2/32", "gw": "10.1.128.1" }
+          ],
+          "ranges": [
+              [{ "subnet": "10.1.128.0/24" }]
+          ]
+      }
     }
-}
