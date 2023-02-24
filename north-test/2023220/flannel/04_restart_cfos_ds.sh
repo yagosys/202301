@@ -30,6 +30,7 @@ kubectl exec -it po/$multpod -- ping -c 1 1.1.1.1 > /dev/null 2>&1
     echo $node/$multpod is not able to reach 1.1.1.1, something wrong
     echo restart cfos ds
      kubectl rollout restart ds fos-deployment
+     kubectl rollout status ds/fos-deployment
    fi
 done
 }
