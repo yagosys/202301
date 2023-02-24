@@ -1,9 +1,14 @@
 function  deploymentReady() {
-while true; do
-  output=$(kubectl get pod)
-  if echo "$output" | grep -q "fos-deployment.*1/1" && echo "$output" | grep -q "multitool01-deployment.*1/1"; then
+workernodes=$(kubectl get nodes -l 'kubernetes.io/role=worker' -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}')
+
+for node in $workernodes
+do
+  echo $node
+  output=`kubectl get pods --field-selector spec.nodeName=$node`
+
+    if echo "$output" | grep -q "fos-deployment.*1/1" && echo "$output" | grep -q "multitool01-deployment.*1/1"; then
     echo "Both pods are ready!"
-    break
+    continue
   fi
     sleep 5
 done
@@ -13,33 +18,40 @@ done
 deploymentReady
 
 function cfos_ping_1_1_1_1() {
-
-cfospod=`kubectl get pod | grep fos | grep -v terminat | cut -d ' ' -f 1 | tail -n -1`
-multpod=`kubectl get pod | grep multitool01 |  grep -v terminat |  cut -d ' ' -f 1 | tail -n -1`
-
+workernodes=$(kubectl get nodes -l 'kubernetes.io/role=worker' -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}')
+for node in $workernodes
+do
+cfospod=`kubectl get pod -l app=fos --field-selector spec.nodeName=$node | grep fos | grep -v terminat | cut -d ' ' -f 1 | tail -n -1`
+multpod=`kubectl get pod -l app=multitool01 --field-selector spec.nodeName=$node | grep multitool01 |  grep -v terminat |  cut -d ' ' -f 1 | tail -n -1`
+echo $node
 kubectl exec -it po/$cfospod -- ping -c 1 1.1.1.1 > /dev/null 2>&1
 
    if [ $? -eq 0 ]; then
-     return 0
+     continue
    else
      return 1
    fi
+done
 }
 
 function ping_1_1_1_1() {
 
-cfospod=`kubectl get pod | grep fos | grep -v terminat | cut -d ' ' -f 1 | tail -n -1`
-multpod=`kubectl get pod | grep multitool01 |  grep -v terminat |  cut -d ' ' -f 1 | tail -n -1`
-
+workernodes=$(kubectl get nodes -l 'kubernetes.io/role=worker' -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}')
+for node in $workernodes
+do
+cfospod=`kubectl get pod -l app=fos --field-selector spec.nodeName=$node  |  grep fos | grep -v terminat | cut -d ' ' -f 1 | tail -n -1`
+multpod=`kubectl get pod -l app=multitool01 --field-selector spec.nodeName=$node | grep multitool01 |  grep -v terminat |  cut -d ' ' -f 1 | tail -n -1`
+echo $node
 kubectl exec -it po/$multpod -- ping -c 1 1.1.1.1 > /dev/null 2>&1
 
    if [ $? -eq 0 ]; then
      echo ping 1.1.1.1 is ok
-     return 0
+     continue
    else
      echo ping 1.1.1.1 is not reachable
      return 1
    fi
+done
 }
 
    cfos_ping_1_1_1_1
@@ -63,4 +75,3 @@ kubectl exec -it po/$multpod -- ping -c 1 1.1.1.1 > /dev/null 2>&1
 	ping_1_1_1_1
    fi
 
-#after deployment, the cfos may not work. run checkcfosreadiness.sh to fix it
