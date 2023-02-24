@@ -134,7 +134,7 @@ sudo kubectl --kubeconfig /home/ubuntu/.kube/config rollout restart deployment/c
 }
 
 function_restart_coredns_deployment_after_install_multus
-
+kubectl label nodes $NODENAME   kubernetes.io/role=worker --overwrite
 touch /home/ubuntu/deploymentcompleted
 
 
