@@ -10,7 +10,7 @@ kubectl exec -it po/$cfospod -- ping -c 1 1.1.1.1 > /dev/null 2>&1
     echo $node/$cfospod , cfos is able to reach 1.1.1.1
      continue
    else
-     cfos is not able to reach 1.1.1.1, something wrong
+     echo cfos is not able to reach 1.1.1.1, something wrong
    fi
 done
 }
