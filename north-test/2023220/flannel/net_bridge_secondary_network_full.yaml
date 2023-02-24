@@ -10,7 +10,7 @@ spec:
       "type": "bridge",
       "bridge": "cni5",
       "isGateway": true,
-      "ipMasq": true,
+      "ipMasq": false,
       "hairpinMode": true,
       "ipam": {
           "type": "host-local",
