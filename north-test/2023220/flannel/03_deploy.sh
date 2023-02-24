@@ -7,6 +7,3 @@ kubectl create -f  net_bridge_secondary_network_full.yaml
 kubectl create -f net_new_default_network_for_cfos.yaml
 echo deploy cfos daemonSet
 kubectl create -f cfosdeployment.yaml
-sleep 10
-echo deploy application pod
-kubectl create -f app.yaml
