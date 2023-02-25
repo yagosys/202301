@@ -11,7 +11,7 @@ spec:
               {
                 "name": "cfosdefaultcni5",
                 "type": "bridge",
-                "isGateway": true,
+                "isGateway": false,
                 "bridge": "cni5",
                 "ipMasq": false,
                 "ipam": {
