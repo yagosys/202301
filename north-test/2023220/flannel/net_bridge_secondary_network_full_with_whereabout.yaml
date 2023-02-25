@@ -13,7 +13,7 @@ spec:
                 "type": "bridge",
                 "isGateway": false,
                 "bridge": "cni5",
-                "ipMasq": true,
+                "ipMasq": false,
                 "ipam": {
                     "type": "whereabouts",
                     "range": "10.1.128.0/24",
