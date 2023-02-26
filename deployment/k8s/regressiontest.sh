@@ -7,7 +7,7 @@ do
             filename=$region$suffix
             touch "$filename"
             terraform apply -var region=$region --auto-approve | tee -a  $filename
-            ./copy_ssh_key_to_master.sh 2>  $region.result
+            ./copy_local_ssh_key_to_master.sh 2>  $region.result
             sleep 30
             #./pingcheck.sh 2>> $region.result
             ./pingcheck.sh  >> $region.result 2>&1
