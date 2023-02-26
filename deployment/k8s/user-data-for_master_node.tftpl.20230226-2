@@ -1,5 +1,4 @@
 #!/bin/bash -xe
-MAX_ATTEMPTS=5
 
 function aptgetupdate {
     while true; do
@@ -13,13 +12,7 @@ function aptgetupdate {
 
 export DEBIAN_FRONTEND=noninteractive
 exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
-mkdir -p /home/ubuntu/
-cd /home/ubuntu/
-git clone https://github.com/yagosys/202301.git
 
-sudo cp /home/ubuntu/202301/deployment/k8s/kubernetes-archive-keyring.gpg /etc/apt/keyrings/kubernetes-archive-keyring.gpg
-
-sudo gpg --keyserver keyserver.ubuntu.com --recv-keys B53DC80D13EDEF05
 aptgetupdate
 sudo apt-get install linux-modules-extra-`uname -r` -y 
 sudo modprobe vrf
@@ -55,17 +48,8 @@ export OS=xUbuntu_22.04
 export CRIO_VERSION=1.25
 echo "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/ /"| sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
 echo "deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$CRIO_VERSION/$OS/ /"|sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION.list
-#curl -L https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION/$OS/Release.key | sudo apt-key add -
-#curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/Release.key | sudo apt-key add -
-
-sudo gpg --keyserver keyserver.ubuntu.com --recv-keys B53DC80D13EDEF05 
-curl --insecure --retry 3 --retry-connrefused -fsSL https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION/$OS/Release.key | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/devel_kubic_libcontainers_stable_cri-o_$CRIO_VERSION.gpg > /dev/null
-curl --insecure --retry 3 --retry-connrefused -fsSL https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/Release.key | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/devel_kubic_libcontainers_stable.gpg > /dev/nulll
-
-#sudo wget --no-check-certificate -qO - https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION/$OS/Release.key | sudo apt-key add -
-#sudo wget --no-check-certificate -qO - https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/Release.key | sudo apt-key add - 
-#try_curl  https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION/$OS/Release.key | sudo apt-key add -
-#try_curl  https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/Release.key | sudo apt-key add -
+curl -L https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION/$OS/Release.key | sudo apt-key add -
+curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/Release.key | sudo apt-key add -
 
 aptgetupdate
 
@@ -95,20 +79,15 @@ plugin_dirs = [\n"/opt/cni/bin/",\n"/usr/lib/cni/",\n]\n
 }' /etc/crio/crio.conf
 sudo systemctl restart crio
 
-sudo apt-key adv --keyserver keyserver.ubuntu.com  --recv-keys B53DC80D13EDEF05
-sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 6A030B21BA07F4FB
-#sudo wget --no-check-certificate -qO - https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo tee /etc/apt/keyrings/kubernetes-archive-keyring.gpg 
+sudo apt-get install -y apt-transport-https ca-certificates curl
 
-sudo apt-get install -y apt-transport-https ca-certificates
+sudo curl -fsSLo /etc/apt/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
 echo "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
-
-#sudo curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo tee /etc/apt/keyrings/kubernetes-archive-keyring.gpg
-#sudo cp /home/ubuntu/kubernetes-archive-keyring.gpg /etc/apt/keyrings/kubernetes-archive-keyring.gpg
-
 
 aptgetupdate
 
 
+sudo apt-get install -y
 
 
 sudo apt-get install kubelet  -y
@@ -132,8 +111,6 @@ NODENAME=`hostname | tr -d '-'`
 POD_CIDR="${POD_CIDR}"
 SERVICE_CIDR="${SERVICE_CIDR}"
 
-echo $NODENAME $IPADDR | sudo tee -a  /etc/hosts 
-
 sudo kubeadm init --cri-socket=unix:///var/run/crio/crio.sock --apiserver-advertise-address=$IPADDR  --apiserver-cert-extra-sans=$IPADDR  --service-cidr=$SERVICE_CIDR --pod-network-cidr=$POD_CIDR --node-name $NODENAME  --token-ttl=0 -v=5
 
 sleep 10
@@ -149,7 +126,6 @@ kubectl --kubeconfig /home/ubuntu/.kube/config config set-cluster kubernetes --s
 #install whereabout ipam plugin
 cd /home/ubuntu
 git clone https://github.com/k8snetworkplumbingwg/whereabouts && cd whereabouts
-
 kubectl --kubeconfig /home/ubuntu/.kube/config apply \
     -f doc/crds/daemonset-install.yaml \
     -f doc/crds/whereabouts.cni.cncf.io_ippools.yaml \
@@ -211,11 +187,11 @@ cat /home/ubuntu/.dockerinterbeing.yaml | kubectl --kubeconfig /home/ubuntu/.kub
 kubectl --kubeconfig /home/ubuntu/.kube/config get pod -A 
 cd /home/ubuntu
 mkdir /home/ubuntu/data -p
-#git clone https://github.com/yagosys/202301.git 
+git clone https://github.com/yagosys/202301.git 
 
 cat /home/ubuntu/fos_license.yaml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f -
 
-grep --text discovery-token-ca-cert /var/log/user-data.log -B 1 | head -n 2 | tr -d '\n' | tr -d '\\' > /home/ubuntu/workloadtojoin.sh
+grep discovery-token-ca-cert /var/log/user-data.log -B 1 | head -n 2 | tr -d '\n' | tr -d '\\' > /home/ubuntu/workloadtojoin.sh
 chmod +x /home/ubuntu/workloadtojoin.sh
 
 sudo apt-get install jq -y 
