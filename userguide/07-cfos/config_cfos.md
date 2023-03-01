@@ -78,8 +78,10 @@ config firewall policy
     next
 end
 ```
+
 - display events log
 
+```
 execute  log filter  device  disk
 FOS Container # execute  log filter  category
 
