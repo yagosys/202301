@@ -1,13 +1,14 @@
 ```
 
-1 cfos is container version of fortios. it meet the oci standard, so can be run under docker, containered, and crio runtime.
+- what is cfos 
+Cfos is container version of fortios. it meet the oci standard, so can be run under docker, containered, and crio runtime.
 
 cfos offer l7 security feature such as IPS, DNS filter, Web filter, SSL deep inspection etc., also cfos provide real time updated security update from fortiguard. These updates help detect and prevent cyberattacks, block malicious traffic, and provide secure access to resources.
 
-when deploy cfos in k8s, it can protect IP traffic from POD egress to internet and also can protect east-west traffic between different POD CIDR subnet. this is enabled by add multus CNI, 
- with multus, cfos can use one interface for control plane communication, such as access to k8s API, expose serice to external world etc., while use other interface dedicated for inspect traffic from other POD. to seperate the control plane traffic with data plane traffic. the additional interface can be associated with high performance NIC such as the interface that has SRIOV enabled for high performance and lowest latency. 
+when deploy cfos in k8s, it can protect IP traffic from POD egress to internet and also can protect east-west traffic between different POD CIDR subnet. this is enabled by add multus CNI,
+ with multus, cfos can use one interface for control plane communication, such as access to k8s API, expose serice to external world etc., while use other interface dedicated for inspect traffic from other POD. to seperate the control plane traffic with data plane traffic. the additional interface can be associated with high performance NIC such as the interface that has SRIOV enabled for high performance and lowest latency. one of the use cas is POD egress security  
 
-Use case : POD egress security 
+- Use case : POD egress security 
 
 Pod egress security is important because it helps organizations protect their networks and data from potential threats that may come from outgoing traffic from pods in their kubernetes clusters. Here are some reasons why pod egress security is crucial:
 
@@ -22,17 +23,17 @@ Prevent malware infections: A pod that is compromised by malware could use egres
 Overall, implementing pod egress security controls is an important part of securing kubernetes clusters and ensuring the integrity, confidentiality, and availability of organizational data.
 in this use case , application can route traffic with dedicated network which created by multus to cfos POD. cfos POD inspect the packet for IPS attack, URL filter, DNS filter etc, if it's SSL encrpyted. cFOS also do deep packet inspection. 
 
-demo setup
+- demo setup
 
-the demo setup include an application deployment and cFOS daemonSet. cFOS use fixed IP address, application POD by default route traffic towards cFOS. after cFOS inspected packet based on the firewall policy, the cFOS send traffic to internet from node with sNAT. 
+the demo setup include an application deployment and cFOS daemonSet. cFOS use fixed IP address, application POD by default route traffic towards cFOS. after cFOS inspected packet based on configured  firewall policy, the cFOS send traffic to internet. 
 
-1. create network for cfos and application pod to attach 
+* create network for cfos and application pod to attach 
 
 Create a new default network  for CFOS pod and other application POD that want use CFOS for egress policy. We do not touch existing cluster default network. 
 so the default cluster network behavior will be changed. this make sure the deploy cFOS into cluster is seamless. 
 
 
-1. create a new cluster default network
+* create a new cluster default network
 
 assume cluster already have flannel CNI installed, we can create default cluster network which use flannel CNI. the flannl CNI by default will delegate to bridge CNI and use flannel it's own IPAM mechnism. if you want, you can use mac cni like macvlan or ipvlan etc for flannel to delegate, meanwhile, flannel also allow use other IPAM plugins like whereabouts. 
 
@@ -66,9 +67,9 @@ spec:
 
 EOF 
 
-2. dataplane traffic network 
+* dataplane traffic network 
 
-we create another network for IP traffic between application POD and CFOS POD. in this example, we use bridge CNI . 
+Create another network for IP traffic between application POD and CFOS POD. in this example, we use bridge CNI . 
 since bridge CNI is host local, therefore we can reuse same IP subnet on each worker node.
 
 cat EOF << |  kubectl create  -f
@@ -103,7 +104,7 @@ EOF
 application POD that attached to this network will be installed two route that configured in ipam section. the 10.96.0.0/12 is the network for cluter Service IP,
 while 10.0.0.2 is the AWS DNS address (when AWS VPC CIDR is 10.0.0.0/16). 10.1.128.1 is the address of cni5 interface on host network. 
 
-3. deploy cFOS daemonSet.
+* deploy cFOS daemonSet.
 
 We deploy cFOS as daemonSet, so each worker node will create a CFOS POD, each CFOS use same ip address , cFOS will use local worker node to reach internet. 
 
@@ -263,7 +264,7 @@ cFOS will require "NET_ADMIN" , "SYS_ADMIN" , and "NET_RAW" capabilities to enab
 cFOS can read configmap to get license , and firewall policy, dns config, static router config etc.,
 
 
-config cfos via configmap 
+* config cfos via configmap 
 
 firewall policy 
 cat <<EOF  |  kubectl create apply -f 
@@ -320,7 +321,7 @@ data:
 EOF 
 
 
-4 deploy application POD.
+-  deploy application POD.
 
 we deploy demo application that want use cFOS for egress policy enforcement. the application will config an default route to send all traffic cFOS POD. the default route is come from the annotation. below application POD will have default route point to 10.1.128.2 which is CFOS net1 interface address. 
 it will also get a default route from default network, but will be overrided by default route from secondary network.
@@ -361,7 +362,7 @@ spec:
 
 EOF 
 
-5. check the deployment result 
+- check the deployment result 
 ubuntu@ip-10-0-1-100:~$ kubectl get pod -o wide
 NAME                                      READY   STATUS    RESTARTS   AGE     IP            NODE            NOMINATED NODE   READINESS GATES
 fos-deployment-chqxj                      1/1     Running   0          98s     10.244.2.20   ip-10-0-2-201   <none>           <none>
@@ -428,7 +429,7 @@ IPs:
 
 
 
-check the application pod routing table 
+* check the application pod routing table 
 
 ubuntu@ip-10-0-1-100:~$ kubectl exec -it po/multitool01-deployment-748ff87bfb-5sn2r -- ip r
 default via 10.1.128.2 dev net1
@@ -439,7 +440,7 @@ default via 10.1.128.2 dev net1
 10.244.1.0/24 dev eth0 proto kernel scope link src 10.244.1.19
 
 
-check the application whether able to reach internet
+*  check the application whether able to reach internet
 
 ubuntu@ip-10-0-1-100:~$ kubectl exec -it po/multitool01-deployment-748ff87bfb-5sn2r -- ping 1.1.1.1
 PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
