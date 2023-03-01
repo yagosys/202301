@@ -1,5 +1,3 @@
-```
-
 - what is cfos 
 Cfos is container version of fortios. it meet the oci standard, so can be run under docker, containered, and crio runtime.
 
@@ -37,6 +35,7 @@ so the default cluster network behavior will be changed. this make sure the depl
 
 assume cluster already have flannel CNI installed, we can create default cluster network which use flannel CNI. the flannl CNI by default will delegate to bridge CNI and use flannel it's own IPAM mechnism. if you want, you can use mac cni like macvlan or ipvlan etc for flannel to delegate, meanwhile, flannel also allow use other IPAM plugins like whereabouts. 
 
+```
 cat EOF << |  kubectl apply -f 
 ---
 apiVersion: "k8s.cni.cncf.io/v1"
@@ -66,12 +65,13 @@ spec:
             ]
 
 EOF 
+```
 
 * dataplane traffic network 
 
 Create another network for IP traffic between application POD and CFOS POD. in this example, we use bridge CNI . 
 since bridge CNI is host local, therefore we can reuse same IP subnet on each worker node.
-
+```
 cat EOF << |  kubectl create  -f
 ---
 apiVersion: k8s.cni.cncf.io/v1
@@ -101,6 +101,8 @@ spec:
     }
 EOF
 
+```
+
 application POD that attached to this network will be installed two route that configured in ipam section. the 10.96.0.0/12 is the network for cluter Service IP,
 while 10.0.0.2 is the AWS DNS address (when AWS VPC CIDR is 10.0.0.0/16). 10.1.128.1 is the address of cni5 interface on host network. 
 
@@ -114,6 +116,7 @@ cfos also need least-privilege to read the configmap from cluster and image pull
 
 cfos restful interface port 80 is also exposed to cluster via clusterip service. you can also expose cfos ipsec service to external world if needed. 
 
+```
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -254,6 +257,8 @@ spec:
         persistentVolumeClaim:
           claimName: cfosdata
 
+```
+
 some notes about yaml spec : 
 
 kind: DaemonSet
@@ -266,6 +271,7 @@ cFOS can read configmap to get license , and firewall policy, dns config, static
 
 * config cfos via configmap 
 
+```
 firewall policy 
 cat <<EOF  |  kubectl create apply -f 
 ---
@@ -299,8 +305,10 @@ data:
 
 EOF 
 
+```
 dns config 
 
+```
 cat <<EOF | kubectl create apply -f 
 ---
 apiVersion: v1
@@ -320,7 +328,7 @@ data:
 
 EOF 
 
-
+```
 -  deploy application POD.
 
 we deploy demo application that want use cFOS for egress policy enforcement. the application will config an default route to send all traffic cFOS POD. the default route is come from the annotation. below application POD will have default route point to 10.1.128.2 which is CFOS net1 interface address. 
@@ -328,6 +336,7 @@ it will also get a default route from default network, but will be overrided by 
 
 if you do not want add default route to POD, you can also consider use VRF or SBR etc CNI to select required traffic to cFOS POD. 
  
+```
 cat <<EOF | kubectl create -f 
 ---
 apiVersion: apps/v1
@@ -361,8 +370,10 @@ spec:
             privileged: true
 
 EOF 
+```
 
 - check the deployment result 
+```
 ubuntu@ip-10-0-1-100:~$ kubectl get pod -o wide
 NAME                                      READY   STATUS    RESTARTS   AGE     IP            NODE            NOMINATED NODE   READINESS GATES
 fos-deployment-chqxj                      1/1     Running   0          98s     10.244.2.20   ip-10-0-2-201   <none>           <none>
@@ -371,13 +382,13 @@ multitool01-deployment-748ff87bfb-5sn2r   1/1     Running   0          8s      1
 multitool01-deployment-748ff87bfb-cjrbn   1/1     Running   0          102s    10.244.2.19   ip-10-0-2-201   <none>           <none>
 multitool01-deployment-748ff87bfb-cnf7t   1/1     Running   0          99s     10.244.1.18   ip-10-0-2-200   <none>           <none>
 multitool01-deployment-748ff87bfb-n958n   1/1     Running   0          8s      10.244.2.21   ip-10-0-2-201   <none>           <none>
-
+```
 
 cfos have POD on each worker node, while multitool application pod have 2 on each worker node as the replcias: 4. this kubectl command, we will only able to show the default network IP which is from flannel. but not the secondary ip. 
 
 
 to check secondary address use
-
+```
 ubuntu@ip-10-0-1-100:~$ kubectl exec -it po/fos-deployment-chqxj -- ip --br a
 lo               UNKNOWN        127.0.0.1/8 ::1/128
 eth0@if14        UP             10.244.2.20/24 fe80::bc7b:88ff:fea2:567f/64
@@ -387,9 +398,9 @@ lo               UNKNOWN        127.0.0.1/8 ::1/128
 eth0@if12        UP             10.244.1.17/24 fe80::e0e5:1dff:fe6f:ba6b/64
 net1@if13        UP             10.1.128.2/24 fe80::c8fe:c0ff:feff:2/64
 ubuntu@ip-10-0-1-100:~$
-
+```
 or use  kubectl describe po/fos-deployment-chqxj to check the annotations field
-
+```
 Annotations:      k8s.v1.cni.cncf.io/network-status:
                     [{
                         "name": "kube-system/br-default-flannel",
@@ -428,9 +439,9 @@ IPs:
   IP:           10.244.2.20
 
 
-
+```
 * check the application pod routing table 
-
+```
 ubuntu@ip-10-0-1-100:~$ kubectl exec -it po/multitool01-deployment-748ff87bfb-5sn2r -- ip r
 default via 10.1.128.2 dev net1
 10.0.0.2 via 10.1.128.1 dev net1
@@ -438,18 +449,15 @@ default via 10.1.128.2 dev net1
 10.96.0.0/12 via 10.1.128.1 dev net1
 10.244.0.0/16 via 10.244.1.1 dev eth0
 10.244.1.0/24 dev eth0 proto kernel scope link src 10.244.1.19
-
+```
 
 *  check the application whether able to reach internet
-
+```
 ubuntu@ip-10-0-1-100:~$ kubectl exec -it po/multitool01-deployment-748ff87bfb-5sn2r -- ping 1.1.1.1
 PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
 64 bytes from 1.1.1.1: icmp_seq=1 ttl=48 time=2.55 ms
-^C
 --- 1.1.1.1 ping statistics ---
 1 packets transmitted, 1 received, 0% packet loss, time 0ms
 rtt min/avg/max/mdev = 2.548/2.548/2.548/0.000 ms
-
-
 
 ```
