@@ -55,6 +55,8 @@ FOS Container #
 ```
 - config firewall policy
 
+```
+
 FOS Container # config firewall policy
 
 FOS Container (policy) # show
@@ -78,7 +80,6 @@ end
 ```
 - display events log
 
-```
 execute  log filter  device  disk
 FOS Container # execute  log filter  category
 
@@ -100,6 +101,7 @@ FOS Container # execute  log display
 tion=0 sentbyte=0 rcvdbyte=0 sentpkt=0 rcvdpkt=0
 date=2023-02-27 time=02:58:39 eventtime=1677466719 tz="+0000" logid="0000000013" type="traffic" subtype="forward" level="notice" srcip=10.1.128.3 srcport=50234 dstip=89.238.73.97 dstport=443 sessionid=1832333291 proto=6 action="accept" policyid=3 service="HTTPS" trandisp="noop" duration=0 sentbyte=0 rcvdbyte=0 sentpkt=0 rcvdpkt=0 srcintf="net1" dstintf="eth0" utmaction="block"
 date=2023-02-27 time=02:58:39 eventtime=1677466719 tz="+0000" logid="0000000013" type="traffic" subtype="forward" level="notice" srcip=10.1.128.4 srcport=48242 dstip=89.238.73.97 dstport=443 sessionid=4210933913 proto=6 action="accept" policyid=3 service="HTTPS" trandisp="noop" duration=0 sentbyte=0 rcvdbyte=0 sentpkt=0 rcvdpkt=0 srcintf="net1" dstintf="eth0" utmaction="block"
+
 ```
 
 
