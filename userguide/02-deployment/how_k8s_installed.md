@@ -1,4 +1,4 @@
-- k8s installation  
+k8s installation  
 the EC2 instance use file user-data-for_master_node.tftpl to do the installation for master node  
 the EC2 instance use file user-data-for_worker_node.tftpl t odo the installation for workernode.  
 
@@ -63,7 +63,7 @@ sudo crictl pull ghcr.io/k8snetworkplumbingwg/multus-cni:stable
 meanwhile, the installation log also saved to file /var/log/user-data.log   
 
 4. the kuberadm generate a token that will not expire. so workernode can always use this token to join master. 
-if you do not want a never expired token (--token-ttl-0) , you can change it.  
+if you do not want a never expired token (--token-ttl-0) , you can change it in kubeadm init command.  
 ```
 sudo kubeadm init --cri-socket=unix:///var/run/crio/crio.sock --apiserver-advertise-address=$IPADDR  --apiserver-cert-extra-sans=$IPADDR  --service-cidr=$SERVICE_CIDR --pod-network-cidr=$POD_CIDR --node-name $NODENAME  --token-ttl=0 -v=5  
 ```
