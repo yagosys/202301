@@ -25,10 +25,10 @@ dockerinterbeing="/Users/ubuntu/dockerinterbeing.yaml"
 
 *notes:*  
 *instance_type*  
-select instancetype that match your image architecture.
+select instancetype that match your image architecture.  
 *worker_count*  
-number for k8s worker node, each worker node corresponding to one EC2 instance
-if worker_count =0, then no worker_node will be installed, the master node will be used to create POD. also flannel will not be installed.
+number for k8s worker node, each worker node corresponding to one EC2 instance  
+if worker_count =0, then no worker_node will be installed, the master node will be used to create POD. also flannel will not be installed.  
 
 - deploy
 
