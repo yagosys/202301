@@ -1,4 +1,4 @@
-git clone the code
+- git clone the code
 
 ```
 git clone https://github.com/yagosys/202301.git
@@ -23,10 +23,16 @@ key_location="~/.ssh/id_ed25519cfoslab"
 dockerinterbeing="/Users/ubuntu/dockerinterbeing.yaml"
 ```
 
+notes:
 instance_type 
-select instancetype that with sriov enabled if you want high performance
+select instancetype that match your image architecture.
 worker_count
 number for k8s worker node, each worker node corresponding to one EC2 instance
+if worker_count =0, then no worker_node will be installed, the master node will be used to create POD. also flannel will not be installed.
 
+- deploy
 
-
+```
+cd ./deployment/k8s
+terraform apply
+```
