@@ -2,13 +2,12 @@
 the EC2 instance use file user-data-for_master_node.tftpl to do the installation for master node  
 the EC2 instance use file user-data-for_worker_node.tftpl t odo the installation for workernode.  
 
-linux : ubuntu 22.04
-swap off
+linux   
+-  ubuntu 22.04
+-  swap off
 
-export OS=xUbuntu_22.04
-export CRIO_VERSION=1.25
 
-- tool installed
+tool installed
 
 - linux-modules-extra
 - cri-o cri-o-runc cri-tools
@@ -56,16 +55,18 @@ sudo curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo tee
 2. due to some region image download is slow. therefore. the script will use crictl pull to download image before start deploy the yaml file that use image.   
 
 for example 
+```
 sudo crictl pull ghcr.io/k8snetworkplumbingwg/multus-cni:stable  
+```
 
 3. the terraform installation log has redirected to the cloud console. access ec2 instance console will able to see it.
 meanwhile, the installation log also saved to file /var/log/user-data.log   
 
 4. the kuberadm generate a token that will not expire. so workernode can always use this token to join master. 
 if you do not want a never expired token (--token-ttl-0) , you can change it.  
-
+```
 sudo kubeadm init --cri-socket=unix:///var/run/crio/crio.sock --apiserver-advertise-address=$IPADDR  --apiserver-cert-extra-sans=$IPADDR  --service-cidr=$SERVICE_CIDR --pod-network-cidr=$POD_CIDR --node-name $NODENAME  --token-ttl=0 -v=5  
-
+```
 5. the kubeAPI is listen on default port ec2 instance private IP:6443 port. the kubectl client config is under ~/.kube/config 
 you have to ssh into master node to access the cluster API.   
 
