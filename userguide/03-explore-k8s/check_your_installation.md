@@ -145,5 +145,18 @@ kube-flannel-ds-jwrrz   1/1     Running   0          10h   10.0.2.200   ip-10-0-
 ```
 
 
+check the installed configmap for cfos
+```
+ubuntu@ip-10-0-1-100:/var/log$ kubectl get cm fos-license
+NAME          DATA   AGE
+fos-license   1      3d7h
+```
+
+check the installed dockerpull secret
+```
+ubuntu@ip-10-0-1-100:/var/log$ kubectl get secret dockerinterbeing
+NAME               TYPE                             DATA   AGE
+dockerinterbeing   kubernetes.io/dockerconfigjson   1      3d7h
+```
 
 
