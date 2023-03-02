@@ -1,6 +1,9 @@
-1. check public IP of each node. 
+if the deployment is not sucessful, you may need go to aws console to check what actually installed. 
+if the deployment is sucessful. it shall give you the ip address of deployed instance. 
 
-you can use terraform output to reveal the ip address of all node. alternatively , you can use aws console to see it
+you also see retrive the IP address later with command 
+
+
 ```
 terraform output
 instance_public_ip = "13.212.24.193"
@@ -10,25 +13,26 @@ workernode_instance_public_ip = [
 ]
 ```
 
-2. ssh into the master node
+
+ssh into the master node
 
 ```
  ssh -i ~/.ssh/id_ed25519cfoslab ubuntu@13.212.24.193
 
 ```
-3. check your kubernetes installation 
+check your kubernetes installation 
 
-3.1 check k8s node
+- check k8s node
 ```
 ubuntu@ip-10-0-1-100:~$ kubectl get node
 NAME            STATUS   ROLES           AGE   VERSION
 ip-10-0-2-200   Ready    worker          10h   v1.26.1
 ip-10-0-2-201   Ready    worker          10h   v1.26.1
 ip1001100       Ready    control-plane   10h   v1.26.1
-```
 "Ready" means the node is working properly.
 ```
-3.2 check cluster information
+
+- check cluster information
 
 ```
 ubuntu@ip-10-0-1-100:~$ kubectl cluster-info
@@ -38,11 +42,9 @@ CoreDNS is running at https://10.0.1.100:6443/api/v1/namespaces/kube-system/serv
 To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
 ```
 
-the kubeAPI is listening on 10.0.1.100:6443 , the DNS by default is CoreDNS 
+*the kubeAPI is listening on 10.0.1.100:6443 , the DNS by default is CoreDNS*.    
 
-
-```
-3.2 check cluster information
+check cluster information
 
 ```
 ubuntu@ip-10-0-1-100:~$ kubectl cluster-info
@@ -51,9 +53,9 @@ CoreDNS is running at https://10.0.1.100:6443/api/v1/namespaces/kube-system/serv
 
 To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
 ```
-the kubeAPI is listening on 10.0.1.100:6443 , the DNS by default is CoreDNS 
+*the kubeAPI is listening on 10.0.1.100:6443 , the DNS by default is CoreDNS*.  
 
-the API server and DNS is providing service for POD. use command to check
+the kubeAPI service  and DNS is providing essential service for POD. use command to check
 
 ```
 ubuntu@ip-10-0-1-100:~$ kubectl get svc kubernetes
@@ -65,6 +67,7 @@ NAME       TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)                  AGE
 kube-dns   ClusterIP   10.96.0.10   <none>        53/UDP,53/TCP,9153/TCP   10h
 ```
 
+verify whether the coredns is working 
 ```
 ubuntu@ip-10-0-1-100:~$ dig @10.96.0.10 www.fortinet.com  | grep "ANSWER SECTION" -A 2
 ;; ANSWER SECTION:
@@ -73,7 +76,7 @@ fortinet.96983.fortiwebcloud.net. 30 IN CNAME   lb-2.ap-southeast-1.prod.aws.waa
 ```
 those are essential service that needed by other POD, for example, cfos will use 10.96.0.1 to read configmap. 
 
-3.2 check pod status
+check pod status
 ```
 ubuntu@ip-10-0-1-100:~$ kubectl get pod -o wide -n kube-system
 NAME                                READY   STATUS    RESTARTS   AGE   IP           NODE            NOMINATED NODE   READINESS GATES
@@ -94,7 +97,7 @@ whereabouts-wgws4                   1/1     Running   0          10h   10.0.1.10
 whereabouts-x6qv4                   1/1     Running   0          10h   10.0.2.200   ip-10-0-2-200   <none>           <none>
 ```
 
-above show coredns POD on master node,  mutlus node and whereabout pod is on all node. the kube-apiserver , kube-controller-manager, kube-scheduler is on master node. kube-proxy is also on all node. 
+*above show coredns POD on master node,  mutlus node and whereabout pod is on all node. the kube-apiserver , kube-controller-manager, kube-scheduler is on master node. kube-proxy is also on all node.*   
 
 the kubelet is directly running as systemd serivice in each node. 
 
@@ -116,9 +119,8 @@ ubuntu@ip-10-0-1-100:~$ systemctl status kubelet
 ubuntu@ip-10-0-1-100:~$
 ```
 
-```
 the container runtime crio is also running directly as systemd service 
-
+```
 ubuntu@ip-10-0-1-100:~$ systemctl status crio
 ● crio.service - Container Runtime Interface for OCI (CRI-O)
      Loaded: loaded (/lib/systemd/system/crio.service; enabled; vendor preset: enabled)
@@ -132,7 +134,7 @@ ubuntu@ip-10-0-1-100:~$ systemctl status crio
              └─12863 /usr/bin/crio
 ```
 
-the flannel running on kube-flannel namespace
+the flannel is  running on kube-flannel namespace
 
 ```
 ubuntu@ip-10-0-1-100:~$ kubectl get pod -n kube-flannel -o wide
