@@ -2,7 +2,7 @@
 
 ```
 "FOS_X64_DOCKER-v7-build0232-FORTINET.tar.gz" 
-``
+```
 - create image from cFOS firmware 
 cFOS firmware is  a tar archive that contains all the layers and metadata required to recreate the image. You can  use the docker load command to load that tar archive back into Docker, which recreates the image on your system. 
 
@@ -15,7 +15,9 @@ below is an example tag it with my docker.io account and repository (fos). the v
 
 ```
 docker tag fos:latest interbeing/fos:X64v7build0232
+
 ```
+
 -  push image to my private repository
 
 ```
