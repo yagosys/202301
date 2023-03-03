@@ -2,6 +2,8 @@
 
 sudo gpg --keyserver keyserver.ubuntu.com --recv-keys B53DC80D13EDEF05
 
+echo "nameserver 8.8.8.8" | sudo tee -a /etc/resolv.conf > /dev/null
+
 function aptgetupdate {
     while true; do
          sudo apt-get update -y
@@ -16,8 +18,8 @@ export DEBIAN_FRONTEND=noninteractive
 exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
 
 aptgetupdate
-sudo apt-get install linux-modules-extra-`uname -r` -y 
-sudo modprobe vrf
+#sudo apt-get install linux-modules-extra-`uname -r` -y 
+#sudo modprobe vrf
 
 #disable swap
 sudo swapoff -a
@@ -119,6 +121,8 @@ IPADDR=$local_ip
 NODENAME=`hostname | tr -d '-'`
 #POD_CIDR="10.244.0.0/16"
 POD_CIDR="${POD_CIDR}"
+
+echo $IPADDR $NODENAME  | sudo tee -a  /etc/hosts 
 
 sudo chmod 0600 /home/ubuntu/.ssh/id_ed25519
 sudo -u ubuntu scp -i /home/ubuntu/.ssh/id_ed25519  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null 10.0.1.100:workloadtojoin.sh /home/ubuntu/workloadtojoin.sh
