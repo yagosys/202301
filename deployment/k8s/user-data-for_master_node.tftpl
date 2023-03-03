@@ -1,5 +1,6 @@
 #!/bin/bash -xe
 MAX_ATTEMPTS=5
+echo "nameserver 8.8.8.8" | sudo tee -a /etc/resolv.conf > /dev/null
 
 function aptgetupdate {
     while true; do
@@ -21,8 +22,8 @@ sudo cp /home/ubuntu/202301/deployment/k8s/kubernetes-archive-keyring.gpg /etc/a
 
 sudo gpg --keyserver keyserver.ubuntu.com --recv-keys B53DC80D13EDEF05
 aptgetupdate
-sudo apt-get install linux-modules-extra-`uname -r` -y 
-sudo modprobe vrf
+#sudo apt-get install linux-modules-extra-`uname -r` -y 
+#sudo modprobe vrf
 
 #disable swap
 sudo swapoff -a
@@ -132,7 +133,8 @@ NODENAME=`hostname | tr -d '-'`
 POD_CIDR="${POD_CIDR}"
 SERVICE_CIDR="${SERVICE_CIDR}"
 
-echo $NODENAME $IPADDR | sudo tee -a  /etc/hosts 
+#echo $NODENAME $IPADDR | sudo tee -a  /etc/hosts 
+echo $IPADDR $NODENAME  | sudo tee -a  /etc/hosts
 
 sudo kubeadm init --cri-socket=unix:///var/run/crio/crio.sock --apiserver-advertise-address=$IPADDR  --apiserver-cert-extra-sans=$IPADDR  --service-cidr=$SERVICE_CIDR --pod-network-cidr=$POD_CIDR --node-name $NODENAME  --token-ttl=0 -v=5
 
