@@ -1,0 +1,24 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sEgressNetworkPolicyToCfosUtmPolicy
+metadata:
+  name: cfosnetworkpolicy
+spec:
+  enforcementAction: deny
+  match:
+    kinds:
+      - apiGroups: ["networking.k8s.io"]
+        kinds: ["NetworkPolicy"]
+  parameters:  
+    firewalladdressapiurl : "http://10.100.233.36/api/v2/cmdb/firewall/address"
+    firewallpolicyapiurl : "http://10.100.233.36/api/v2/cmdb/firewall/policy"
+    message: "deny any any"
+    podcidr: "10.85.0.0/16"
+    label: "cfosegressfirewallpolicy"
+    outgoingport: "eth0"
+    utmstatus: "enable"
+    ipsprofile: "default"
+    avprofile: "default"
+    sslsshprofile: "deep-inspection"
+    action: "permit"
+    srcintf: "any"
+

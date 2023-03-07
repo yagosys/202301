@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: test
+  labels:
+    app: cfosegressfirewallpolicy
+spec:
+  podSelector:
+    matchLabels:
+      app: database
+  egress:
+  - to:
+    - ipBlock:
+        cidr: 200.0.0.0/24
+    ports:
+    - protocol: TCP
+      port: 443
+    - protocol: TCP
+      port: 80
+    - protocol: UDP
+      port: 53
