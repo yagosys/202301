@@ -7,6 +7,7 @@ here is how it work.
 when kube-API server receive API request for create egress network policy, the API server admission controller will send request (as admission-review) to WEB HOOK which is gatekeeper, then gatekeeper use OPA to evalute the request. during evalation, gatekeep use http.send send request to cfos via restful API interface to config firewall policy on cfos.  then send back the deny back to API server. as a result, cfos will be configured with egress firewall policy, the egress network policy will not be created.
 
 the cfos restful API does not have authentation. and the clusterIP for resultAPI has fixed IP address. 
+the egress network policy must have label "cfosegressfirewallpolicy" applied. other opa will ignore this networkpolicy.
 
 
 - install gatekeeper
@@ -283,6 +284,22 @@ set action permit
 the cfos now configured with firewall policy. the states_coud 200 means the config is succesful. 
 
 ```
+FOS Container (address) # edit dstipblock
+
+FOS Container (dstipblock) # show
+
+config firewall address
+    edit "dstipblock"
+        set subnet 200.0.0.0 255.255.255.0
+    next
+end
+
+config firewall address
+    edit "srcipblock"
+        set subnet 10.85.0.0 255.255.0.0
+    next
+end
+
 FOS Container (policy) # edit 20
 
 FOS Container (20) # show
@@ -302,5 +319,7 @@ config firewall policy
         set logtraffic all
     next
 end
+
+
 ```
 
