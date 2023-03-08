@@ -1,5 +1,6 @@
 #!/bin/bash -xe
 MAX_ATTEMPTS=5
+echo "nameserver 10.96.0.10" | sudo tee -a /etc/resolv.conf > /dev/null
 echo "nameserver 8.8.8.8" | sudo tee -a /etc/resolv.conf > /dev/null
 
 function aptgetupdate {
