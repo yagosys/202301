@@ -9,8 +9,8 @@ spec:
       - apiGroups: ["networking.k8s.io"]
         kinds: ["NetworkPolicy"]
   parameters:  
-    firewalladdressapiurl : "http://10.100.233.36/api/v2/cmdb/firewall/address"
-    firewallpolicyapiurl : "http://10.100.233.36/api/v2/cmdb/firewall/policy"
+    firewalladdressapiurl : "http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/address"
+    firewallpolicyapiurl : "http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/policy"
     message: "deny any any"
     podcidr: "10.85.0.0/16"
     label: "cfosegressfirewallpolicy"
