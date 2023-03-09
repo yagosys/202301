@@ -1,13 +1,15 @@
-kubernetes annotation 
+- kubernetes annotation 
 
 kubenetes annotation is a key-value pair and its  a way to attach metadata to object. clients such as tools and library can read this metadata.
 
 ```
 kubectl patch deployment nginx -p '{"spec": {"template":{"metadata":{"annotations":{"k8s.v1.cni.cncf.io/networks":"cfosdefaultcni5"}}}} }'
 deployment.apps/nginx patched
+```
 
-after it patched. the deployment now has a new annotation
+once it patched. the deployment now has a new annotation
 
+```
 ubuntu@ip-10-0-2-200:~/202301/deployment$ kubectl describe deployment nginx
 Name:                   nginx
 Namespace:              default
@@ -48,8 +50,10 @@ Events:
   Normal  ScalingReplicaSet  2m8s   deployment-controller  Scaled up replica set nginx-6dc6dbcbf to 2 from 1
   Normal  ScalingReplicaSet  2m4s   deployment-controller  Scaled down replica set nginx-7d9879b9b5 to 0 from 1
 
+```
 also the pod will now have a new nic with ip address according the annotations
 
+```
 ubuntu@ip-10-0-2-200:~/202301/deployment$ kubectl describe po/nginx-6dc6dbcbf-m6wpk  | head -n 27
 Name:             nginx-6dc6dbcbf-m6wpk
 Namespace:        default
@@ -105,6 +109,38 @@ DESCRIPTION:
      NetworkAttachmentDefinition config is a JSON-formatted CNI configuration
 ```
 
-with this information,you can get the conclude that if I have some syntax error in the json-formatted CNI configuration. the kube-API server will not complain it, it will still create a CR (custome resource) for you. however, the CNI plugin will complain the error message.
+with this information,you can get the hint that if I have some syntax error in the json-formatted CNI configuration. the kube-API server will not complain it, it will still create a CR (custome resource) for you. however, the CNI plugin will complain the error message.
 
+
+- list pod from selected node
+```
+kubectl get pods -l app=fos --field-selector spec.nodeName=ip-10-0-2-201
+```
+
+- scale out the deployment 
+```
+ubuntu@ip-10-0-1-100:~/202301$ kubectl scale deployment multitool01-deployment --replicas=10
+deployment.apps/multitool01-deployment scaled
+
+```
+- check the status of deployment
+
+```
+ubuntu@ip-10-0-1-100:~/202301$ kubectl rollout status deployment multitool01-deployment
+deployment "multitool01-deployment" successfully rolled out
+ubuntu@ip-10-0-1-100:~/202301$
+```
+
+- check the status of daemonSet
+
+```
+ubuntu@ip-10-0-1-100:~/202301$ kubectl rollout status ds fos-deployment
+daemon set "fos-deployment" successfully rolled out
+ubuntu@ip-10-0-1-100:~/202301$
+```
+- untaint a master node
+
+```
+ kubectl  taint nodes --all node-role.kubernetes.io/control-plane-
+```
 

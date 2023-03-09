@@ -106,4 +106,8 @@ date=2023-02-27 time=02:58:39 eventtime=1677466719 tz="+0000" logid="0000000013"
 
 ```
 
+- exit cfos to shell
 
+```
+FOS Container #  sysctl  sh
+```

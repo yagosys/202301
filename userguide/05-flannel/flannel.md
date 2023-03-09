@@ -1,4 +1,6 @@
+- what is flannel CNI 
 flannel is a cluster-wide cni which can provide network solution for cross node communication.
+
 POD in each node use different CIDR then POD on other node in same cluster. when traffic leave node to other node, flannel by default will use vxlan to encapsuation the original POD IP and tunnel to other node.  by default. flannel use vxlan id 1 for tunnel. flannel.1 is the default gateway interface on each node.
 
 flannel by default use 10.244.0.0/16 to assign IP address to POD. flannel handle ip address assignment on it's own, so use flannel with other IPAM like host-local or whereabouts is not necessary.
@@ -17,10 +19,10 @@ the default bridge name is cni0, pod in same node can communicate with this brid
 pod on node 1 ---veth ----bridge ----cri0---flannel1.1 ----layer 3 -----flannel1.1----cri0----bridge---veth --- pod on node2
 
 
+- install flannel 
 
-1. install flannel
 
-2. check flannel installation 
+check flannel installation 
 
 ```
 ubuntu@ip-10-0-1-100:~/202301/north-test/2023220/cfos_demo_bridge_egress$ kubectl get ds kube-flannel-ds -n kube-flannel

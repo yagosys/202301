@@ -1,12 +1,14 @@
-1. crio container runtime
+- crio container runtime
 the installed container runtime is crio. crio is the high level container runtime which offer cri interface.
-the crio by default use socket to communicate with other components, the unix socket address of crio is unix:///var/run/crio/crio.sock
+the crio by default use unix socket to communicate with other components, the unix socket address of crio is unix:///var/run/crio/crio.sock
 
 when kubeadm doing init, use --cri-socket to specifc the crio socket. in case you have multiple container runtime running, you need to specify one.
 
-sudo kubeadm init --cri-socket=unix:///var/run/crio/crio.sock
 
-2.
+```
+sudo kubeadm init --cri-socket=unix:///var/run/crio/crio.sock
+```
+
 CRI-O is an open-source container runtime designed to work specifically with Kubernetes, CRI-O communicates with other Kubernetes components using the Container Runtime Interface (CRI)
 CRIO use CRI interface talk to both kubernetes API server and kubelet.  kubernetes API send POD request to CRI-O, while kubelet actually create the POD.  CRI-O is also managing the CNI plugin.
 runc is low level container runtime, CRIO-O use runc as it's runtime. 
@@ -16,7 +18,7 @@ the configuration of crio by default is under /etc/crio/crio.conf.d . the crio r
 here is a few command that can be used to check the crio status
 
 
-check container default linux capabilities.
+- check container default linux capabilities.
 
 ```
 ubuntu@ip-10-0-1-100:/etc/crio/crio.conf.d$ sudo crio-status config | grep default_capabilities
@@ -25,7 +27,7 @@ ubuntu@ip-10-0-1-100:/etc/crio/crio.conf.d$ sudo crio-status config | grep defau
 above you will see that crio by default does not grant NET_RAW to POD. so by default container will not able to use ping command
 
 
-check crio cni plugin configuration
+- check crio cni plugin configuration
 
 ```
 ubuntu@ip-10-0-1-100:/etc/crio/crio.conf.d$ sudo crio-status config | grep crio.network -A 3
@@ -60,7 +62,7 @@ Feb 27 12:49:27 ip-10-0-1-100 systemd[1]: Started Container Runtime Interface fo
 
 ```
 
-use crictl to manage container image
+- use crictl to manage container image
 
 crictl is client tool that talk to crio, you can use it to pull image and create container etc.,   
 ```
@@ -79,7 +81,7 @@ registry.k8s.io/kube-scheduler             v1.26.1             655493523f607    
 registry.k8s.io/pause                      3.6                 6270bb605e12e       690kB
 registry.k8s.io/pause                      3.9                 e6f1816883972       750kB
 ```
-to pull image from registry. you command
+to pull image from registry. use command
 
 ```
 ubuntu@ip-10-0-1-100:/etc/cni/net.d$ sudo crictl pull hello-world -D
@@ -122,7 +124,7 @@ docker.io/library/ubuntu                   latest              58db3edaf2be6    
 ```
 
 
-how to list a containers detail information with crictl 
+- list a containers detail information with crictl 
 
 get a running container id use crictl command, assume the container has name "fos"
 ```
@@ -213,7 +215,9 @@ ubuntu@ip-10-0-2-200:~$ sudo crictl inspect d66f513db6fa5 | jq .info.runtimeSpec
 ]
 
 ```
-enter a container's namespace , for example, below we enter cfos all linux namespace 
+- enter a container's namespace
+
+ for example, below we enter cfos all linux namespace 
 ```
 ubuntu@ip-10-0-2-200:~$ sudo nsenter -a -t `sudo crictl inspect $containerid | jq .info.pid` /bin/sh
 # ip a
@@ -281,7 +285,8 @@ ubuntu@ip-10-0-2-200:~$ sudo nsenter -a -t `sudo crictl inspect $containerid | j
   374 root      4252 R    ps
 #
 
-copy file from host to container
+- copy file from host to container
+
 for example, below will copy tcpdump binary from your host to the targetd container
 
 ```

@@ -42,6 +42,7 @@ ubuntu@ip-10-0-1-100:~/opa$
 - create constraintemplate
 
 ```
+cat << EOF | kubectl apply -f 
 apiVersion: templates.gatekeeper.sh/v1beta1
 kind: ConstraintTemplate
 metadata:
@@ -203,12 +204,14 @@ v\n srcadd:%v\n dstaddr:%v\n firewallpolicy:%v \n} ", [
          ])
         }
 
+EOF 
 ```
 
 - create constraint
 
 
 ```
+cat << EOF | kubectl create -f - 
 apiVersion: constraints.gatekeeper.sh/v1beta1
 kind: K8sEgressNetworkPolicyToCfosUtmPolicy
 metadata:
@@ -232,11 +235,13 @@ spec:
     sslsshprofile: "deep-inspection"
     action: "permit"
     srcintf: "any"
+EOF 
 ```
 
 - create egress networkpolicy for demo
 
 ```
+cat <<EOF | kubectl create -f - 
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -258,6 +263,7 @@ spec:
       port: 80
     - protocol: UDP
       port: 53
+EOF 
 ```
 
 - deploy demo networkpolicy
