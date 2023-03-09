@@ -36,17 +36,22 @@ install  socat conntrack jq apt-transport-https ca-certificates nfs-server
 
 - installcrictl
 
+install 1.25.0 version crictl tool from 
 ```
-install 1.25.0 version crictl tool from https://github.com/kubernetes-sigs/cri-tools/releases/download 
+https://github.com/kubernetes-sigs/cri-tools/releases/download 
+```
 crictl is client tool for crio daemon, crictl pull can pull the image for create container
-```
 
 - install_kubeadm_kubele_kubectl
 
 
-download 1.26.0 version kubeadm, kubelet and kubectl. also download 0.4.0 version configuration file for kubeadm and kubectl from https://dl.k8s.io/release/$RELEASE/bin/linux/$ARCH/{kubeadm,kubelet} and https://raw.githubusercontent.com/kubernetes/release/$RELEASE_VERSION/cmd/kubepkg/templates/latest/deb.  
+download 1.26.0 version kubeadm, kubelet and kubectl. also download 0.4.0 version configuration file for kubeadm and kubectl from 
 ```
+https://dl.k8s.io/release/$RELEASE/bin/linux/$ARCH/{kubeadm,kubelet} 
+https://raw.githubusercontent.com/kubernetes/release/$RELEASE_VERSION/cmd/kubepkg/templates/latest/deb.  
+
 ubuntu@ip-10-0-1-100:/etc/systemd/system/kubelet.service.d$ cat 10-kubeadm.conf
+
 [Service]
 Environment="KUBELET_KUBECONFIG_ARGS=--bootstrap-kubeconfig=/etc/kubernetes/bootstrap-kubelet.conf --kubeconfig=/etc/kubernetes/kubelet.conf"
 Environment="KUBELET_CONFIG_ARGS=--config=/var/lib/kubelet/config.yaml"
@@ -62,6 +67,7 @@ ExecStart=/usr/local/bin/kubelet $KUBELET_KUBECONFIG_ARGS $KUBELET_CONFIG_ARGS $
 
 
 - install_kubernetes
+
 SERVICE_CIDR , POD_CIDR are from terraform variable. k8s is listening on node private ip.
 ```
 sudo kubeadm init --cri-socket=unix:///var/run/crio/crio.sock --apiserver-advertise-address=$IPADDR  --apiserver-cert-extra-sans=$IPADDR  --service-cidr=$SERVICE_CIDR --pod-network-cidr=$POD_CIDR --node-name $NODENAME  --token-ttl=0 -v=5
