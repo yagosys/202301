@@ -33,7 +33,7 @@
 
 # Set the variables
 if [ -f /run/systemd/resolve/resolv.conf ]; then
-  dnsserver=$(grep nameserver /run/systemd/resolve/resolv.conf | awk '{print $2}')
+  dnsserver=$(grep nameserver /run/systemd/resolve/resolv.conf | tail -1 | awk '{print $2}')
 else
   dnsserver=8.8.8.8
 fi
@@ -72,4 +72,4 @@ cat << EOF  | sudo tee "$file"
     }
 }
 EOF
-echo place above under $directory
+echo placed above under $directory
