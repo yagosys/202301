@@ -1,6 +1,6 @@
-region="ap-southeast-1"
+region="ap-east-1"
 instance_type="t3.large" 
-worker_count=0
-cfosLicense="/Users/ubuntu/fos_license.yaml"
+worker_count=2
+cfosLicense="/home/i/fos_license.yaml"
 key_location="~/.ssh/id_ed25519cfoslab"
-dockerinterbeing="/Users/ubuntu/dockerinterbeing.yaml"
+dockerinterbeing="/home/i/dockerinterbeing.yaml"
