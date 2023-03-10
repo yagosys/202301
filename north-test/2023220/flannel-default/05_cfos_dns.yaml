@@ -10,6 +10,6 @@ data:
   type: partial
   config: |-
     config system dns
-      set primary 1.1.1.1
+      set primary 10.96.0.10
       set secondary 10.0.0.2
     end
