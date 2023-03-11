@@ -4,6 +4,7 @@ while :
 do
 
 nodeName="ip-10-0-2-200"
+kubectl rollout status deployment multitool01-deployment 
 cfospod=`kubectl get pods -l app=fos --field-selector spec.nodeName=$nodeName |    cut -d ' ' -f 1 | tail -n -1`
 multpod=`kubectl get pods -l app=multitool01 --field-selector spec.nodeName=$nodeName |   cut -d ' ' -f 1 | tail -n -1`
 
