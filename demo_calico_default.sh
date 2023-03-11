@@ -6,5 +6,5 @@ kubectl rollout status ds/fos-deployment
 kubectl rollout restart ds/fos-deployment
 kubectl rollout status ds/fos-deployment
 kubectl create -f app_calico_ipam_route_sh.yaml
-05_checkcfosreadiness.sh
+./05_checkcfosreadiness.sh
 
