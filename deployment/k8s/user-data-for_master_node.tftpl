@@ -5,7 +5,8 @@ exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
 function install_crio_1_25_0 {
     curl --insecure --retry 3 --retry-connrefused -C - -fLo conmon_2.1.2~0_amd64.deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_22.04/amd64/conmon_2.1.2~0_amd64.deb
     curl --insecure --retry 3 --retry-connrefused -C - -fLo containers-common_1-22_all.deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_22.04/all/containers-common_1-22_all.deb
-    curl --insecure  --retry 3 --retry-connrefused -C - -fLo cri-o_1.25.2~0_amd64.deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/1.25/xUbuntu_22.04/amd64/cri-o_1.25.2~0_amd64.deb
+    #curl --insecure  --retry 3 --retry-connrefused -C - -fLo cri-o_1.25.2~0_amd64.deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/1.25/xUbuntu_22.04/amd64/cri-o_1.25.2~0_amd64.deb
+    wget --no-check-certificate -c https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/1.25/xUbuntu_22.04/amd64/cri-o_1.25.2~0_amd64.deb
     curl --insecure --retry 3 --retry-connrefused -C - -fLo cri-o-runc_1.0.1~2_amd64.deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_22.04/amd64/cri-o-runc_1.0.1~2_amd64.deb
     curl --insecure --retry 3 --retry-connrefused -C - -fLo cri-tools_1.25.0~0_amd64.deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_22.04/amd64/cri-tools_1.25.0~0_amd64.deb
 
@@ -36,10 +37,52 @@ function installcrictl {
     curl  --insecure --retry 3 --retry-connrefused -fL "https://github.com/kubernetes-sigs/cri-tools/releases/download/$CRICTL_VERSION/crictl-$CRICTL_VERSION-linux-$ARCH.tar.gz" | sudo tar -C $DOWNLOAD_DIR -xz
 }
 
+function install_calico_cni_multus_auto {
+	sudo curl --insecure --retry 3 --retry-connrefused -fL https://github.com/projectcalico/calico/releases/latest/download/calicoctl-linux-amd64 -o /usr/local/bin/calicoctl
+	sudo chmod +x /usr/local/bin/calicoctl
+
+	curl --insecure --retry 3 --retry-connrefused -fLO https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/tigera-operator.yaml
+	kubectl --kubeconfig /home/ubuntu/.kube/config create -f tigera-operator.yaml 
+	curl --insecure --retry 3 --retry-connrefused -fLO https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/custom-resources.yaml
+	sed -i -e "s?blockSize: 26?blockSize: 24?g" custom-resources.yaml
+	sed -i -e "s?VXLANCrossSubnet?VXLAN?g" custom-resources.yaml
+	sed -i -e "s?192.168.0.0/16?10.244.0.0/16?g" custom-resources.yaml
+	sed -i '/calicoNetwork:/a\    containerIPForwarding: Enabled ' custom-resources.yaml 
+	sed -i '/calicoNetwork:/a\    bgp: Disabled ' custom-resources.yaml
+	kubectl --kubeconfig /home/ubuntu/.kube/config create namespace calico-system
+	kubectl --kubeconfig /home/ubuntu/.kube/config apply  -f custom-resources.yaml
+	
+	#watch -g kubectl --kubeconfig /home/ubuntu/.kube/config get namespace calico-system 
+	sleep 30
+	#kubectl --kubeconfig /home/ubuntu/.kube/config rollout status deployment calico-typha -n calico-system 
+	#kubectl --kubeconfig /home/ubuntu/.kube/config rollout status ds calico-node -n calico-system
+	sudo crictl pull ghcr.io/k8snetworkplumbingwg/multus-cni:stable
+        cd /home/ubuntu
+        git clone https://github.com/intel/multus-cni.git
+        sudo chown ubuntu:ubuntu /home/ubuntu/multus-cni
+	sudo sed -i 's/multus-conf-file=auto/multus-conf-file=\/tmp\/multus-conf\/70-multus.conf/g' /home/ubuntu/multus-cni/deployments/multus-daemonset.yml
+	cat /home/ubuntu/multus-cni/deployments/multus-daemonset.yml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f -
+	#kubectl --kubeconfig /home/ubuntu/.kube/config rollout status ds/kube-multus-ds -n kube-system
+	#rename_70_multus_to_00_multus_conf
+	#kubectl --kubeconfig /home/ubuntu/.kube/config rollout restart ds/kube-multus-ds -n kube-system
+	#kubectl --kubeconfig /home/ubuntu/.kube/config rollout restart deployment coredns -n kube-system
+	#kubectl --kubeconfig /home/ubuntu/.kube/config rollout status deployment coredns -n kube-system
+}
+
+function remove_default_bridge_cni_config {
+
+        cni_file="/etc/cni/net.d/100-crio-bridge.conf"
+        if [ -f "$cni_file" ]; then
+            sudo rm $cni_file
+            echo "remove $cni_file"
+        else
+            echo "$cni_file not exist, do nothing"
+        fi
+}
 
 function install_flannel_if_worker_node_exist_otherwise_untaint_master_node {
         WORKER_COUNT="${WORKER_COUNT}"
-        if [ $WORKER_COUNT  -eq 0 ]
+        if [[ $WORKER_COUNT  -eq 0 ]]
         then
             kubectl --kubeconfig /home/ubuntu/.kube/config taint nodes --all node-role.kubernetes.io/control-plane-
         else
@@ -149,7 +192,7 @@ function aptgetupdate_install_tools {
          sudo apt-get install jq -y
          sudo apt-get install apt-transport-https ca-certificates -y
 	 sudo apt-get install nfs-server -y 
-    if [ $? -eq 0 ]; then
+    if [[ $? -eq 0 ]]; then
       break
     fi
     sleep 5
@@ -157,7 +200,7 @@ function aptgetupdate_install_tools {
 }
 
 function install_gatekeeperv3 {
-    kubectl apply -f https://raw.githubusercontent.com/open-policy-agent/gatekeeper/master/deploy/gatekeeper.yaml
+    kubectl --kubeconfig /home/ubuntu/.kube/config apply -f https://raw.githubusercontent.com/open-policy-agent/gatekeeper/master/deploy/gatekeeper.yaml
 }
 
 function git_clone_cfos_script {
@@ -209,7 +252,7 @@ function install_multus_cni_if_worker_node_exist {
  git clone https://github.com/intel/multus-cni.git
  sudo chown ubuntu:ubuntu /home/ubuntu/multus-cni
 
-    if [ $WORKER_COUNT  -eq 0 ]
+    if [[ $WORKER_COUNT  -eq 0 ]]
     then
             echo 'use multus default where multus configuration will be auto generatd'
     else
@@ -222,7 +265,7 @@ function install_multus_cni_if_worker_node_exist {
  kubectl --kubeconfig /home/ubuntu/.kube/config rollout status ds/kube-multus-ds -n kube-system
 
 
-    if [ $WORKER_COUNT  -eq 0 ]
+    if [[ $WORKER_COUNT  -eq 0 ]]
     then
             echo ''
     else
@@ -235,6 +278,12 @@ function install_multus_cni_if_worker_node_exist {
     fi
 }
 
+function untaintmasternode {
+	if [[ $WORKER_COUNT -eq 0 ]] 
+	then 
+	kubectl --kubeconfig /home/ubuntu/.kube/config taint nodes --all node-role.kubernetes.io/control-plane-
+	fi 
+}
 
 function install_docker_secret_and_cfos_license {
     cat /home/ubuntu/.dockerinterbeing.yaml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f -
@@ -248,7 +297,7 @@ function install_docker_secret_and_cfos_license {
 
 
 function function_restart_coredns_deployment_after_install_multus () {
-        if [ $WORKER_COUNT  -eq 0 ]
+        if [[ $WORKER_COUNT  -eq 0 ]]
         then
           kubectl --kubeconfig /home/ubuntu/.kube/config get pod -A -o wide
         else
@@ -296,7 +345,10 @@ fi
 
 function create_token_for_worker_to_join {
 grep --text discovery-token-ca-cert /var/log/user-data.log -B 1 | head -n 2 | tr -d '\n' | tr -d '\\' > /home/ubuntu/workloadtojoin.sh
+kubeadm config print join-defaults  > /home/ubuntu/kubeadm-join.default.yaml
+echo '#kubeadm join --config kubeadm-join.default.yaml' | sudo tee -a  /home/ubuntu/workloadtojoin.sh
 chmod +x /home/ubuntu/workloadtojoin.sh
+
 }
 
 function enable_nfs_server_master {
@@ -331,21 +383,49 @@ install_kubeadm_kubele_kubectl
 
 install_kubernetes
 
+remove_default_bridge_cni_config 
+
 install_whereabouts_plugin
 
-install_flannel_if_worker_node_exist_otherwise_untaint_master_node
 
-install_multus_cni_if_worker_node_exist
+CNINAME="${CNI}"
+case $CNINAME in
+      "flannel")
+     	 install_flannel_if_worker_node_exist_otherwise_untaint_master_node
+         rename_70_multus_to_00_multus_conf
+      	 ;;
+      "calico")
+#	   if [ $WORKER_COUNT  -eq 0 ]
+#	      then 
+              remove_default_bridge_cni_config
+	      install_calico_cni_multus_auto
+#	  fi
+         ;;
+      *)
+     	   echo 'no CNI specified, default bridge CNI will be configured'
+         ;;
+esac
+
+
+MULTUSCNI="${MULTUSCNI}"
+if [ "$MULTUSCNI" = "true" ]
+then
+   install_multus_cni_if_worker_node_exist
+fi 
+
+untaintmasternode 
 
 install_docker_secret_and_cfos_license
 
 create_token_for_worker_to_join 
 
-rename_70_multus_to_00_multus_conf
-
 function_restart_coredns_deployment_after_install_multus
 
-install_gatekeeperv3
+GATEKEEPER="${GATEKEEPER}"
+if [ "$GATEKEEPER" = "true" ]
+then
+   install_gatekeeperv3
+fi 
 
 git_clone_cfos_script
 

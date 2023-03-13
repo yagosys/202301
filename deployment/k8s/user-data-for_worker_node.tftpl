@@ -1,4 +1,38 @@
 #!/bin/bash -xe
+function remove_default_bridge_cni_config {
+   cni_file="/etc/cni/net.d/100-crio-bridge.conf"
+     if [ -f "$cni_file" ]; then
+        sudo rm $cni_file
+        echo "remove $cni_file"
+     else
+        echo "$cni_file not exist, do nothing"
+     fi
+
+}
+
+function install_calico_cni_multus_auto {
+	remove_default_bridge_cni_config 
+        curl --insecure --retry 3 --retry-connrefused -fLO https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/tigera-operator.yaml
+        kubectl --kubeconfig /home/ubuntu/.kube/config create -f tigera-operator.yaml
+        curl --insecure --retry 3 --retry-connrefused -fLO https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/custom-resources.yaml
+        sed -i -e "s?192.168.0.0/16?10.244.0.0/16?g" custom-resources.yaml
+        sed -i '/calicoNetwork:/a\    containerIPForwarding: Enabled ' custom-resources.yaml
+        kubectl --kubeconfig /home/ubuntu/.kube/config create  -f custom-resources.yaml
+
+        watch -g kubectl --kubeconfig /home/ubuntu/.kube/config get namespace calico-system
+        sleep 30
+        kubectl --kubeconfig /home/ubuntu/.kube/config rollout status deployment calico-typha -n calico-system
+        kubectl --kubeconfig /home/ubuntu/.kube/config rollout status ds calico-node -n calico-system
+        sudo crictl pull ghcr.io/k8snetworkplumbingwg/multus-cni:stable
+        cd /home/ubuntu
+        git clone https://github.com/intel/multus-cni.git
+        sudo chown ubuntu:ubuntu /home/ubuntu/multus-cni
+        cat /home/ubuntu/multus-cni/deployments/multus-daemonset.yml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f -
+        kubectl --kubeconfig /home/ubuntu/.kube/config rollout status ds/kube-multus-ds -n kube-system
+        kubectl --kubeconfig /home/ubuntu/.kube/config rollout restart ds/kube-multus-ds -n kube-system
+        kubectl --kubeconfig /home/ubuntu/.kube/config rollout restart deployment coredns -n kube-system
+        kubectl --kubeconfig /home/ubuntu/.kube/config rollout status deployment coredns -n kube-system
+}
 
 sudo gpg --keyserver keyserver.ubuntu.com --recv-keys B53DC80D13EDEF05
 
@@ -45,11 +79,16 @@ systemctl enable --now kubelet
 }
 
 function install_crio_1_25_0 {
-curl --insecure --retry 3 --retry-connrefused -C - -fLo conmon_2.1.2~0_amd64.deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_22.04/amd64/conmon_2.1.2~0_amd64.deb
-curl --insecure --retry 3 --retry-connrefused -C - -fLo containers-common_1-22_all.deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_22.04/all/containers-common_1-22_all.deb
-curl --insecure  --retry 3 --retry-connrefused -C - -fLo cri-o_1.25.2~0_amd64.deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/1.25/xUbuntu_22.04/amd64/cri-o_1.25.2~0_amd64.deb
-curl --insecure --retry 3 --retry-connrefused -C - -fLo cri-o-runc_1.0.1~2_amd64.deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_22.04/amd64/cri-o-runc_1.0.1~2_amd64.deb
-curl --insecure --retry 3 --retry-connrefused -C - -fLo cri-tools_1.25.0~0_amd64.deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_22.04/amd64/cri-tools_1.25.0~0_amd64.deb
+	until contents=$(curl --insecure --retry 3 --retry-connrefused -C - -fLo conmon_2.1.2~0_amd64.deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_22.04/amd64/conmon_2.1.2~0_amd64.deb);do sleep 10;done
+
+	until contents=$(curl --insecure --retry 3 --retry-connrefused -C - -fLo containers-common_1-22_all.deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_22.04/all/containers-common_1-22_all.deb); do sleep 10; done
+
+	until contents=$( curl --insecure  --retry 3 --retry-connrefused -C - -fLo cri-o_1.25.2~0_amd64.deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/1.25/xUbuntu_22.04/amd64/cri-o_1.25.2~0_amd64.deb); do sleep 10; done
+
+	until contents=$(curl --insecure --retry 3 --retry-connrefused -C - -fLo cri-o-runc_1.0.1~2_amd64.deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_22.04/amd64/cri-o-runc_1.0.1~2_amd64.deb); do sleep 10; done
+
+	until contents=$(curl --insecure --retry 3 --retry-connrefused -C - -fLo cri-tools_1.25.0~0_amd64.deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_22.04/amd64/cri-tools_1.25.0~0_amd64.deb); do sleep 10; done
+
 
 sudo dpkg -i conmon_2.1.2~0_amd64.deb
 sudo dpkg -i containers-common_1-22_all.deb
@@ -114,6 +153,7 @@ sudo systemctl enable crio
 aptgetupdate
 
 installcni 
+remove_default_bridge_cni_config
 
 sudo sed -i  's/# network_dir/network_dir/g' /etc/crio/crio.conf
 sudo  sed -i '/# plugin_dirs/{a\
@@ -144,11 +184,11 @@ sudo chmod +x /home/ubuntu/workloadtojoin.sh
 sudo /home/ubuntu/workloadtojoin.sh
 sudo -u ubuntu mkdir /home/ubuntu/.kube
 sudo -u ubuntu scp -i /home/ubuntu/.ssh/id_ed25519  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  10.0.1.100:/home/ubuntu/.kube/config /home/ubuntu/.kube/config
+
 source_file="ubuntu@10.0.1.100:/etc/cni/net.d/00-multus.conf"
-sudo -u ubuntu  scp -i /home/ubuntu/.ssh/id_ed25519  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  $source_file /home/ubuntu/00-multus.conf
-if [ $? -ne 0 ]; then
-  echo "SCP command failed"
-else
+if [ -f $source_file ]
+then
+  sudo -u ubuntu  scp -i /home/ubuntu/.ssh/id_ed25519  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  $source_file /home/ubuntu/00-multus.conf
   sudo mv /home/ubuntu/00-multus.conf /etc/cni/net.d/
   echo "00-multus.conf placed under /etc/cni/net.d"
    cni_file="/etc/cni/net.d/100-crio-bridge.conf"
@@ -158,8 +198,22 @@ else
      else
         echo "$cni_file not exist, do nothing"
      fi
-fi
-#sudo mv /home/ubuntu/00-multus.conf /etc/cni/net.d/00-multus.conf
+fi 
+         #
+         #if [ $? -ne 0 ]; then
+         #  echo "SCP command failed"
+         #else
+         #  sudo mv /home/ubuntu/00-multus.conf /etc/cni/net.d/
+         #  echo "00-multus.conf placed under /etc/cni/net.d"
+         #   cni_file="/etc/cni/net.d/100-crio-bridge.conf"
+         #     if [ -f "$cni_file" ]; then
+         #        sudo rm $cni_file
+         #        echo "remove $cni_file"
+         #     else
+         #        echo "$cni_file not exist, do nothing"
+         #     fi
+         #fi
+         ##sudo mv /home/ubuntu/00-multus.conf /etc/cni/net.d/00-multus.conf
 if ip link show cni0 >/dev/null 2>&1; then
   echo "Deleting interface cni0"
   sudo ip link delete cni0
@@ -167,6 +221,7 @@ else
   echo "Interface cni0 not found"
 fi
 
+#install_calico_cni_multus_auto 
 #sudo kubectl --kubeconfig /home/ubuntu/.kube/config rollout restart ds/kube-multus-ds -n kube-system
 #
 function function_restart_coredns_deployment_after_install_multus () {
