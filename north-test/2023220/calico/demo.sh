@@ -2,6 +2,7 @@
 nodes=("10.0.1.100" "10.0.2.200" "10.0.2.201")
 cidr=("10.244.6" "10.244.97" "10.244.93")
 
+function create_cfos_config {
 cat << EOF | kubectl apply -f - 
 ---
 apiVersion: v1
@@ -141,7 +142,7 @@ data:
     end
 EOF
 
-
+}
 
 function create_multus_conf_directory {
 for node in "${nodes[@]}" ; do
@@ -411,6 +412,7 @@ spec:
 EOF
 }
 
+create_cfos_config
 create_multus_conf_directory 
 create_multus_conf_to_delegate_net_calico 
 create_net_attach_def_net_calico 
