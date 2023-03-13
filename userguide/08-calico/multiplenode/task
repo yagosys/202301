@@ -1,0 +1,294 @@
+- create 00-multus.conf under /etc/cni/net.d which use net-calico as default network
+
+```
+{
+  "name": "multus-cni-network",
+  "type": "multus",
+  "confDir": "/etc/cni/multus/net.d",
+  "cniDir": "/var/lib/cni/multus",
+  "binDir": "/opt/cni/bin",
+  "logFile": "/var/log/multus.log",
+  "logLevel": "info",
+  "capabilities": {
+    "portMappings": true
+  },
+  "clusterNetwork": "net-calico",
+  "defaultNetworks": [],
+  "delegates": [],
+  "kubeconfig": "/etc/cni/net.d/multus.d/multus.kubeconfig"
+}
+```
+
+- create net-calico multus crd with cni config under /etc/cni/multus/net.d as cluster network for applications that do not want route traffic to cfos
+
+*net-calico net-attach-def*
+
+```
+apiVersion: "k8s.cni.cncf.io/v1"
+kind: NetworkAttachmentDefinition
+metadata:
+  name: net-calico
+  namespace: kube-system
+```
+*net-calico cni config on each node*
+
+```
+{
+  "cniVersion": "0.3.1",
+  "name": "net-calico",
+  "type": "calico",
+  "datastore_type": "kubernetes",
+  "mtu": 0,
+  "nodename_file_optional": false,
+  "log_level": "Info",
+  "log_file_path": "/var/log/calico/cni/cni.log",
+  "ipam": {
+    "type": "host-local",
+    "ranges": [
+       [
+         {
+           "subnet": "10.244.6.0/24",
+           "rangeStart": "10.244.6.150",
+           "rangeEnd": "10.244.6.250"
+         }
+       ]
+    ]
+  },
+  "container_settings": {
+      "allow_ip_forwarding": true
+  },
+  "policy": {
+      "type": "k8s"
+  },
+  "kubernetes": {
+      "k8s_api_root":"https://10.96.0.1:443",
+      "kubeconfig": "/etc/cni/net.d/calico-kubeconfig"
+  }
+}
+```
+
+- create cfos-calico multus crd with cni config under /etc/cni/multus/net.d on each node with different pod sub for application that want to route traffic to cfos 
+*multus crd* 
+
+```
+apiVersion: "k8s.cni.cncf.io/v1"
+kind: NetworkAttachmentDefinition
+metadata:
+  name: default-calico
+  namespace: kube-system
+```
+*default-calico cni* under /etc/cni/multus/net.d*
+```
+{
+  "cniVersion": "0.3.1",
+  "name": "default-calico",
+  "type": "calico",
+  "datastore_type": "kubernetes",
+  "mtu": 0,
+  "nodename_file_optional": false,
+  "log_level": "Info",
+  "log_file_path": "/var/log/calico/cni/cni.log",
+  "ipam": {
+    "type": "host-local",
+    "ranges": [
+       [
+         {
+           "subnet": "10.244.6.0/24",
+           "rangeStart": "10.244.6.50",
+           "rangeEnd": "10.244.6.100"
+         }
+       ]
+    ],
+   "routes": [
+      { "dst": "10.96.0.0/12" },
+      { "dst": "10.0.0.0/8" }
+   ]
+  },
+  "container_settings": {
+      "allow_ip_forwarding": true
+  },
+  "policy": {
+      "type": "k8s"
+  },
+  "kubernetes": {
+      "k8s_api_root":"https://10.96.0.1:443",
+      "kubeconfig": "/etc/cni/net.d/calico-kubeconfig"
+  }
+}
+```
+- creaete a pod on default network to verify 
+```
+kubectl create deployment normal --image=praqma/network-multitool --replicas=3
+ubuntu@ip-10-0-1-100:~$ kubectl exec -it po/normal-6965c788cf-s2r2h -- ip r
+default via 169.254.1.1 dev eth0
+169.254.1.1 dev eth0 scope link
+```
+- change pod to use new default network 
+```
+kubectl patch deployment normal  -p '{"spec": {"template":{"metadata":{"annotations":{"v1.multus-cni.io/default-network":"[{\"name\": \"default-calico\"}]"}}}}}'
+ubuntu@ip-10-0-1-100:~$ kubectl exec -it po/normal-7cd6974c5c-t4hfq -- sh
+/ # ip r
+10.0.0.0/8 via 169.254.1.1 dev eth0
+10.96.0.0/12 via 169.254.1.1 dev eth0
+169.254.1.1 dev eth0 scope link
+kubectl describe po/normal-7cd6974c5c-t4hfq
+...
+Name:             normal-7cd6974c5c-t4hfq
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             ip1001100/10.0.1.100
+Start Time:       Mon, 13 Mar 2023 00:18:08 +0000
+Labels:           app=normal
+                  pod-template-hash=7cd6974c5c
+Annotations:      cni.projectcalico.org/containerID: 62d6132c27c7a648ed2a7e9b453969f470b3928232ce9e0059092021bc436bf9
+                  cni.projectcalico.org/podIP: 10.244.6.51/32
+                  cni.projectcalico.org/podIPs: 10.244.6.51/32
+                  k8s.v1.cni.cncf.io/network-status:
+                    [{
+                        "name": "kube-system/default-calico",
+                        "ips": [
+                            "10.244.6.51"
+                        ],
+                        "default": true,
+                        "dns": {}
+                    }]
+                  k8s.v1.cni.cncf.io/networks-status:
+                    [{
+                        "name": "kube-system/default-calico",
+                        "ips": [
+                            "10.244.6.51"
+                        ],
+                        "default": true,
+                        "dns": {}
+                    }]
+                  v1.multus-cni.io/default-network: [{"name": "default-calico"}]
+Status:           Running
+IP:               10.244.6.51
+...
+
+```
+
+
+- create multus secondary network with bridge cni 
+```
+ubuntu@ip-10-0-1-100:~/202301/north-test/2023220/flannel-default$ cat net_bridge_secondary_network_full.yaml
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition
+metadata:
+  name: cfosdefaultcni5
+spec:
+  config: |-
+    {
+      "cniVersion": "0.3.1",
+      "name": "cfosdefaultcni5",
+      "type": "bridge",
+      "bridge": "cni5",
+      "isGateway": true,
+      "ipMasq": false,
+      "hairpinMode": true,
+      "ipam": {
+          "type": "host-local",
+          "routes": [
+              { "dst": "10.96.0.0/12","gw": "10.1.128.1" },
+              { "dst": "10.0.0.2/32", "gw": "10.1.128.1" }
+          ],
+          "ranges": [
+              [{ "subnet": "10.1.128.0/24" }]
+          ]
+      }
+    }
+```
+- patch normal deployment to use secondary bridge network and add a default route 
+```
+kubectl patch deployment normal -p '{"spec": {"template":{"metadata":{"annotations":{"k8s.v1.cni.cncf.io/networks":"[{\"name\": \"cfosdefaultcni5\", \"default-route\": [\"10.1.128.2\"]}]"}}}}}'
+
+```
+- create cfos 
+
+```
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: fos
+  name: fos-deployment
+  namespace: default
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: fos
+  type: ClusterIP
+---
+
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: fos-deployment
+  labels:
+      app: fos
+spec:
+  selector:
+    matchLabels:
+        app: fos
+  template:
+    metadata:
+      labels:
+        app: fos
+      annotations:
+        v1.multus-cni.io/default-network: default-calico
+        k8s.v1.cni.cncf.io/networks: '[ { "name": "cfosdefaultcni5",  "ips": [ "10.1.128.2/32" ], "mac": "CA:FE:C0:FF:00:02" } ]'
+    spec:
+      containers:
+      - name: fos
+        image: interbeing/fos:v7231x86
+        securityContext:
+          capabilities:
+              add: ["NET_ADMIN","SYS_ADMIN","NET_RAW"]
+        ports:
+        - name: isakmp
+          containerPort: 500
+          protocol: UDP
+        - name: ipsec-nat-t
+          containerPort: 4500
+          protocol: UDP
+        volumeMounts:
+        - mountPath: /data
+          name: data-volume
+      imagePullSecrets:
+      - name: dockerinterbeing
+      volumes:
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: cfosdata
+```
+- verify pod in normal application now shall able to access internet via cfos
+
+```
+ubuntu@ip-10-0-1-100:~/202301/north-test/2023220/flannel-default$ kubectl exec -it po/normal-58945bc79d-25784 -- sh
+/ # ip r
+default via 10.1.128.2 dev net1
+10.0.0.0/8 via 169.254.1.1 dev eth0
+10.0.0.2 via 10.1.128.1 dev net1
+10.1.128.0/24 dev net1 proto kernel scope link src 10.1.128.3
+10.96.0.0/12 via 10.1.128.1 dev net1
+10.96.0.0/12 via 169.254.1.1 dev eth0
+169.254.1.1 dev eth0 scope link
+/ # curl ipinfo.io
+{
+  "ip": "54.169.149.19",
+  "hostname": "ec2-54-169-149-19.ap-southeast-1.compute.amazonaws.com",
+  "city": "Singapore",
+  "region": "Singapore",
+  "country": "SG",
+  "loc": "1.2830,103.8487",
+  "org": "AS16509 Amazon.com, Inc.",
+  "postal": "048464",
+  "timezone": "Asia/Singapore",
+  "readme": "https://ipinfo.io/missingauth"
+}/ #
+```
