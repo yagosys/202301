@@ -75,3 +75,17 @@ variable "clusterdnsip" {
    type = string
    default = "10.96.0.10"
 }
+
+variable "cni" {
+   type = string
+   default = "flannel"
+}
+variable "multuscni" {
+   type = string
+   default = "true"
+}
+
+variable "gatekeeper" {
+   type = string
+   default = "true"
+}
