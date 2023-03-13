@@ -122,6 +122,9 @@ resource "aws_instance" "k8slab" {
 		SERVICE_CIDR=var.serviceCIDR
 		CLUSTERDNSIP=var.clusterdnsip
                 AWSDNSIP=var.awsdnsip
+                CNI=var.cni
+                MULTUSCNI=var.multuscni
+                GATEKEEPER=var.gatekeeper
 	 }
   )
 
