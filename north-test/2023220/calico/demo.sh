@@ -1,6 +1,12 @@
 #!/bin/bash -xe
-nodes=("10.0.1.100" "10.0.2.200" "10.0.2.201")
-cidr=("10.244.6" "10.244.97" "10.244.93")
+
+nodesstring=$(kubectl get nodes -o yaml -o jsonpath={.items[*].metadata.annotations} | jq  . | grep projectcalico.org/IPv4Address | cut -d ':' -f 2  |  sed 's/ //g; s,/24,,g; s/,//g' | tr -d '"')
+readarray -t nodes <<< $nodesstring
+cidrstring=$(kubectl get nodes -o yaml -o jsonpath={.items[*].metadata.annotations} | jq  . | grep projectcalico.org/IPv4VXLANTunnelAddr |  cut -d '.' -f 2-4 | cut -d ':' -f 2 | tr -d '"')
+readarray -t cidr <<< $cidrstring
+#cidr="${cidr[@]/# /}"
+#nodes=("10.0.1.100" "10.0.2.200" "10.0.2.201")
+#cidr=("10.244.6" "10.244.97" "10.244.93")
 
 function create_cfos_config {
 cat << EOF | kubectl apply -f - 
@@ -203,9 +209,9 @@ cat << INNEREOF | sudo tee /etc/cni/multus/net.d/net-calico.conf
     "ranges": [
        [
          {
-           "subnet": "${cidr[$i]}.0/24",
-           "rangeStart": "${cidr[$i]}.150",
-           "rangeEnd": "${cidr[$i]}.250"
+           "subnet": "${cidr[$i]/# /}.0/24",
+           "rangeStart": "${cidr[$i]/# /}.150",
+           "rangeEnd": "${cidr[$i]/# /}.250"
          }
        ]
     ]
@@ -254,9 +260,9 @@ cat << INNEREOF | sudo tee /etc/cni/multus/net.d/default-calico.conf
     "ranges": [
        [
          {
-           "subnet": "${cidr[$i]}.0/24",
-           "rangeStart": "${cidr[$i]}.50",
-           "rangeEnd": "${cidr[$i]}.100"
+           "subnet": "${cidr[$i]/# /}.0/24",
+           "rangeStart": "${cidr[$i]/# /}.50",
+           "rangeEnd": "${cidr[$i]/# /}.100"
          }
        ]
     ],
