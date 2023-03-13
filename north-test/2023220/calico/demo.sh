@@ -1,9 +1,9 @@
+#!/bin/bash -xe
 nodes=("10.0.1.100" "10.0.2.200" "10.0.2.201")
 cidr=("10.244.6" "10.244.97" "10.244.93")
 
-function create_pv_pvc {
----
 cat << EOF | kubectl apply -f - 
+---
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -16,7 +16,6 @@ spec:
   persistentVolumeReclaimPolicy: Delete
   hostPath:
     path: /home/ubuntu/data/pv0001
-
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -28,13 +27,7 @@ spec:
   resources:
     requests:
       storage: 1Gi
-}
-EOF 
-}
 
-
-function create_cfos_account {
-cat << EOF | kubectl apply -f - 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -45,9 +38,7 @@ rules:
 - apiGroups: [""]
   resources: ["configmaps"]
   verbs: ["get", "watch", "list"]
-
 ---
-
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
@@ -61,9 +52,7 @@ roleRef:
   kind: ClusterRole
   name: configmap-reader
   apiGroup: ""
-
 ---
-
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -73,9 +62,7 @@ rules:
 - apiGroups: [""] # "" indicates the core API group
   resources: ["secrets"]
   verbs: ["get", "watch", "list"]
-
 ---
-
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
@@ -89,11 +76,7 @@ roleRef:
   kind: ClusterRole
   name: secrets-reader
   apiGroup: ""
-EOF 
-}
 
-function create_cfos_cm_static_route {
-cat << EOF | kubectl apply -f - 
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -111,11 +94,7 @@ data:
            set device "eth0"
        next
     end
-EOF
-}
 
-function create_cfos_cm_firewallpolicy {
-cat << EOF | kubectl apply -f - 
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -144,11 +123,7 @@ data:
                set logtraffic all
            next
        end
-EOF
-}
 
-function create_cfos_dns {
-cat << EOF | kubectl apply -f - 
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -165,20 +140,19 @@ data:
       set secondary 10.0.0.2
     end
 EOF
-}
 
 
 
-function ccreate_multus_conf_directory {
-for node in $nodes; do
-ssh -o "StrictHostKeyChecking=no" -i  ~/.ssh/id_ed25519cfoslab ubuntu@$node  sudo mkdir -p /etc/cni/multus/net.d
+function create_multus_conf_directory {
+for node in "${nodes[@]}" ; do
+  ssh -o "StrictHostKeyChecking=no" -i  ~/.ssh/id_ed25519cfoslab ubuntu@$node  sudo mkdir -p /etc/cni/multus/net.d
 done
 } 
 
 function create_multus_conf_to_delegate_net_calico {
-for node in $nodes; do
+for node in "${nodes[@]}"; do
 ssh -o "StrictHostKeyChecking=no" -i  ~/.ssh/id_ed25519cfoslab ubuntu@$node << EOF
-cat << INNER_EOF | sudo tee /etc/cni/net.d/00-multus.conf.bak
+cat << INNER_EOF | sudo tee /etc/cni/net.d/00-multus.conf
 {
   "name": "multus-cni-network",
   "type": "multus",
@@ -213,7 +187,7 @@ EOF
 function create_cni_net_calico {
 for i in "${!nodes[@]}"; do
 ssh -o "StrictHostKeyChecking=no" -i  ~/.ssh/id_ed25519cfoslab ubuntu@"${nodes[$i]}" << EOF
-cat << INNEREOF | sudo tee /etc/cni/multus/net.d/net-calico.conf.bak
+cat << INNEREOF | sudo tee /etc/cni/multus/net.d/net-calico.conf
 {
   "cniVersion": "0.3.1",
   "name": "net-calico",
@@ -264,7 +238,7 @@ EOF
 function create_cni_default_calico { 
 for i in "${!nodes[@]}"; do
 ssh -o "StrictHostKeyChecking=no" -i  ~/.ssh/id_ed25519cfoslab ubuntu@"${nodes[$i]}" << EOF
-cat << INNEREOF | sudo tee /etc/cni/multus/net.d/default-calico.conf.bak
+cat << INNEREOF | sudo tee /etc/cni/multus/net.d/default-calico.conf
 {
   "cniVersion": "0.3.1",
   "name": "default-calico",
@@ -437,11 +411,6 @@ spec:
 EOF
 }
 
-create_pv_pvc 
-create_cfos_account 
-create_cfos_cm_static_route 
-create_cfos_cm_firewallpolicy 
-create_cfos_dns 
 create_multus_conf_directory 
 create_multus_conf_to_delegate_net_calico 
 create_net_attach_def_net_calico 
