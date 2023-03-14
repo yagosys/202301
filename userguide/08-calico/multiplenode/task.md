@@ -132,10 +132,13 @@ we need create two configuration that related with multus, first we need to crea
 
 **pod request ---> k8s API--- crio --- multus cni ---- calico cni**
 
-we will create 00-multus.conf to place under /etc/cni/net.d for crio to pickup as 00-multus.conf has the highest priority.
-then we create net-calico.conf to place under /etc/multus/netd.conf for multus ds to pickup . 
+we will create 00-multus.conf and place it  under /etc/cni/net.d for crio to pickup as 00-multus.conf has the highest priority.
+then we create net-calico.conf with name net-calico and place it under /etc/multus/netd.conf for multus ds to pickup . 
 
-- ## create directory /etc/cni/multus/net.d  on each node 
+- ### create directory /etc/cni/multus/net.d  on each node 
+
+this is the default directory for multus to fetch configuration. multus ds do it automatically , there is no need to restart ds or do other config. 
+first we need to create directory , by default, the directory is not exist. since crio is running on each node. so we need to do this on all nodes.
 
 ```
 for node in 10.0.2.200 10.0.2.201 10.0.1.100; do
@@ -143,8 +146,9 @@ ssh -o "StrictHostKeyChecking=no" -i  ~/.ssh/id_ed25519cfoslab ubuntu@$node  sud
 done
 ```
 
-- ## create 00-multus.conf under /etc/cni/net.d which use net-calico as default network
+- ### create 00-multus.conf under /etc/cni/net.d which use net-calico as default network
 
+then we create 00-multus.conf on each node. multus delegates to 
 ```
 for node in 10.0.2.200 10.0.2.201 10.0.1.100; do 
 ssh -o "StrictHostKeyChecking=no" -i  ~/.ssh/id_ed25519cfoslab ubuntu@$node << EOF
