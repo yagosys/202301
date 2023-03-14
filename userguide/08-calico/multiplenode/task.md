@@ -1,4 +1,4 @@
-- # Heading 1 install calico
+- # 2 install calico
 
 *let's use Calico Tigera Operator to install calico , 
 The Calico Tigera Operator is a Kubernetes operator designed to simplify the installation and management of the Calico networking and network policy solution on Kubernetes clusters. Calico is an open-source networking and network policy solution for Kubernetes and other cloud-native platforms.*
