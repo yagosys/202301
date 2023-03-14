@@ -1,12 +1,13 @@
 #!/bin/bash -xe
-
-nodesstring=$(kubectl get nodes -o yaml -o jsonpath={.items[*].metadata.annotations} | jq  . | grep projectcalico.org/IPv4Address | cut -d ':' -f 2  |  sed 's/ //g; s,/24,,g; s/,//g' | tr -d '"')
+function  read_node_cidr_to_list {
+until nodesstring=$(kubectl get nodes -o yaml -o jsonpath={.items[*].metadata.annotations} | jq  . | grep projectcalico.org/IPv4Address | cut -d ':' -f 2  |  sed 's/ //g; s,/24,,g; s/,//g' | tr -d '"'); do sleep 30; done
 readarray -t nodes <<< $nodesstring
-cidrstring=$(kubectl get nodes -o yaml -o jsonpath={.items[*].metadata.annotations} | jq  . | grep projectcalico.org/IPv4VXLANTunnelAddr |  cut -d '.' -f 2-4 | cut -d ':' -f 2 | tr -d '"')
+until cidrstring=$(kubectl get nodes -o yaml -o jsonpath={.items[*].metadata.annotations} | jq  . | grep projectcalico.org/IPv4VXLANTunnelAddr |  cut -d '.' -f 2-4 | cut -d ':' -f 2 | tr -d '"'); do sleep 30; done 
 readarray -t cidr <<< $cidrstring
 #cidr="${cidr[@]/# /}"
 #nodes=("10.0.1.100" "10.0.2.200" "10.0.2.201")
 #cidr=("10.244.6" "10.244.97" "10.244.93")
+}
 
 function install_calico {
 
@@ -487,6 +488,7 @@ EOF
 install_calico
 install_multus
 create_cfos_config
+read_node_cidr_to_list
 create_multus_conf_directory 
 create_multus_conf_to_delegate_net_calico 
 create_net_attach_def_net_calico 
