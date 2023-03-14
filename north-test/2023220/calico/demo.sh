@@ -1,8 +1,11 @@
 #!/bin/bash -xe
 function  read_node_cidr_to_list {
-until nodesstring=$(kubectl get nodes -o yaml -o jsonpath={.items[*].metadata.annotations} | jq  . | grep projectcalico.org/IPv4Address | cut -d ':' -f 2  |  sed 's/ //g; s,/24,,g; s/,//g' | tr -d '"'); do sleep 30; done
+until nodesstring=$(kubectl get nodes -o yaml -o jsonpath={.items[*].metadata.annotations} | jq  . | grep projectcalico.org/IPv4Address) ; do sleep 10; done
+
+nodesstring=$(kubectl get nodes -o yaml -o jsonpath={.items[*].metadata.annotations} | jq  . | grep projectcalico.org/IPv4Address |  cut -d ':' -f 2  |  sed 's/ //g; s,/24,,g; s/,//g' | tr -d '"')
 readarray -t nodes <<< $nodesstring
-until cidrstring=$(kubectl get nodes -o yaml -o jsonpath={.items[*].metadata.annotations} | jq  . | grep projectcalico.org/IPv4VXLANTunnelAddr |  cut -d '.' -f 2-4 | cut -d ':' -f 2 | tr -d '"'); do sleep 30; done 
+
+cidrstring=$(kubectl get nodes -o yaml -o jsonpath={.items[*].metadata.annotations} | jq  . | grep projectcalico.org/IPv4VXLANTunnelAddr |  cut -d '.' -f 2-4 | cut -d ':' -f 2 | tr -d '"')
 readarray -t cidr <<< $cidrstring
 #cidr="${cidr[@]/# /}"
 #nodes=("10.0.1.100" "10.0.2.200" "10.0.2.201")
