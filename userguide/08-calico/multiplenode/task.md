@@ -1,7 +1,7 @@
-- # 2 install calico
+- ## install calico
 
-*let's use Calico Tigera Operator to install calico , 
-The Calico Tigera Operator is a Kubernetes operator designed to simplify the installation and management of the Calico networking and network policy solution on Kubernetes clusters. Calico is an open-source networking and network policy solution for Kubernetes and other cloud-native platforms.*
+let's use Calico Tigera Operator to install calico , 
+The Calico Tigera Operator is a Kubernetes operator designed to simplify the installation and management of the Calico networking and network policy solution on Kubernetes clusters. Calico is an open-source networking and network policy solution for Kubernetes and other cloud-native platforms.
 
 The Calico Tigera Operator automates the deployment of Calico on Kubernetes, which can be complex and time-consuming to do manually. The operator uses a declarative configuration model, which allows you to define the desired state of your Calico deployment, and the operator will ensure that the actual state matches the desired state.
 
@@ -26,7 +26,7 @@ sed -i -e "s?192.168.0.0/16?10.244.0.0/16?g" custom-resources.yaml
 sed -i '/calicoNetwork:/a\    containerIPForwarding: Enabled ' custom-resources.yaml
 sed -i '/calicoNetwork:/a\    bgp: Disabled ' custom-resources.yaml
 ```
-- check calico installation 
+- ### check calico installation 
 
 use `kubectl get node -o json | jq .items[].metadata.annotations` to check the annotations added by calico , you can find podCIDR for each node.
 use `kubectl get installation default -o yaml` to check the Custome resources installed by calico 
