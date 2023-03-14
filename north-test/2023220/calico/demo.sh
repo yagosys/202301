@@ -14,13 +14,12 @@ function install_calico {
 sudo curl -fL https://github.com/projectcalico/calico/releases/latest/download/calicoctl-linux-amd64 -o /usr/local/bin/calicoctl
 sudo chmod +x /usr/local/bin/calicoctl
 sudo curl -fLO https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/tigera-operator.yaml
-kubectl get namespace tigera-operator
-if [[ $? -eq 0 ]]
 
+if kubectl get namespace tigera-operator &>/dev/null
 then
         echo 'tigera-operator exist'
 else
-       kubectl create -f tigera-operator.yaml
+  kubectl create -f tigera-operator.yaml
 fi
 
 #curl -fLO https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/custom-resources.yaml
@@ -58,8 +57,7 @@ EOF
 
 function install_multus {
 
-kubectl get ds kube-multus-ds -n kube-system
-if [[ $? -eq 0 ]]
+if kubectl get ds kube-multus-ds -n kube-system 
 then 
 	echo "multus already exist"
 else
@@ -485,6 +483,15 @@ spec:
 EOF
 }
 
+function restart_cfos_ds {
+#this is to workaround the cfos firewallpolicy do not apply in first time configuration
+if kubectl rollout status  ds fos-deployment
+ then 
+	 kubectl rollout restart ds fos-deployment
+	 kubectl rollout status ds fos-deployment
+fi
+}
+
 install_calico
 install_multus
 create_cfos_config
@@ -499,3 +506,4 @@ create_net_attach_def_bridge_cfosdefaultcni5
 install_gatekeeperv3
 create_cfos_ds_deployment 
 create_multitool_app 
+restart_cfos_ds
