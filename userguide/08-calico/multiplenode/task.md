@@ -9,7 +9,7 @@ The Calico Tigera Operator automates the deployment of Calico on Kubernetes, whi
 
 Custom resources are extensions to the Kubernetes API that allow you to define and use resources beyond the built-in resources that come with Kubernetes. Calico uses custom resources to provide additional functionality beyond what is available with standard Kubernetes resources.
 
-We need to modify Custom resources to enable _containerIPForwarding_ and also change _podCIDR_ to match cluster podCIDR configuration. 
+We need to modify Custom resources to enable **containerIPForwarding** and also change **podCIDR** to match cluster podCIDR configuration. 
 
 for detail about Custom resources spec. use `kubectl explain Installation.spec`. 
 
