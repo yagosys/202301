@@ -148,7 +148,19 @@ done
 
 - ### create 00-multus.conf under /etc/cni/net.d which use net-calico as default network
 
-then we create 00-multus.conf on each node. multus delegates to 
+then we create 00-multus.conf on each node. multus delegates to another cni.
+In below multus  CNI configuration for CRI-O, the "clusterNetwork" and "defaultNetworks" fields are used to define the networking configuration for Kubernetes pods.
+
+The "clusterNetwork" field specifies the name of the network that Kubernetes uses for internal cluster communication. This network is typically used for Kubernetes services, which provide a stable IP address and DNS name for accessing pods. The value of this field must match the name of a network plugin that has been installed on the cluster, such as Calico.
+
+The "defaultNetworks" field is used to specify a list of additional network plugins that should be used for the default network configuration of pods. When a pod is created, it will automatically be assigned one of these networks as its primary network. This allows pods to be connected to multiple networks simultaneously.
+ 
+since we do not want add additional network for all pod in this cluster. we do not config "defaultNetworks".  but just **"clusterNetwork"** 
+
+the **"net-calico""** below is the name of other cni plugin, we need to create this with other cni. multus will use crd to create this based on the net-attach-def config and cni config under 
+/etc/cni/multus/net.d . the net-attach-def crd name must match the cni confiugration name. 
+
+
 ```
 for node in 10.0.2.200 10.0.2.201 10.0.1.100; do 
 ssh -o "StrictHostKeyChecking=no" -i  ~/.ssh/id_ed25519cfoslab ubuntu@$node << EOF
@@ -174,7 +186,7 @@ EOF
 done
 ```
 
-- create net-calico multus crd with cni config under /etc/cni/multus/net.d as cluster default network 
+- ### create net-calico multus crd with cni config under /etc/cni/multus/net.d as cluster default network 
 
 *net-calico net-attach-def*
 
@@ -194,7 +206,7 @@ nodes=("10.0.1.100" "10.0.2.200" "10.0.2.201")
 cidr=("10.244.6" "10.244.97" "10.244.93")
 for i in "${!nodes[@]}"; do
 ssh -o "StrictHostKeyChecking=no" -i  ~/.ssh/id_ed25519cfoslab ubuntu@"${nodes[$i]}" << EOF 
-cat << INNEREOF | sudo tee /etc/cni/multus/net.d/net-calico.conf.bak
+cat << INNEREOF | sudo tee /etc/cni/multus/net.d/net-calico.conf
 {
   "cniVersion": "0.3.1",
   "name": "net-calico",
@@ -232,7 +244,7 @@ EOF
 done
 ```
 
-- check crio log on each node
+- ### check crio log on each node
 
 ```
 ubuntu@ip-10-0-1-100:/etc/cni/net.d$ journalctl -f -u crio | grep 'Updated default CNI network name'
