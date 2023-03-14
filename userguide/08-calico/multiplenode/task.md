@@ -38,16 +38,17 @@ use `kubectl get all -n calico-apiserver` to check api server is up and running
 
 use `sudo calicoctl node status` to check the  calico status and networking 
 
-- install  multus 
+- ## install  multus 
 
 Multus CNI is a Container Network Interface (CNI) plugin for Kubernetes that allows multiple network interfaces to be attached to a Kubernetes pod. This means that a pod can have multiple network interfaces, each with its own IP address, and can communicate with different networks simultaneously. 
 
 When installing Multus CNI for Kubernetes, the multus-conf-file parameter by default set with the value "auto" which  means that Multus will automatically detect the configuration file to use.
 The configuration file specifies how Multus CNI should operate and which network interfaces should be created for the pods. By default, Multus looks for a configuration file in the directory /etc/cni/net.d/ and uses the first configuration file it finds. If no configuration file is found, Multus uses a default configuration. 
 
-We can config cni for Multus to use manually, so we change the "auto" to 70-multus.conf. the 70-multus.conf often will not become the first CNI for kubernetes if you already have installed calico or flannel etc other CNI. By default, the 70-multus.conf file includes bridge , loopback CNI, we do not need that.  
+We can config cni for Multus to use manually, so we change the **"auto" to 70-multus.conf**. the 70-multus.conf often will not become the first CNI for kubernetes if you already have installed calico or flannel etc other CNI. By default, the 70-multus.conf file includes bridge , loopback CNI, we do not need that.  
 
 we can manually pull multu-cni installation package beforehand if you have a slow network or we can directly clone it from internent and install it with kubectl 
+
 ```
 sudo crictl pull ghcr.io/k8snetworkplumbingwg/multus-cni:stable
 cd /home/ubuntu
@@ -55,9 +56,86 @@ git clone https://github.com/intel/multus-cni.git
 sudo sed -i 's/multus-conf-file=auto/multus-conf-file=\/tmp\/multus-conf\/70-multus.conf/g' /home/ubuntu/multus-cni/deployments/multus-daemonset.yml
 cat /home/ubuntu/multus-cni/deployments/multus-daemonset.yml | kubectl apply -f -
 ```
-- check the multus installation 
+- ### check the multus installation 
 
-- create directory /etc/cni/multus/net.d  on each node 
+```
+ubuntu@ip-10-0-1-100:~$ kubectl get ds kube-multus-ds -n kube-system
+NAME             DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
+kube-multus-ds   3         3         3       3            3           <none>          26m
+ubuntu@ip-10-0-1-100:~$ kubectl logs ds/kube-multus-ds -n kube-system
+Found 3 pods, using pod/kube-multus-ds-gjl4g
+Defaulted container "kube-multus" out of: kube-multus, install-multus-binary (init)
+2023-03-14T01:34:22+00:00 Entering sleep (success)...
+```
+
+- ### check cni configuration 
+the default directory for cni config is under /etc/cni/net.d. the file with extension name **.conf** or **.conflist** will be parsed by crio. 
+The file with the highest priority for the CRI-O runtime is the one with the lowest numerical prefix in its filename. In this case, the file with the highest priority would be "10-calico.conflist".
+
+The numerical prefix in the filename is used by CNI plugins to determine the order in which the plugin configurations are applied. A lower numerical prefix indicates higher priority, and hence, the configuration in the file with the lowest numerical prefix (in this case, 10) will be applied first, followed by the configuration in the file with the next lowest numerical prefix, and so on.
+
+the ".conf" file extension is used for a single CNI plugin configuration file, while the ".conflist" file extension is used for a list of CNI plugin configurations.
+
+```
+ubuntu@ip-10-0-1-100:/etc/cni/net.d$ ls
+10-calico.conflist  200-loopback.conf  70-multus.conf  calico-kubeconfig  multus.d  whereabouts.d
+```
+
+check the 10-calico.conflist content 
+
+```
+ubuntu@ip-10-0-1-100:/etc/cni/net.d$ cat 10-calico.conflist
+{
+  "name": "k8s-pod-network",
+  "cniVersion": "0.3.1",
+  "plugins": [
+    {
+      "type": "calico",
+      "datastore_type": "kubernetes",
+      "mtu": 0,
+      "nodename_file_optional": false,
+      "log_level": "Info",
+      "log_file_path": "/var/log/calico/cni/cni.log",
+      "ipam": { "type": "calico-ipam", "assign_ipv4" : "true", "assign_ipv6" : "false"},
+      "container_settings": {
+          "allow_ip_forwarding": true
+      },
+      "policy": {
+          "type": "k8s"
+      },
+      "kubernetes": {
+          "k8s_api_root":"https://10.96.0.1:443",
+          "kubeconfig": "/etc/cni/net.d/calico-kubeconfig"
+      }
+    },
+    {
+      "type": "bandwidth",
+      "capabilities": {"bandwidth": true}
+    },
+    {"type": "portmap", "snat": true, "capabilities": {"portMappings": true}}
+  ]
+```
+
+the CNI has name "k8s-pod-network" and it use multiple plugins, calico, bandwidth and portmap. since 10-calico.conflist has highest priority. so it shall be picked up by crio.
+
+you can check crio log for this 
+
+``` 
+ubuntu@ip-10-0-1-100:/etc/cni/net.d$ journalctl -u crio  | grep "Updated default CNI network name to "  | tail -n 1
+Mar 14 01:34:22 ip-10-0-1-100 crio[1675]: time="2023-03-14 01:34:22.467251630Z" level=info msg="Updated default CNI network name to k8s-pod-network"
+ubuntu@ip-10-0-1-100:/etc/cni/net.d$
+
+```
+- ### create multus configuration
+
+we need create two configuration that related with multus, first we need to create multus cni config which will make crio to choose multus as the default CNI.  then we need to create a cni config for multus to delegates with.  so the order of cni operation for crio will be 
+
+**pod request ---> k8s API--- crio --- multus cni ---- calico cni**
+
+we will create 00-multus.conf to place under /etc/cni/net.d for crio to pickup as 00-multus.conf has the highest priority.
+then we create net-calico.conf to place under /etc/multus/netd.conf for multus ds to pickup . 
+
+- ## create directory /etc/cni/multus/net.d  on each node 
 
 ```
 for node in 10.0.2.200 10.0.2.201 10.0.1.100; do
@@ -65,7 +143,7 @@ ssh -o "StrictHostKeyChecking=no" -i  ~/.ssh/id_ed25519cfoslab ubuntu@$node  sud
 done
 ```
 
-- create 00-multus.conf under /etc/cni/net.d which use net-calico as default network
+- ## create 00-multus.conf under /etc/cni/net.d which use net-calico as default network
 
 ```
 for node in 10.0.2.200 10.0.2.201 10.0.1.100; do 
