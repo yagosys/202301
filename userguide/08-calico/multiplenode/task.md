@@ -29,9 +29,13 @@ sed -i '/calicoNetwork:/a\    bgp: Disabled ' custom-resources.yaml
 - ### check calico installation 
 
 use `kubectl get node -o json | jq .items[].metadata.annotations` to check the annotations added by calico , you can find podCIDR for each node.
+
 use `kubectl get installation default -o yaml` to check the Custome resources installed by calico 
+
 use `kubectl get all -n calico-system` to check calico resources is up and running 
+
 use `kubectl get all -n calico-apiserver` to check api server is up and running 
+
 use `sudo calicoctl node status` to check the  calico status and networking 
 
 - install  multus 
