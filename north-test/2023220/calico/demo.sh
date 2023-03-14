@@ -12,10 +12,18 @@ function install_calico {
 
 sudo curl -fL https://github.com/projectcalico/calico/releases/latest/download/calicoctl-linux-amd64 -o /usr/local/bin/calicoctl
 sudo chmod +x /usr/local/bin/calicoctl
-curl -fLO https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/tigera-operator.yaml
-kubectl create -f tigera-operator.yaml
+sudo curl -fLO https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/tigera-operator.yaml
+kubectl get namespace tigera-operator
+if [[ $? -eq 0 ]]
+
+then
+        echo 'tigera-operator exist'
+else
+       kubectl create -f tigera-operator.yaml
+fi
+
 #curl -fLO https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/custom-resources.yaml
-cat << EOF | kubectl create -f -
+cat << EOF | kubectl apply -f -
 # This section includes base Calico installation configuration.
 # For more information, see: https://projectcalico.docs.tigera.io/master/reference/installation/api#operator.tigera.io/v1.Installation
 apiVersion: operator.tigera.io/v1
@@ -49,12 +57,17 @@ EOF
 
 function install_multus {
 
-sudo crictl pull ghcr.io/k8snetworkplumbingwg/multus-cni:stable
-cd /home/ubuntu
-git clone https://github.com/intel/multus-cni.git
-sudo sed -i 's/multus-conf-file=auto/multus-conf-file=\/tmp\/multus-conf\/70-multus.conf/g' /home/ubuntu/multus-cni/deployments/multus-daemonset.yml
-cat /home/ubuntu/multus-cni/deployments/multus-daemonset.yml | kubectl apply -f -
-
+kubectl get ds kube-multus-ds -n kube-system
+if [[ $? -eq 0 ]]
+then 
+	echo "multus already exist"
+else
+         sudo crictl pull ghcr.io/k8snetworkplumbingwg/multus-cni:stable
+         cd /home/ubuntu
+         git clone https://github.com/intel/multus-cni.git
+         sudo sed -i 's/multus-conf-file=auto/multus-conf-file=\/tmp\/multus-conf\/70-multus.conf/g' /home/ubuntu/multus-cni/deployments/multus-daemonset.yml
+         kubectl apply -f  /home/ubuntu/multus-cni/deployments/multus-daemonset.yml 
+fi 
 }
 
 function install_gatekeeperv3 {
