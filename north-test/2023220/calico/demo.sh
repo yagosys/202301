@@ -57,6 +57,10 @@ cat /home/ubuntu/multus-cni/deployments/multus-daemonset.yml | kubectl apply -f 
 
 }
 
+function install_gatekeeperv3 {
+    kubectl --kubeconfig /home/ubuntu/.kube/config apply -f https://raw.githubusercontent.com/open-policy-agent/gatekeeper/master/deploy/gatekeeper.yaml
+}
+
 function create_cfos_config {
 cat << EOF | kubectl apply -f - 
 ---
@@ -477,5 +481,6 @@ create_cni_net_calico
 create_net_attach_def_default_calico 
 create_cni_default_calico 
 create_net_attach_def_bridge_cfosdefaultcni5 
+install_gatekeeperv3
 create_cfos_ds_deployment 
 create_multitool_app 
