@@ -157,14 +157,14 @@ The "defaultNetworks" field is used to specify a list of additional network plug
  
 since we do not want add additional network for all pod in this cluster. we do not config "defaultNetworks".  but just **"clusterNetwork"** 
 
-the **"net-calico""** below is the name of other cni plugin, we need to create this with other cni. multus will use crd to create this based on the net-attach-def config and cni config under 
-/etc/cni/multus/net.d . the net-attach-def crd name must match the cni confiugration name. 
+the **"net-calico""** below is the name cni config that multus to delegates. multus will also need to use crd to create this based on the net-attach-def config. net-attach-def is the crd kind , short of NetworkAttachmentDefinition .  there are two ways  to define net-attach-def, one is create net-attach-def crd with full configuration include cni config inside the crd. this way, all kubernetes node will have same configuration. if we want each node has spefic configuration, then we can create a blank net-attach-crd only with metadata name and then link to actually cni config on each of node. here we use secondary approach. 
+the net-attach-def crd name must match the cni confiugration name. 
 
 
 ```
 for node in 10.0.2.200 10.0.2.201 10.0.1.100; do 
 ssh -o "StrictHostKeyChecking=no" -i  ~/.ssh/id_ed25519cfoslab ubuntu@$node << EOF
-cat << INNER_EOF | sudo tee /etc/cni/net.d/00-multus.conf.bak
+cat << INNER_EOF | sudo tee /etc/cni/net.d/00-multus.conf
 {
   "name": "multus-cni-network",
   "type": "multus",
@@ -188,7 +188,7 @@ done
 
 - ### create net-calico multus crd with cni config under /etc/cni/multus/net.d as cluster default network 
 
-*net-calico net-attach-def*
+**the net-attach-def has metadata name net-calico**
 
 ```
 cat << EOF | kubectl apply -f -
@@ -199,8 +199,8 @@ metadata:
   namespace: kube-system
 EOF 
 ```
-- create net-calico cni config on master node 
-
+- ### create net-calico cni config on master node 
+the net-calico.conf has name "net-calico" which match the net-attach-def name 
 ```
 nodes=("10.0.1.100" "10.0.2.200" "10.0.2.201")
 cidr=("10.244.6" "10.244.97" "10.244.93")
