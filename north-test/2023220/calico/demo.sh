@@ -8,6 +8,55 @@ readarray -t cidr <<< $cidrstring
 #nodes=("10.0.1.100" "10.0.2.200" "10.0.2.201")
 #cidr=("10.244.6" "10.244.97" "10.244.93")
 
+function install_calico {
+
+sudo curl -fL https://github.com/projectcalico/calico/releases/latest/download/calicoctl-linux-amd64 -o /usr/local/bin/calicoctl
+sudo chmod +x /usr/local/bin/calicoctl
+curl -fLO https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/tigera-operator.yaml
+kubectl create -f tigera-operator.yaml
+#curl -fLO https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/custom-resources.yaml
+cat << EOF | kubectl create -f -
+# This section includes base Calico installation configuration.
+# For more information, see: https://projectcalico.docs.tigera.io/master/reference/installation/api#operator.tigera.io/v1.Installation
+apiVersion: operator.tigera.io/v1
+kind: Installation
+metadata:
+  name: default
+spec:
+  # Configures Calico networking.
+  calicoNetwork:
+    bgp: Disabled
+    containerIPForwarding: Enabled
+    # Note: The ipPools section cannot be modified post-install.
+    ipPools:
+    - blockSize: 24
+      cidr: 10.244.0.0/16
+      encapsulation: VXLAN
+      natOutgoing: Enabled
+      nodeSelector: all()
+---
+
+# This section configures the Calico API server.
+# For more information, see: https://projectcalico.docs.tigera.io/master/reference/installation/api#operator.tigera.io/v1.APIServer
+apiVersion: operator.tigera.io/v1
+kind: APIServer
+metadata:
+  name: default
+spec: {}
+EOF
+
+}
+
+function install_multus {
+
+sudo crictl pull ghcr.io/k8snetworkplumbingwg/multus-cni:stable
+cd /home/ubuntu
+git clone https://github.com/intel/multus-cni.git
+sudo sed -i 's/multus-conf-file=auto/multus-conf-file=\/tmp\/multus-conf\/70-multus.conf/g' /home/ubuntu/multus-cni/deployments/multus-daemonset.yml
+cat /home/ubuntu/multus-cni/deployments/multus-daemonset.yml | kubectl apply -f -
+
+}
+
 function create_cfos_config {
 cat << EOF | kubectl apply -f - 
 ---
@@ -418,6 +467,8 @@ spec:
 EOF
 }
 
+install_calico
+install_multus
 create_cfos_config
 create_multus_conf_directory 
 create_multus_conf_to_delegate_net_calico 
