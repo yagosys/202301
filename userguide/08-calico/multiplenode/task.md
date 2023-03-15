@@ -1,6 +1,7 @@
 - ## install calico
 
-let's use Calico Tigera Operator to install calico , 
+*this section will install tigera operator to install other calico crd, then install cr(customer resource), we also modify cr with necessary change such as cidr etc*
+
 The Calico Tigera Operator is a Kubernetes operator designed to simplify the installation and management of the Calico networking and network policy solution on Kubernetes clusters. Calico is an open-source networking and network policy solution for Kubernetes and other cloud-native platforms.
 
 The Calico Tigera Operator automates the deployment of Calico on Kubernetes, which can be complex and time-consuming to do manually. The operator uses a declarative configuration model, which allows you to define the desired state of your Calico deployment, and the operator will ensure that the actual state matches the desired state.
@@ -20,12 +21,39 @@ sudo chmod +x /usr/local/bin/calicoctl
 curl -fLO https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/tigera-operator.yaml
 kubectl create -f tigera-operator.yaml
 curl -fLO https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/custom-resources.yaml
-sed -i -e "s?blockSize: 26?blockSize: 24?g" custom-resources.yaml
-sed -i -e "s?VXLANCrossSubnet?VXLAN?g" custom-resources.yaml
-sed -i -e "s?192.168.0.0/16?10.244.0.0/16?g" custom-resources.yaml
-sed -i '/calicoNetwork:/a\    containerIPForwarding: Enabled ' custom-resources.yaml
-sed -i '/calicoNetwork:/a\    bgp: Disabled ' custom-resources.yaml
+
+cat << EOF | kubectl create -f - 
+# This section includes base Calico installation configuration.
+# For more information, see: https://projectcalico.docs.tigera.io/master/reference/installation/api#operator.tigera.io/v1.Installation
+apiVersion: operator.tigera.io/v1
+kind: Installation
+metadata:
+  name: default
+spec:
+  # Configures Calico networking.
+  calicoNetwork:
+    bgp: Disabled
+    containerIPForwarding: Enabled
+    # Note: The ipPools section cannot be modified post-install.
+    ipPools:
+    - blockSize: 24
+      cidr: 10.244.0.0/16
+      encapsulation: VXLAN
+      natOutgoing: Enabled
+      nodeSelector: all()
+---
+
+# This section configures the Calico API server.
+# For more information, see: https://projectcalico.docs.tigera.io/master/reference/installation/api#operator.tigera.io/v1.APIServer
+apiVersion: operator.tigera.io/v1
+kind: APIServer
+metadata:
+  name: default
+spec: {}
+EOF 
+
 ```
+
 - ### check calico installation 
 
 use `kubectl get node -o json | jq .items[].metadata.annotations` to check the annotations added by calico , you can find podCIDR for each node.
@@ -39,6 +67,7 @@ use `kubectl get all -n calico-apiserver` to check api server is up and running
 use `sudo calicoctl node status` to check the  calico status and networking 
 
 - ## install  multus 
+*this section install multus cni but will not config to use multus as the default cni yet before we create multus crd*
 
 Multus CNI is a Container Network Interface (CNI) plugin for Kubernetes that allows multiple network interfaces to be attached to a Kubernetes pod. This means that a pod can have multiple network interfaces, each with its own IP address, and can communicate with different networks simultaneously. 
 
@@ -66,59 +95,30 @@ ubuntu@ip-10-0-1-100:~$ kubectl logs ds/kube-multus-ds -n kube-system
 Found 3 pods, using pod/kube-multus-ds-gjl4g
 Defaulted container "kube-multus" out of: kube-multus, install-multus-binary (init)
 2023-03-14T01:34:22+00:00 Entering sleep (success)...
+
 ```
 
 - ### check cni configuration 
-the default directory for cni config is under /etc/cni/net.d. the file with extension name **.conf** or **.conflist** will be parsed by crio. 
-The file with the highest priority for the CRI-O runtime is the one with the lowest numerical prefix in its filename. In this case, the file with the highest priority would be "10-calico.conflist".
-
-The numerical prefix in the filename is used by CNI plugins to determine the order in which the plugin configurations are applied. A lower numerical prefix indicates higher priority, and hence, the configuration in the file with the lowest numerical prefix (in this case, 10) will be applied first, followed by the configuration in the file with the next lowest numerical prefix, and so on.
-
-the ".conf" file extension is used for a single CNI plugin configuration file, while the ".conflist" file extension is used for a list of CNI plugin configurations.
-
+the default directory for cni config is under /etc/cni/net.d. 
 ```
 ubuntu@ip-10-0-1-100:/etc/cni/net.d$ ls
 10-calico.conflist  200-loopback.conf  70-multus.conf  calico-kubeconfig  multus.d  whereabouts.d
 ```
+the file with extension name **.conf** or **.conflist** will be parsed by crio. 
+The file with the highest priority for the CRI-O runtime is the one with the lowest alphabetically prefix in its filename. In this case, the file with the highest priority would be "10-calico.conflist".
 
-check the 10-calico.conflist content 
+The alphabetically prefix in the filename is used by CNI plugins to determine the order in which the plugin configurations are applied. A lower alphabetically prefix indicates higher priority, and hence, the configuration in the file with the lowest alphabetically prefix (in this case, 10) will be applied first, followed by the configuration in the file with the next lowest alphabetically prefix, and so on.
 
+the ".conf" file extension is used for a single CNI plugin configuration file, while the ".conflist" file extension is used for a list of CNI plugin configurations.
+
+the 10-calico.conf has name "k8s-pod-network" 
 ```
-ubuntu@ip-10-0-1-100:/etc/cni/net.d$ cat 10-calico.conflist
-{
+ubuntu@ip-10-0-1-100:/etc/cni/net.d$ cat 10-calico.conflist  | grep name
   "name": "k8s-pod-network",
-  "cniVersion": "0.3.1",
-  "plugins": [
-    {
-      "type": "calico",
-      "datastore_type": "kubernetes",
-      "mtu": 0,
-      "nodename_file_optional": false,
-      "log_level": "Info",
-      "log_file_path": "/var/log/calico/cni/cni.log",
-      "ipam": { "type": "calico-ipam", "assign_ipv4" : "true", "assign_ipv6" : "false"},
-      "container_settings": {
-          "allow_ip_forwarding": true
-      },
-      "policy": {
-          "type": "k8s"
-      },
-      "kubernetes": {
-          "k8s_api_root":"https://10.96.0.1:443",
-          "kubeconfig": "/etc/cni/net.d/calico-kubeconfig"
-      }
-    },
-    {
-      "type": "bandwidth",
-      "capabilities": {"bandwidth": true}
-    },
-    {"type": "portmap", "snat": true, "capabilities": {"portMappings": true}}
-  ]
 ```
+since 10-calico.conflist has highest priority. so it shall be picked up by crio. so although multus has installed. but the default cni for kubernetes is still the calico. 
 
-the CNI has name "k8s-pod-network" and it use multiple plugins, calico, bandwidth and portmap. since 10-calico.conflist has highest priority. so it shall be picked up by crio.
-
-you can check crio log for this 
+you can check crio log to confirm this 
 
 ``` 
 ubuntu@ip-10-0-1-100:/etc/cni/net.d$ journalctl -u crio  | grep "Updated default CNI network name to "  | tail -n 1
@@ -126,18 +126,22 @@ Mar 14 01:34:22 ip-10-0-1-100 crio[1675]: time="2023-03-14 01:34:22.467251630Z" 
 ubuntu@ip-10-0-1-100:/etc/cni/net.d$
 
 ```
-- ### create multus configuration
 
-we need create two configuration that related with multus, first we need to create multus cni config which will make crio to choose multus as the default CNI.  then we need to create a cni config for multus to delegates with.  so the order of cni operation for crio will be 
+- ### create multus configuration and make multus become the default CNI for crio
+*this section we  create multus cni config as the default cni also config it to delegate to multus crd object, the crd object will reference to json cni config on each of the node*
 
-**pod request ---> k8s API--- crio --- multus cni ---- calico cni**
+we need create two configuration that related with multus, first we need to create a multus crd with cni json config on each node  for multus cni  to delegates with. then we create multus cni config for crio to use it as the default cni .  after done these ,the order of cni operation for crio will become 
 
-we will create 00-multus.conf and place it  under /etc/cni/net.d for crio to pickup as 00-multus.conf has the highest priority.
-then we create net-calico.conf with name net-calico and place it under /etc/multus/netd.conf for multus ds to pickup . 
+**pod request ---> k8s API--- crio --- multus cni ---- multu-crd with calico json config on each node**
+
+first  we create net-calico.conf with name net-calico and place it under /etc/cni/multus/netd.conf/ , this config file will be read by multus crd. 
+then we create multus crd to use net-calico.conf on each node. multus crd use key name to reference net-calico.conf on each node
+finally, we create 00-multus.conf under /etc/cni/net.d for crio to pick as the default cni for kubernetes.
+
 
 - ### create directory /etc/cni/multus/net.d  on each node 
 
-this is the default directory for multus to fetch configuration. multus ds do it automatically , there is no need to restart ds or do other config. 
+this is the default directory for multus to fetch configuration. multus ds read config from this directory  automatically , there is no need to restart ds or do other config. 
 first we need to create directory , by default, the directory is not exist. since crio is running on each node. so we need to do this on all nodes.
 
 ```
@@ -146,50 +150,8 @@ ssh -o "StrictHostKeyChecking=no" -i  ~/.ssh/id_ed25519cfoslab ubuntu@$node  sud
 done
 ```
 
-- ### create 00-multus.conf under /etc/cni/net.d which use net-calico as default network
-
-then we create 00-multus.conf on each node. multus delegates to another cni.
-In below multus  CNI configuration for CRI-O, the "clusterNetwork" and "defaultNetworks" fields are used to define the networking configuration for Kubernetes pods.
-
-The "clusterNetwork" field specifies the name of the network that Kubernetes uses for internal cluster communication. This network is typically used for Kubernetes services, which provide a stable IP address and DNS name for accessing pods. The value of this field must match the name of a network plugin that has been installed on the cluster, such as Calico.
-
-The "defaultNetworks" field is used to specify a list of additional network plugins that should be used for the default network configuration of pods. When a pod is created, it will automatically be assigned one of these networks as its primary network. This allows pods to be connected to multiple networks simultaneously.
- 
-since we do not want add additional network for all pod in this cluster. we do not config "defaultNetworks".  but just **"clusterNetwork"** 
-
-the **"net-calico""** below is the name cni config that multus to delegates. multus will also need to use crd to create this based on the net-attach-def config. net-attach-def is the crd kind , short of NetworkAttachmentDefinition .  there are two ways  to define net-attach-def, one is create net-attach-def crd with full configuration include cni config inside the crd. this way, all kubernetes node will have same configuration. if we want each node has spefic configuration, then we can create a blank net-attach-crd only with metadata name and then link to actually cni config on each of node. here we use secondary approach. 
-the net-attach-def crd name must match the cni confiugration name. 
-
-
-```
-for node in 10.0.2.200 10.0.2.201 10.0.1.100; do 
-ssh -o "StrictHostKeyChecking=no" -i  ~/.ssh/id_ed25519cfoslab ubuntu@$node << EOF
-cat << INNER_EOF | sudo tee /etc/cni/net.d/00-multus.conf
-{
-  "name": "multus-cni-network",
-  "type": "multus",
-  "confDir": "/etc/cni/multus/net.d",
-  "cniDir": "/var/lib/cni/multus",
-  "binDir": "/opt/cni/bin",
-  "logFile": "/var/log/multus.log",
-  "logLevel": "info",
-  "capabilities": {
-    "portMappings": true
-  },
-  "clusterNetwork": "net-calico",
-  "defaultNetworks": [],
-  "delegates": [],
-  "kubeconfig": "/etc/cni/net.d/multus.d/multus.kubeconfig"
-}
-INNER_EOF
-EOF
-done
-```
-
-- ### create net-calico multus crd with cni config under /etc/cni/multus/net.d as cluster default network 
-
-**the net-attach-def has metadata name net-calico**
-
+- ### create multus crd object  on master node
+**the name is net-calico** 
 ```
 cat << EOF | kubectl apply -f -
 apiVersion: "k8s.cni.cncf.io/v1"
@@ -197,10 +159,12 @@ kind: NetworkAttachmentDefinition
 metadata:
   name: net-calico
   namespace: kube-system
-EOF 
+EOF
 ```
-- ### create net-calico cni config on master node 
-the net-calico.conf has name "net-calico" which match the net-attach-def name 
+
+- ### create net-calico cni config under /etc/cni/multus/net.d on each worker node 
+the net-calico.conf has name **"net-calico"** which match the crd net-attach-def (NetworkAttachmentDefinition) name, we also config to use host-local ipam and config different subnet range for pods on each node.  
+
 ```
 nodes=("10.0.1.100" "10.0.2.200" "10.0.2.201")
 cidr=("10.244.6" "10.244.97" "10.244.93")
@@ -244,6 +208,49 @@ EOF
 done
 ```
 
+- ### create 00-multus.conf under /etc/cni/net.d on each node 
+
+00-multus.conf has the lowest alphabetically order, so it will become the first CNI for crio. after create this file. the kubernetes cluster will not longer use 10-calico.conf 
+
+we need to  create 00-multus.conf on each node. multus delegates to other cni based on multus crd config.
+
+in 00-multus.conf ,  "clusterNetwork" and "defaultNetworks" fields are used to define the networking configuration for Kubernetes pods.
+
+The "clusterNetwork" field specifies the name of the network that Kubernetes uses for internal cluster communication. This network is typically used for Kubernetes services, which provide a stable IP address and DNS name for accessing pods. The value of this field must match the name of a network plugin that has been installed on the cluster, such as net-calico 
+
+The "defaultNetworks" field is used to specify a list of additional network plugins that should be used for the default network configuration of pods. When a pod is created, it will automatically be assigned one of these networks as its primary network. This allows pods to be connected to multiple networks simultaneously.
+
+since we do not want add additional network for all pod in this cluster automatically. we do not config "defaultNetworks".  but just config **"clusterNetwork"** as pod in this cluster will need to have a clsuter network. 
+
+this cni config has name **"multus-cni-network"**
+
+if we run into issue . we can change logLevel to debug for more verbose information.
+
+```
+for node in 10.0.2.200 10.0.2.201 10.0.1.100; do
+ssh -o "StrictHostKeyChecking=no" -i  ~/.ssh/id_ed25519cfoslab ubuntu@$node << EOF
+cat << INNER_EOF | sudo tee /etc/cni/net.d/00-multus.conf
+{
+  "name": "multus-cni-network",
+  "type": "multus",
+  "confDir": "/etc/cni/multus/net.d",
+  "cniDir": "/var/lib/cni/multus",
+  "binDir": "/opt/cni/bin",
+  "logFile": "/var/log/multus.log",
+  "logLevel": "info",
+  "capabilities": {
+    "portMappings": true
+  },
+  "clusterNetwork": "net-calico",
+  "defaultNetworks": [],
+  "delegates": [],
+  "kubeconfig": "/etc/cni/net.d/multus.d/multus.kubeconfig"
+}
+INNER_EOF
+EOF
+done
+``` 
+
 - ### check crio log on each node
 
 ```
@@ -251,7 +258,10 @@ ubuntu@ip-10-0-1-100:/etc/cni/net.d$ journalctl -f -u crio | grep 'Updated defau
 Mar 13 02:46:54 ip-10-0-1-100 crio[2449]: time="2023-03-13 02:46:54.059049524Z" level=info msg="Updated default CNI network name to multus-cni-network"
 Mar 13 02:46:54 ip-10-0-1-100 crio[2449]: time="2023-03-13 02:46:54.132076903Z" level=info msg="Updated default CNI network name to multus-cni-network"
 ```
-- verify multus now delegates to net-calico cni for default cluster network 
+
+- ### verify multus now delegates to net-calico cni for default cluster network 
+we can create a deployment without using any annotations to check whether default cluster newtork works.
+below you will see that pod get network from kube-system/net-calico
 ```
 kubectl create deployment normal --image=praqma/network-multitool --replicas=3
 
@@ -271,7 +281,15 @@ LAST SEEN   TYPE     REASON           OBJECT                        MESSAGE
 ```
 
 
-- create default-calico multus crd with cni config under /etc/cni/multus/net.d on each node with different pod sub for application that want to route traffic to cfos 
+- ###  create network "default-calico" under /etc/cni/multus/net.d on each node 
+
+create default-calico multus crd with cni config under /etc/cni/multus/net.d on each node with different pod ip address range  for application that want to route traffic to cfos 
+
+this step is **optional**, POD can directly use net-calico crd for default networking. here we just show that we can create multiple default cluster network. and let application to choose which default network. with this approach. we need keep original pod/cluster configuration not impacted at all. only those application that want route traffic to cfos will using new default network based on the annotations.
+
+we do not want a default route from this network. so we remove the default route from this cni configuration below,but we added two specif route.
+
+the crd has name "default-calico" and the cni config on each node has same name but with different PODCIDR address.
 
 ```
 cat << EOF | kubectl apply -f - 
@@ -283,7 +301,8 @@ metadata:
 EOF 
 
 ```
-*default-calico cni* under /etc/cni/multus/net.d*
+*default-calico cni under /etc/cni/multus/net.d on each node*
+
 ```
 
 nodes=("10.0.1.100" "10.0.2.200" "10.0.2.201")
@@ -331,15 +350,24 @@ INNEREOF
 EOF 
 done
 
+- ## show how POD can attach to different network 
+*this section we show how to create a pod use default cluster-network, then use annotations to change the default network and then use annotations to add additional network*
 
-- creaete a pod on default network to verify 
+- ###  creaete a pod attach to  default cluster network to net-calico 
+
+we create an deployment without using annotations. then POD will be assigned with default cluster network configuration by multus. which is net-calico. 
+the net-calico do not have any confiugration about route entry. so POD in this network will have default route . which is 169.254.1.1 for calico CNI.
+
 ```
 kubectl create deployment normal --image=praqma/network-multitool --replicas=3
 ubuntu@ip-10-0-1-100:~$ kubectl exec -it po/normal-6965c788cf-s2r2h -- ip r
 default via 169.254.1.1 dev eth0
 169.254.1.1 dev eth0 scope link
 ```
-- change previous deployment to use new default network 
+- ### use annotations to change pod's default network to default-calico 
+
+*we use kubectl patch to config deployment with new network "default-calico" by add annotations to metadata field, this network have removed default route for pod*
+
 ```
 kubectl patch deployment normal  -p '{"spec": {"template":{"metadata":{"annotations":{"v1.multus-cni.io/default-network":"[{\"name\": \"default-calico\"}]"}}}}}'
 ubuntu@ip-10-0-1-100:~$ kubectl exec -it po/normal-7cd6974c5c-t4hfq -- sh
@@ -386,7 +414,9 @@ IP:               10.244.6.51
 ```
 
 
-- create multus secondary network with bridge cni 
+- ### create multus secondary network crd  with bridge cni json config  
+
+
 ```
 echo 'do this on master node'
 cat << EOF | kubectl apply -f - 
@@ -416,8 +446,10 @@ spec:
       }
     }
 EOF 
+
 ```
-- patch normal deployment to use secondary bridge network and add a default route 
+- ### patch normal deployment to use secondary bridge network and add a default route 
+
 ```
 kubectl patch deployment normal -p '{"spec": {"template":{"metadata":{"annotations":{"k8s.v1.cni.cncf.io/networks":"[{\"name\": \"cfosdefaultcni5\", \"default-route\": [\"10.1.128.2\"]}]"}}}}}'
 
@@ -459,133 +491,4 @@ default via 10.1.128.2 dev net1
 10.96.0.0/12 via 169.254.1.1 dev eth0
 169.254.1.1 dev eth0 scope link
 
-```
-- create cfos 
-
-```
-cat << EOF | kubectl apply -f - 
----
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    app: fos
-  name: fos-deployment
-  namespace: default
-spec:
-  ports:
-  - port: 80
-    protocol: TCP
-    targetPort: 80
-  selector:
-    app: fos
-  type: ClusterIP
----
-
-apiVersion: apps/v1
-kind: DaemonSet
-metadata:
-  name: fos-deployment
-  labels:
-      app: fos
-spec:
-  selector:
-    matchLabels:
-        app: fos
-  template:
-    metadata:
-      labels:
-        app: fos
-      annotations:
-        v1.multus-cni.io/default-network: default-calico
-        k8s.v1.cni.cncf.io/networks: '[ { "name": "cfosdefaultcni5",  "ips": [ "10.1.128.2/32" ], "mac": "CA:FE:C0:FF:00:02" } ]'
-    spec:
-      containers:
-      - name: fos
-        image: interbeing/fos:v7231x86
-        securityContext:
-          capabilities:
-              add: ["NET_ADMIN","SYS_ADMIN","NET_RAW"]
-        ports:
-        - name: isakmp
-          containerPort: 500
-          protocol: UDP
-        - name: ipsec-nat-t
-          containerPort: 4500
-          protocol: UDP
-        volumeMounts:
-        - mountPath: /data
-          name: data-volume
-      imagePullSecrets:
-      - name: dockerinterbeing
-      volumes:
-      - name: data-volume
-        persistentVolumeClaim:
-          claimName: cfosdata
-EOF 
-```
-- verify pod in normal application now shall able to access internet via cfos
-
-```
-ubuntu@ip-10-0-1-100:~/202301/north-test/2023220/flannel-default$ kubectl exec -it po/normal-58945bc79d-25784 -- sh
-/ # ip r
-default via 10.1.128.2 dev net1
-10.0.0.0/8 via 169.254.1.1 dev eth0
-10.0.0.2 via 10.1.128.1 dev net1
-10.1.128.0/24 dev net1 proto kernel scope link src 10.1.128.3
-10.96.0.0/12 via 10.1.128.1 dev net1
-10.96.0.0/12 via 169.254.1.1 dev eth0
-169.254.1.1 dev eth0 scope link
-/ # curl ipinfo.io
-{
-  "ip": "54.169.149.19",
-  "hostname": "ec2-54-169-149-19.ap-southeast-1.compute.amazonaws.com",
-  "city": "Singapore",
-  "region": "Singapore",
-  "country": "SG",
-  "loc": "1.2830,103.8487",
-  "org": "AS16509 Amazon.com, Inc.",
-  "postal": "048464",
-  "timezone": "Asia/Singapore",
-  "readme": "https://ipinfo.io/missingauth"
-}/ #
-```
-
-- create a test application that use cfos 
-```
-cat << EOF | kubectl apply -f - 
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: app01-deployment
-  labels:
-      app: app01
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-        app: app01
-  template:
-    metadata:
-      labels:
-        app: app01
-      annotations:
-        #k8s.v1.cni.cncf.io/networks: '[ { "name": "br-10-244-2",  "ips": [ "10.244.2.3/32"], "default-route": ["10.244.2.2"]  } ]'
-        v1.multus-cni.io/default-network: default-calico
-        k8s.v1.cni.cncf.io/networks: '[ { "name": "cfosdefaultcni5",  "default-route": ["10.1.128.2"]  } ]'
-    spec:
-      containers:
-        - name: app01
-          #image: wbitt/network-test
-          image: praqma/network-multitool
-            #image: nginx:latest
-          imagePullPolicy: Always
-            #command: ["/bin/sh","-c"]
-          args:
-            - /bin/sh
-            - -c
-            - /usr/sbin/nginx -g "daemon off;"
-          securityContext:
-            privileged: true
-EOF 
 ```
