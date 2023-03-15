@@ -1004,6 +1004,25 @@ ubuntu@ip-10-0-1-100:~/202301$ kubectl get svc fos-deployment
 NAME             TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
 fos-deployment   ClusterIP   10.100.57.107   <none>        80/TCP    19m
 
+if you want use dns name to access fos-deployment svc , you need add dns 10.96.0.10 on your client.
+10.96.0.10 is the kube-dns service ip address.
+
+```
+ubuntu@ip-10-0-1-100:~/202301$ cat << EOF | sudo tee -a /etc/resolv.conf
+nameserver 10.96.0.10
+nameserver 127.0.0.53
+options edns0 trust-ad
+search cluster.local ec2.internal
+EOF
+```
+then you can use fos-deployment.default.svc.cluster.local to access fos restful api. 
+
+```
+ubuntu@ip-10-0-1-100:~/202301$ curl http://fos-deployment.default.svc.cluster.local
+welcome to the REST API server`
+
+```
+
 ubuntu@ip-10-0-1-100:~/202301/opa/demo_network_policy_1$ curl http://10.100.57.107/api/v2/cmdb/firewall/policy
 {
   "status": "success",
