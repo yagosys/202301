@@ -443,6 +443,10 @@ spec:
       - name: dockerinterbeing
       volumes:
       - name: data-volume
+        #nfs:
+        #  server: 10.0.1.100
+        #  path: /home/ubuntu/data
+        #  readOnly: no
         persistentVolumeClaim:
           claimName: cfosdata
 EOF
