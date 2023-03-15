@@ -486,7 +486,7 @@ default via 10.1.128.2 dev net1
        valid_lft forever preferred_lft forever
     inet6 fe80::c72:39ff:fe68:6dee/64 scope link
        valid_lft forever preferred_lft forever
-/ # ip r
+# ip r
 default via 10.1.128.2 dev net1
 10.0.0.0/8 via 169.254.1.1 dev eth0
 10.0.0.2 via 10.1.128.1 dev net1
@@ -497,7 +497,9 @@ default via 10.1.128.2 dev net1
 
 ```
 
--- ## calico network explained
+- ## calico network explained
+
+
 *this section we explain how calico network works,the key is calico use proxy arp with a pesudo gateway 169.254.1.1*
 
 calico network configuraition can be checked with
@@ -525,7 +527,8 @@ ubuntu@ip-10-0-2-200:~$ kubectl get installation default -o jsonpath={.spec.cali
   }
 }
 ```
--- ### walkthrough each hop from source pod to destination pod on other node 
+
+- ### walkthrough each hop from source pod to destination pod on other node 
 
 ```
 ubuntu@ip-10-0-2-200:~$ kubectl get pod -o wide
