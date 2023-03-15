@@ -1,13 +1,13 @@
 #!/bin/bash -xe
 function  read_node_cidr_to_list {
 until nodesstring=$(kubectl get nodes -o yaml -o jsonpath={.items[*].metadata.annotations} | jq  . | grep projectcalico.org/IPv4Address) ; do sleep 10; done
+sleep 10
 
 nodesstring=$(kubectl get nodes -o yaml -o jsonpath={.items[*].metadata.annotations} | jq  . | grep projectcalico.org/IPv4Address |  cut -d ':' -f 2  |  sed 's/ //g; s,/24,,g; s/,//g' | tr -d '"')
 readarray -t nodes <<< $nodesstring
 
 cidrstring=$(kubectl get nodes -o yaml -o jsonpath={.items[*].metadata.annotations} | jq  . | grep projectcalico.org/IPv4VXLANTunnelAddr |  cut -d '.' -f 2-4 | cut -d ':' -f 2 | tr -d '"')
 readarray -t cidr <<< $cidrstring
-#cidr="${cidr[@]/# /}"
 #nodes=("10.0.1.100" "10.0.2.200" "10.0.2.201")
 #cidr=("10.244.6" "10.244.97" "10.244.93")
 }
