@@ -872,8 +872,210 @@ spec:
 EOF
 ```
 - ### check cfos deployment 
+*check the deployment*
+
+```
+ubuntu@ip-10-0-1-100:~/202301$ kubectl rollout status ds/fos-deployment
+daemon set "fos-deployment" successfully rolled out
+```
+*restart cfos ds*
+
+```
+ubuntu@ip-10-0-1-100:~/202301$ kubectl rollout restart ds/fos-deployment
+daemonset.apps/fos-deployment restarted
+```
+*chech the cfos pod log on pod on node 10-0-2-200*
+
+you will found the cfos is running 7.2.0.0231 version and System is ready, also a few configmap has been read into cfos include license etc.,
+
+```
+ubuntu@ip-10-0-1-100:~/202301$ kubectl logs -f po/`kubectl get pods -l app=fos --field-selector spec.nodeName=ip-10-0-2-200 |     cut -d ' ' -f 1 | tail -n -1`
+
+System is starting...
+
+Firmware version is 7.2.0.0231
+Preparing environment...
+RTNETLINK answers: File exists
+Starting services...
+System is ready.
+
+2023-03-15_08:33:34.90495 ok: run: /run/fcn_service/certd: (pid 261) 0s, normally down
+2023-03-15_08:33:39.93470 INFO: 2023/03/15 08:33:39 received a new fos configmap
+2023-03-15_08:33:39.93471 INFO: 2023/03/15 08:33:39 configmap name: fos-license, labels: map[app:fos category:license]
+2023-03-15_08:33:39.93471 INFO: 2023/03/15 08:33:39 got a fos license
+2023-03-15_08:33:39.93474 INFO: 2023/03/15 08:33:39 received a new fos configmap
+2023-03-15_08:33:39.93474 INFO: 2023/03/15 08:33:39 configmap name: foscfgdns, labels: map[app:fos category:config]
+2023-03-15_08:33:39.93474 INFO: 2023/03/15 08:33:39 got a fos config
+2023-03-15_08:33:39.93492 INFO: 2023/03/15 08:33:39 received a new fos configmap
+2023-03-15_08:33:39.93493 INFO: 2023/03/15 08:33:39 configmap name: foscfgstaticdefaultroute, labels: map[app:fos category:config]
+2023-03-15_08:33:39.93493 INFO: 2023/03/15 08:33:39 got a fos config
+2023-03-15_08:33:39.93493 INFO: 2023/03/15 08:33:39 received a new fos configmap
+2023-03-15_08:33:39.93494 INFO: 2023/03/15 08:33:39 configmap name: foscfgfirewallpolicy, labels: map[app:fos category:config]
+2023-03-15_08:33:39.93494 INFO: 2023/03/15 08:33:39 got a fos config
+```
+
+- ### shell into cfos container 
 
 
+```
+ubuntu@ip-10-0-1-100:~/202301$ kubectl exec -it po/`kubectl get pods -l app=fos --field-selector spec.nodeName=ip-10-0-2-200 |     cut -d ' ' -f 1 | tail -n -1`  -- sh
+# ip route
+10.0.0.0/8 via 169.254.1.1 dev eth0
+10.0.0.2 via 10.1.128.1 dev net1
+10.1.128.0/24 dev net1 proto kernel scope link src 10.1.128.252
+10.96.0.0/12 via 10.1.128.1 dev net1
+10.96.0.0/12 via 169.254.1.1 dev eth0
+169.254.1.1 dev eth0 scope link
+```
+cfos do not have default route on main routing table.  
+
+```
+# ip route show table 231
+default via 169.254.1.1 dev eth0 metric 10
+10.0.0.0/8 via 169.254.1.1 dev eth0
+10.0.0.2 via 10.1.128.1 dev net1
+10.1.128.0/24 dev net1 proto kernel scope link src 10.1.128.252
+10.96.0.0/12 via 10.1.128.1 dev net1
+169.254.1.1 dev eth0 scope link
+```
+but it has default route configured on route table 231. this is configured by cfos static route via configmap.
+
+```
+# fcnsh
+FOS Container # config router static
+
+FOS Container (static) # show
+config router static
+    edit "1"
+        set gateway 169.254.1.1
+
+        set device "eth0"
+    next
+end
+FOS Container (static) #
+```
+
+so cfos container can reach internet, we can go back from cfos console via `sysctl sh` to container shell to do this
+
+```
+
+FOS Container # sysctl sh
+# ip route get 1.1.1.1
+1.1.1.1 via 169.254.1.1 dev eth0 table 231 src 10.244.97.53 uid 0
+    cache
+# ping -c 1 1.1.1.1
+PING 1.1.1.1 (1.1.1.1): 56 data bytes
+64 bytes from 1.1.1.1: seq=0 ttl=48 time=1.753 ms
+
+--- 1.1.1.1 ping statistics ---
+1 packets transmitted, 1 packets received, 0% packet loss
+round-trip min/avg/max = 1.753/1.753/1.753 ms
+```
+*check firewall policy configured on cfos*
+```
+FOS Container # config firewall policy
+
+FOS Container (policy) # show
+config firewall policy
+    edit "3"
+        set utm-status enable
+        set name "pod_to_internet_HTTPS_HTTP"
+        set srcintf any
+        set dstintf eth0
+        set srcaddr all
+        set dstaddr all
+        set service HTTPS HTTP PING DNS
+        set ssl-ssh-profile "deep-inspection"
+        set av-profile "default"
+        set webfilter-profile "default"
+        set ips-sensor "default"
+        set nat enable
+        set logtraffic all
+    next
+end
+```
+*check firewall policy by use cfos restful api*
+
+*first let the cfos restful service is up and running in k8s, this is configured via ClusterIP.*
+
+
+```
+ubuntu@ip-10-0-1-100:~/202301$ kubectl get svc fos-deployment
+NAME             TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
+fos-deployment   ClusterIP   10.100.57.107   <none>        80/TCP    19m
+
+ubuntu@ip-10-0-1-100:~/202301/opa/demo_network_policy_1$ curl http://10.100.57.107/api/v2/cmdb/firewall/policy
+{
+  "status": "success",
+  "http_status": 200,
+  "path": "firewall",
+  "name": "policy",
+  "http_method": "GET",
+  "results": [
+    {
+      "policyid": "3",
+      "status": "enable",
+      "utm-status": "enable",
+      "name": "pod_to_internet_HTTPS_HTTP",
+      "comments": "",
+      "srcintf": [
+        {
+          "name": "any"
+        }
+      ],
+      "dstintf": [
+        {
+          "name": "eth0"
+        }
+      ],
+      "srcaddr": [
+        {
+          "name": "all"
+        }
+      ],
+      "dstaddr": [
+        {
+          "name": "all"
+        }
+      ],
+      "srcaddr6": [],
+      "dstaddr6": [],
+      "service": [
+        {
+          "name": "HTTPS"
+        },
+        {
+          "name": "HTTP"
+        },
+        {
+          "name": "PING"
+        },
+        {
+          "name": "DNS"
+        }
+      ],
+      "ssl-ssh-profile": "deep-inspection",
+      "profile-type": "single",
+      "profile-group": "",
+      "profile-protocol-options": "default",
+      "av-profile": "default",
+      "webfilter-profile": "default",
+      "dnsfilter-profile": "",
+      "emailfilter-profile": "",
+      "dlp-sensor": "",
+      "file-filter-profile": "",
+      "ips-sensor": "default",
+      "application-list": "",
+      "action": "accept",
+      "nat": "enable",
+      "custom-log-fields": [],
+      "logtraffic": "all"
+    }
+  ],
+  "serial": "FGVMULTM23000044",
+  "version": "v7.2.0",
+  "build": "231"
+```
 
 - ### create demo application deployment  
 *this application pod use default-network "default-calico", and also attached to secondary network "cfosdefaultcni5"*
@@ -923,4 +1125,63 @@ EOF
 
 - ### check the application pod 
 
+*application pod shall have default route point to cfos* 
+
+*application pod shall have route to cluster via 169.254.1.1*
+
+
+```
+ubuntu@ip-10-0-1-100:~/202301/opa/demo_network_policy_1$ kubectl exec -it po/`kubectl get pods -l app=multitool01 --field-selector spec.nodeName=ip-10-0-2-200 |     cut -d ' ' -f 1 | tail -n -1`  -- sh
+/ # ip a
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host
+       valid_lft forever preferred_lft forever
+3: eth0@if11: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 8951 qdisc noqueue state UP group default
+    link/ether f2:da:87:c5:92:46 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.244.97.51/32 scope global eth0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::f0da:87ff:fec5:9246/64 scope link
+       valid_lft forever preferred_lft forever
+4: net1@if12: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default
+    link/ether ba:5a:93:d8:61:44 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.1.128.253/24 brd 10.1.128.255 scope global net1
+       valid_lft forever preferred_lft forever
+    inet6 fe80::b85a:93ff:fed8:6144/64 scope link
+       valid_lft forever preferred_lft forever
+
+/ # ip r
+default via 10.1.128.252 dev net1
+10.0.0.0/8 via 169.254.1.1 dev eth0
+10.0.0.2 via 10.1.128.1 dev net1
+10.1.128.0/24 dev net1 proto kernel scope link src 10.1.128.253
+10.96.0.0/12 via 10.1.128.1 dev net1
+10.96.0.0/12 via 169.254.1.1 dev eth0
+169.254.1.1 dev eth0 scope link
+/ # ping -c 1 1.1.1.1
+PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
+64 bytes from 1.1.1.1: icmp_seq=1 ttl=47 time=2.12 ms
+--- 1.1.1.1 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 2.121/2.121/2.121/0.000 ms
+/ # curl -I -k https://1.1.1.1
+HTTP/2 200
+date: Wed, 15 Mar 2023 09:03:22 GMT
+content-type: text/html
+report-to: {"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v3?s=tcg8Ecs%2FWjBOHrQkJ%2BTPCwJ4QBvxYTUPKElyCOe6DrqEfPDJBmnDIIdZ08j1gCQx9QsTV9Jn86nxwmW4wce2xmnDzapboa7IQGFqpY3bZZYhW7nDfvhXkRw%3D"}],"group":"cf-nel","max_age":604800}
+nel: {"report_to":"cf-nel","max_age":604800}
+last-modified: Thu, 04 Aug 2022 19:10:01 GMT
+strict-transport-security: max-age=31536000
+served-in-seconds: 0.003
+cache-control: public, max-age=14400
+cf-cache-status: HIT
+age: 157
+expires: Wed, 15 Mar 2023 13:03:22 GMT
+set-cookie: __cf_bm=LguStn__XIFDst0ibfBMUsHgGuuQu.eOuD.WRLIMWV4-1678871002-0-Ae5GwkW8ybCBMgJ9M0xf2SpJP9IAx4EQDqKB9g9DI+o782XdLhJb93VsHoprs9azz4QkSge/Hpq414iP/dc0XbI=; path=/; expires=Wed, 15-Mar-23 09:33:22 GMT; domain=.every1dns.com; HttpOnly; Secure; SameSite=None
+server: cloudflare
+cf-ray: 7a839535ddf53b0c-IAD
+alt-svc: h3=":443"; ma=86400, h3-29=":443"; ma=86400
+```
 
