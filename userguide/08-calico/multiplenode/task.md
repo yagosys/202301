@@ -496,3 +496,135 @@ default via 10.1.128.2 dev net1
 169.254.1.1 dev eth0 scope link
 
 ```
+
+-- ## calico network explained
+*this section we explain how calico network works,the key is calico use proxy arp with a pesudo gateway 169.254.1.1*
+
+calico network configuraition can be checked with
+```
+ubuntu@ip-10-0-2-200:~$ kubectl get installation default -o jsonpath={.spec.calicoNetwork}
+{"bgp":"Disabled","containerIPForwarding":"Enabled","hostPorts":"Enabled","ipPools":[{"blockSize":24,"cidr":"10.244.0.0/16","disableBGPExport":false,"encapsulation":"VXLAN","natOutgoing":"Enabled","nodeSelector":"all()"}],"linuxDataplane":"Iptables","multiInterfaceMode":"None","nodeAddressAutodetectionV4":{"firstFound":true}}ubuntu@ip-10-0-2-200:~$ kubectl get installation default -o jsonpath={.spec.calicoNetwork} | jq .
+{
+  "bgp": "Disabled",
+  "containerIPForwarding": "Enabled",
+  "hostPorts": "Enabled",
+  "ipPools": [
+    {
+      "blockSize": 24,
+      "cidr": "10.244.0.0/16",
+      "disableBGPExport": false,
+      "encapsulation": "VXLAN",
+      "natOutgoing": "Enabled",
+      "nodeSelector": "all()"
+    }
+  ],
+  "linuxDataplane": "Iptables",
+  "multiInterfaceMode": "None",
+  "nodeAddressAutodetectionV4": {
+    "firstFound": true
+  }
+}
+```
+-- ### walkthrough each hop from source pod to destination pod on other node 
+
+```
+ubuntu@ip-10-0-2-200:~$ kubectl get pod -o wide
+NAME                                    READY   STATUS    RESTARTS   AGE    IP             NODE            NOMINATED NODE   READINESS GATES
+multitool01-deployment-bb4c98bb-8p4lt   1/1     Running   0          155m   10.244.97.51   ip-10-0-2-200   <none>           <none>
+multitool01-deployment-bb4c98bb-flspr   1/1     Running   0          155m   10.244.93.50   ip-10-0-2-201   <none>           <none>
+```
+above we have two pod in two nodes. they are in different subnets. we can check on each hop with tcpdump etc tool.
+
+
+**(source pod:10.244.97.51)---[(calicoxxx)-(10.244.97.0/32)-ens5-(10-0.2.200)]---vpc-bridge---[(10.0.2.201)-ens5-vxlan.calico-(10.244.93.0/32)-(calicoxxx)]--(dst pod:10.244.93.50)** 
+
+from pod eth0 interface 10.244.97.51 to pod 10.244.93.50
+
+- #### step1: ip route lookup found the nexthop is 169.254.1.1
+
+this ip address is not on any interface. caclico hardcoded this ip address. so the arp request for this address will happen routing happens.
+
+``` 
+ubuntu@ip-10-0-2-200:~$ kubectl exec -it po/multitool01-deployment-bb4c98bb-8p4lt -- ip route get 10.244.93.50
+10.244.93.50 via 169.254.1.1 dev eth0 src 10.244.97.51 uid 0
+    cache
+```
+
+- #### step2: send arp request for 169.254.1.1 got reply with mac address: ee:ee:ee:ee:ee:ee 
+when source pod do l3 forwarding. the arp request to 169.254.1.1 will be generated. this arp request will reach host interface via veth pair.(pod3: host:if13)
+pod is connecting with host interface (index13 : cali6d544638a21@if3). 
+```
+ubuntu@ip-10-0-2-200:~$ kubectl exec -it po/multitool01-deployment-bb4c98bb-8p4lt -- ip a  | grep eth0
+3: eth0@if13: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 8951 qdisc noqueue state UP group default
+    inet 10.244.97.51/32 scope global eth0
+
+ubuntu@ip-10-0-2-200:~$ kubectl exec -it po/multitool01-deployment-bb4c98bb-8p4lt -- ping 10.244.93.50
+
+ubuntu@ip-10-0-2-200:~$ kubectl exec -it po/multitool01-deployment-bb4c98bb-8p4lt -- sh 
+ubuntu@ip-10-0-2-200:~$ sudo tcpdump -i cali6d544638a21 arp
+tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
+listening on cali6d544638a21, link-type EN10MB (Ethernet), snapshot length 262144 bytes
+06:16:47.733555 ARP, Request who-has 169.254.1.1 tell 10.244.97.51, length 28
+06:16:47.733635 ARP, Reply 169.254.1.1 is-at ee:ee:ee:ee:ee:ee (oui Unknown), length 28
+
+```
+
+- #### step3: this arp request reached host interface cali6d544638a21, this cali interface replied the arp request with mac ee:ee:ee:ee:ee:ee 
+```
+ubuntu@ip-10-0-2-200:~$ sudo tcpdump -i cali6d544638a21  -n
+tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
+listening on cali6d544638a21, link-type EN10MB (Ethernet), snapshot length 262144 bytes
+05:36:54.101773 ARP, Request who-has 169.254.1.1 tell 10.244.97.51, length 28
+05:36:54.101784 ARP, Reply 169.254.1.1 is-at ee:ee:ee:ee:ee:ee, length 28
+``` 
+this is because the interface cali6d544638a21 on host has **proxy arp** enabled. this interface does not have ip address. but will response arp request with it's macddress
+
+```
+ubuntu@ip-10-0-2-200:~$ cat /proc/sys/net/ipv4/conf/cali6d544638a21/proxy_arp
+1
+```
+
+- #### step4: source pod use ee:ee:ee:ee:ee:ee as dst mac send traffic to host. 
+- #### step5: host do route lookup for dst 10.244.93.50 found nexthop is 10.244.93.0 which is vxlan.calico interface , normal vxlan tunnel follows. 
+```
+ubuntu@ip-10-0-2-200:~$ ip r get 10.244.93.50
+10.244.93.50 via 10.244.93.0 dev vxlan.calico src 10.244.97.0 uid 1000
+    cache
+``` 
+on this host, the nexthop ip address 10.244.93.0 has a permant mac address. so traffic will reach tunnel interface.   
+```
+ubuntu@ip-10-0-2-200:~$ ip route | grep 10.244.93.0
+10.244.93.0/24 via 10.244.93.0 dev vxlan.calico onlink
+ubuntu@ip-10-0-2-200:~$ ip neighbor | grep 10.244.93.0
+10.244.93.0 dev vxlan.calico lladdr 66:73:5c:ce:0d:ae PERMANENT
+```
+- #### step6: vxlan.calico interface encapsulate packet with vxlan and send via ens5 interface to peer node. 
+you can see, by default, vxlan.calico interface use vlxan id 4096 and dst port is 4789. nolearning is configured, so no mac will be learned on this interface  
+```
+ubuntu@ip-10-0-2-200:~$ ip -d address show dev vxlan.calico
+5: vxlan.calico: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 8951 qdisc noqueue state UNKNOWN group default
+    link/ether 66:55:b7:b7:f8:dc brd ff:ff:ff:ff:ff:ff promiscuity 0 minmtu 68 maxmtu 65535
+    vxlan id 4096 local 10.0.2.200 dev ens5 srcport 0 0 dstport 4789 nolearning ttl auto ageing 300 udpcsum noudp6zerocsumtx noudp6zerocsumrx numtxqueues 1 numrxqueues 1 gso_max_size 65536 gso_max_segs 65535
+    inet 10.244.97.0/32 scope global vxlan.calico
+       valid_lft forever preferred_lft forever
+    inet6 fe80::6455:b7ff:feb7:f8dc/64 scope link
+       valid_lft forever preferred_lft forever
+
+ubuntu@ip-10-0-2-200:~$ sudo tcpdump -i vxlan.calico -n -vvv src 10.244.97.51
+tcpdump: listening on vxlan.calico, link-type EN10MB (Ethernet), snapshot length 262144 bytes
+05:50:40.481791 IP (tos 0x0, ttl 63, id 19904, offset 0, flags [DF], proto ICMP (1), length 84)
+    10.244.97.51 > 10.244.93.50: ICMP echo request, id 60, seq 134, length 64
+05:50:41.505776 IP (tos 0x0, ttl 63, id 20114, offset 0, flags [DF], proto ICMP (1), length 84)
+    10.244.97.51 > 10.244.93.50: ICMP echo request, id 60, seq 135, length 64
+```
+- #### step 7 ens5 interface send vxlan packet to destination, packet reach destination pod. reverse procedure will happen for icmp reply. 
+```
+ubuntu@ip-10-0-2-200:~$ sudo tcpdump -i ens5 -n udp  port 4789 && src 10.0.2.200
+tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
+listening on ens5, link-type EN10MB (Ethernet), snapshot length 262144 bytes
+05:55:35.201797 IP 10.0.2.200.45547 > 10.0.2.201.4789: VXLAN, flags [I] (0x08), vni 4096
+IP 10.244.97.51 > 10.244.93.50: ICMP echo request, id 60, seq 422, length 64
+05:55:35.202047 IP 10.0.2.201.40770 > 10.0.2.200.4789: VXLAN, flags [I] (0x08), vni 4096
+IP 10.244.93.50 > 10.244.97.51: ICMP echo reply, id 60, seq 422, length 64
+```
+
