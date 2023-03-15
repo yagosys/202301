@@ -456,6 +456,8 @@ EOF
 kubectl patch deployment normal -p '{"spec": {"template":{"metadata":{"annotations":{"k8s.v1.cni.cncf.io/networks":"[{\"name\": \"cfosdefaultcni5\", \"default-route\": [\"10.1.128.2\"]}]"}}}}}'
 
 ```
+you will see the pod now has a default route point to secondary network which is 10.1.128.2 via net1 interface.
+```
 ubuntu@ip-10-0-1-100:/etc/cni/multus/net.d$ kubectl exec -it po/normal-58945bc79d-4j9zb -- sh
 / # ip r
 default via 10.1.128.2 dev net1
