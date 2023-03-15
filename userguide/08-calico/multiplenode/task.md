@@ -1197,6 +1197,7 @@ PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
 ```
 *check cfos sniff* 
 
+```
 ubuntu@ip-10-0-1-100:~$ kubectl exec -it po/fos-deployment-8ssms -- sh
 # fcnsh
 FOS Container # diagnose sniffer packet any
