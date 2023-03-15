@@ -496,6 +496,12 @@ default via 10.1.128.2 dev net1
 169.254.1.1 dev eth0 scope link
 
 ```
+- ### delete normal deployment 
+
+``` 
+  kubectl delete deployment normal 
+
+```
 
 - ## calico network explained
 
@@ -635,4 +641,286 @@ IP 10.244.97.51 > 10.244.93.50: ICMP echo request, id 60, seq 422, length 64
 05:55:35.202047 IP 10.0.2.201.40770 > 10.0.2.200.4789: VXLAN, flags [I] (0x08), vni 4096
 IP 10.244.93.50 > 10.244.97.51: ICMP echo reply, id 60, seq 422, length 64
 ```
+- ## deploy cfos daemonset
+*this section we deploy a cfos daemonset at each worker node use yaml file* 
+
+- ### deploy cfos configuration use configmap
+
+
+```
+cat << EOF | kubectl apply -f -
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: cfosdata
+spec:
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 1.1Gi
+  persistentVolumeReclaimPolicy: Delete
+  hostPath:
+    path: /home/ubuntu/data/pv0001
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cfosdata
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  namespace: default
+  name: configmap-reader
+rules:
+- apiGroups: [""]
+  resources: ["configmaps"]
+  verbs: ["get", "watch", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: read-configmaps
+  namespace: default
+subjects:
+- kind: ServiceAccount
+  name: default
+  apiGroup: ""
+roleRef:
+  kind: ClusterRole
+  name: configmap-reader
+  apiGroup: ""
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+   namespace: default
+   name: secrets-reader
+rules:
+- apiGroups: [""] # "" indicates the core API group
+  resources: ["secrets"]
+  verbs: ["get", "watch", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: read-secrets
+  namespace: default
+subjects:
+- kind: ServiceAccount
+  name: default
+  apiGroup: ""
+roleRef:
+  kind: ClusterRole
+  name: secrets-reader
+  apiGroup: ""
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: foscfgstaticdefaultroute
+  labels:
+      app: fos
+      category: config
+data:
+  type: partial
+  config: |-
+    config router static
+       edit "1"
+           set gateway 169.254.1.1
+           set device "eth0"
+       next
+    end
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: foscfgfirewallpolicy
+  labels:
+      app: fos
+      category: config
+data:
+  type: partial
+  config: |-
+    config firewall policy
+           edit "3"
+               set utm-status enable
+               set name "pod_to_internet_HTTPS_HTTP"
+               set srcintf any
+               set dstintf eth0
+               set srcaddr all
+               set dstaddr all
+               set service HTTPS HTTP PING DNS
+               set ssl-ssh-profile "deep-inspection"
+               set ips-sensor "default"
+               set webfilter-profile "default"
+               set av-profile "default"
+               set nat enable
+               set logtraffic all
+           next
+       end
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: foscfgdns
+  labels:
+      app: fos
+      category: config
+data:
+  type: partial
+  config: |-
+    config system dns
+      set primary 10.96.0.10
+      set secondary 10.0.0.2
+    end
+
+EOF
+
+```
+- ### create cfos daemonSet
+*cfos use annotations to specify default-network to "default-calico, and additional network to cfosdefaultcni5 crd*
+
+*cfos configured with static ip 10.1.128.252 on net1 interface*
+
+*cfos expose 80 port which is restful interface via CLusterIP*
+
+*cfos config linux capabilities ["NET_ADMIN","SYS_ADMIN","NET_RAW"] , NET_ADMIN and NET_RAW are required for use packet capture and ping*
+
+*cfos configured with local storage on each node and mounted as /data folder*
+
+*cfos do not config default route via default-calico or cfosdefaultcni5. instead , the default route is configured through cfos static route which install route not in main routing table but in table 231. table 231 has higher priority than main routing table*
+
+*cfos congured as DaemonSet, so each node will have only one cfos POD, if more than 1 cfos POD is needed. config another DaemonSet for cFOS with different static IP*
+
+
+```
+cat << EOF | kubectl apply -f -
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: fos
+  name: fos-deployment
+  namespace: default
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: fos
+  type: ClusterIP
+---
+
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: fos-deployment
+  labels:
+      app: fos
+spec:
+  selector:
+    matchLabels:
+        app: fos
+  template:
+    metadata:
+      labels:
+        app: fos
+      annotations:
+        v1.multus-cni.io/default-network: default-calico
+        k8s.v1.cni.cncf.io/networks: '[ { "name": "cfosdefaultcni5",  "ips": [ "10.1.128.252/32" ], "mac": "CA:FE:C0:FF:00:02" } ]'
+    spec:
+      containers:
+      - name: fos
+        image: interbeing/fos:v7231x86
+        securityContext:
+          capabilities:
+              add: ["NET_ADMIN","SYS_ADMIN","NET_RAW"]
+        ports:
+        - name: isakmp
+          containerPort: 500
+          protocol: UDP
+        - name: ipsec-nat-t
+          containerPort: 4500
+          protocol: UDP
+        volumeMounts:
+        - mountPath: /data
+          name: data-volume
+      imagePullSecrets:
+      - name: dockerinterbeing
+      volumes:
+      - name: data-volume
+        #nfs:
+        #  server: 10.0.1.100
+        #  path: /home/ubuntu/data
+        #  readOnly: no
+        persistentVolumeClaim:
+          claimName: cfosdata
+EOF
+```
+- ### check cfos deployment 
+
+
+
+- ### create demo application deployment  
+*this application pod use default-network "default-calico", and also attached to secondary network "cfosdefaultcni5"*
+
+*pod will obtain default route from "cfosdefaultcni5" by use annotations with key-workd k8s.v1.cni.cncf.io/networks: '[ { "name": "cfosdefaultcni5",  "default-route": ["10.1.128.252"]  } ]'*
+
+*we need use this pod to do tcpdump, ping  etc, so we assigned capabilities with "NET_ADMIN","SYS_ADMIN","NET_RAW"*
+
+```
+cat << EOF | kubectl apply -f -
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: multitool01-deployment
+  labels:
+      app: multitool01
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+        app: multitool01
+  template:
+    metadata:
+      labels:
+        app: multitool01
+      annotations:
+        v1.multus-cni.io/default-network: default-calico
+        k8s.v1.cni.cncf.io/networks: '[ { "name": "cfosdefaultcni5",  "default-route": ["10.1.128.252"]  } ]'
+    spec:
+      containers:
+        - name: multitool01
+          #image: wbitt/network-test
+          image: praqma/network-multitool
+            #image: nginx:latest
+          imagePullPolicy: Always
+            #command: ["/bin/sh","-c"]
+          args:
+            - /bin/sh
+            - -c
+            - /usr/sbin/nginx -g "daemon off;"
+          securityContext:
+          capabilities:
+              add: ["NET_ADMIN","SYS_ADMIN","NET_RAW"]
+          #  privileged: true
+EOF
+```
+
+- ### check the application pod 
+
 
