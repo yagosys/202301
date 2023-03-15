@@ -541,7 +541,7 @@ above we have two pod in two nodes. they are in different subnets. we can check 
 
 ```
  (src pod:10.244.97.51)---[(cali-)-(vxlan.calico-10.244.97.0/32)-ens5-(10-0.2.200)]
-                                                                   -vpc-subnet-[(10.0.2.201)
+                                                                   -vpc-subnet-[(10.0.2.0/24)
  (dst pod:10.244.93.50)---[(cali-)-(vxlan.calico-10.244.93.0/32)-ens5-(10.0.2.201)]
 
  ```
