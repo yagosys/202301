@@ -1185,3 +1185,142 @@ cf-ray: 7a839535ddf53b0c-IAD
 alt-svc: h3=":443"; ma=86400, h3-29=":443"; ma=86400
 ```
 
+*we can also do sniff on cfos for traffic from pod to internet*
+
+*continue ping on application pod*
+
+```
+ubuntu@ip-10-0-1-100:~/202301/opa/demo_network_policy_1$ kubectl exec -it po/`kubectl get pods -l app=multitool01 --field-selector spec.nodeName=ip-10-0-2-200 |     cut -d ' ' -f 1 | tail -n -1`  -- ping 1.1.1.1
+PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
+64 bytes from 1.1.1.1: icmp_seq=1 ttl=47 time=1.92 ms
+64 bytes from 1.1.1.1: icmp_seq=2 ttl=47 time=1.80 ms
+```
+*check cfos sniff* 
+
+ubuntu@ip-10-0-1-100:~$ kubectl exec -it po/fos-deployment-8ssms -- sh
+# fcnsh
+FOS Container # diagnose sniffer packet any
+interfaces=[any]
+filters=[none]
+count=unlimited
+snaplen=1600
+
+FOS Container # linktype = 113
+0.874959 10.1.128.253 -> 1.1.1.1: icmp: echo request
+0.875066 10.244.97.53 -> 1.1.1.1: icmp: echo request
+0.876636 1.1.1.1 -> 10.244.97.53: icmp: echo reply
+0.876707 1.1.1.1 -> 10.1.128.253: icmp: echo reply
+1.876885 10.1.128.253 -> 1.1.1.1: icmp: echo request
+1.877035 10.244.97.53 -> 1.1.1.1: icmp: echo request
+1.878552 1.1.1.1 -> 10.244.97.53: icmp: echo reply
+1.878634 1.1.1.1 -> 10.1.128.253: icmp: echo reply
+1.940998 arp who-has 10.1.128.253 tell 10.1.128.252
+1.941155 arp reply 10.1.128.253 is-at ba:5a:93:d8:61:44
+2.878803 10.1.128.253 -> 1.1.1.1: icmp: echo request
+2.878918 10.244.97.53 -> 1.1.1.1: icmp: echo request
+2.880457 1.1.1.1 -> 10.244.97.53: icmp: echo reply
+2.880509 1.1.1.1 -> 10.1.128.253: icmp: echo reply
+3.880679 10.1.128.253 -> 1.1.1.1: icmp: echo request
+3.880793 10.244.97.53 -> 1.1.1.1: icmp: echo request
+3.882886 1.1.1.1 -> 10.244.97.53: icmp: echo reply
+3.882974 1.1.1.1 -> 10.1.128.253: icmp: echo reply
+```
+
+*check cfos traffic log*
+
+```
+FOS Container # execute  log filter category traffic
+
+FOS Container # execute log filter device disk
+
+FOS Container # execute  log display
+date=2023-03-15 time=08:32:04 eventtime=1678869124 tz="+0000" logid="0000000013" type="traffic" subtype="forward" level="notice" srcip=10.1.128.253 srcport=53772 dstip=1.1.1.1 dstport=443 sessionid=1070264054 proto=6 action="accept" policyid=3 service="HTTPS" trandisp="noop" duration=0 sentbyte=0 rcvdbyte=0 sentpkt=0 rcvdpkt=0
+date=2023-03-15 time=09:03:44 eventtime=1678871024 tz="+0000" logid="0000000013" type="traffic" subtype="forward" level="notice" srcip=10.1.128.253 identifier=32 dstip=1.1.1.1 sessionid=912886433 proto=1 action="accept" policyid=3 service="ICMP" trandisp="noop" duration=0 sentbyte=0 rcvdbyte=0 sentpkt=0 rcvdpkt=0
+date=2023-03-15 time=09:05:47 eventtime=1678871147 tz="+0000" logid="0000000013" type="traffic" subtype="forward" level="notice" srcip=10.1.128.253 srcport=58914 dstip=1.1.1.1 dstport=443 sessionid=507646218 proto=6 action="accept" policyid=3 service="HTTPS" trandisp="noop" duration=0 sentbyte=0 rcvdbyte=0 sentpkt=0 rcvdpkt=0
+date=2023-03-15 time=09:09:45 eventtime=1678871385 tz="+0000" logid="0000000013" type="traffic" subtype="forward" level="notice" srcip=10.1.128.253 identifier=35 dstip=1.1.1.1 sessionid=1935580230 proto=1 action="accept" policyid=3 service="ICMP" trandisp="noop" duration=0 sentbyte=0 rcvdbyte=0 sentpkt=0 rcvdpkt=0
+date=2023-03-15 time=09:10:46 eventtime=1678871446 tz="+0000" logid="0000000013" type="traffic" subtype="forward" level="notice" srcip=10.1.128.253 identifier=41 dstip=1.1.1.1 sessionid=3360617615 proto=1 action="accept" policyid=3 service="ICMP" trandisp="noop" duration=0 sentbyte=0 rcvdbyte=0 sentpkt=0 rcvdpkt=0
+
+5 logs returned.
+```
+*or directly cat the log file from container*
+
+```
+ubuntu@ip-10-0-1-100:~$ kubectl exec -it po/fos-deployment-8ssms --  tail -f /var/log/log/traffic.0
+date=2023-03-15 time=08:32:04 eventtime=1678869124 tz="+0000" logid="0000000013" type="traffic" subtype="forward" level="notice" srcip=10.1.128.253 srcport=53772 dstip=1.1.1.1 dstport=443 sessionid=1070264054 proto=6 action="accept" policyid=3 service="HTTPS" trandisp="noop" duration=0 sentbyte=0 rcvdbyte=0 sentpkt=0 rcvdpkt=0
+date=2023-03-15 time=09:03:44 eventtime=1678871024 tz="+0000" logid="0000000013" type="traffic" subtype="forward" level="notice" srcip=10.1.128.253 identifier=32 dstip=1.1.1.1 sessionid=912886433 proto=1 action="accept" policyid=3 service="ICMP" trandisp="noop" duration=0 sentbyte=0 rcvdbyte=0 sentpkt=0 rcvdpkt=0
+date=2023-03-15 time=09:05:47 eventtime=1678871147 tz="+0000" logid="0000000013" type="traffic" subtype="forward" level="notice" srcip=10.1.128.253 srcport=58914 dstip=1.1.1.1 dstport=443 sessionid=507646218 proto=6 action="accept" policyid=3 service="HTTPS" trandisp="noop" duration=0 sentbyte=0 rcvdbyte=0 sentpkt=0 rcvdpkt=0
+date=2023-03-15 time=09:09:45 eventtime=1678871385 tz="+0000" logid="0000000013" type="traffic" subtype="forward" level="notice" srcip=10.1.128.253 identifier=35 dstip=1.1.1.1 sessionid=1935580230 proto=1 action="accept" policyid=3 service="ICMP" trandisp="noop" duration=0 sentbyte=0 rcvdbyte=0 sentpkt=0 rcvdpkt=0
+date=2023-03-15 time=09:10:46 eventtime=1678871446 tz="+0000" logid="0000000013" type="traffic" subtype="forward" level="notice" srcip=10.1.128.253 identifier=41 dstip=1.1.1.1 sessionid=3360617615 proto=1 action="accept" policyid=3 service="ICMP" trandisp="noop" duration=0 sentbyte=0 rcvdbyte=0 sentpkt=0 rcvdpkt=0
+```
+
+- ## cfos utm feature 
+*in this section, we config cfos to test web filter feature and ips feature use https traffic* 
+
+- ### web filter feature 
+
+```
+ubuntu@ip-10-0-1-100:~/202301$ kubectl exec -it po/`kubectl get pods -l app=multitool01 --field-selector spec.nodeName=ip-10-0-2-200 |     cut -d ' ' -f 1 | tail -n -1`  --  curl -k -I  https://www.eicar.org/download/eicar.com.txt
+HTTP/1.1 403 Forbidden
+X-Frame-Options: SAMEORIGIN
+X-XSS-Protection: 1; mode=block
+X-Content-Type-Options: nosniff
+Content-Security-Policy: frame-ancestors 'self'
+Content-Type: text/html; charset="utf-8"
+Content-Length: 5211
+Connection: Close
+```
+above you can see the access to malicious website has been blocked by cFOS, as the HTTP return code is "403 Forbidden".
+
+- ###  Check log on cFOS
+the pod that access malicious is on node ip-10-0-2.200. so we need use cFOS POD on same node to check the block log.
+
+```
+ubuntu@ip-10-0-1-100:~/202301$ kubectl exec -it po/`kubectl get pods -l app=fos --field-selector spec.nodeName=ip-10-0-2-200 |     cut -d ' ' -f 1 | tail -n -1`  -- tail -f -n 1 /var/log/log/webf.0
+ubuntu@ip-10-0-1-100:~/202301/opa/demo_network_policy_1$ kubectl exec -it po/`kubectl get pods -l app=fos --field-selector spec.nodeName=ip-10-0-2-200 |     cut -d ' ' -f 1 | tail -n -1`  -- tail -f -n 1 /var/log/log/webf.0
+date=2023-03-15 time=09:17:52 eventtime=1678871872 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=3 sessionid=4 srcip=10.1.128.253 srcport=48986 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
+
+```
+you can see that cFOS have logged the block with reason - "Maliciou Websites".
+
+- ### ips inspect feature 
+
+*we can use curl to generate attack traffic to target ip address, this traffic will be detected by cfos and block it* 
+```
+ubuntu@ip-10-0-1-100:~/202301$ kubectl get pod | grep multi | grep -v termin | awk '{print $1}'  | while read line; do kubectl exec -t po/$line --  curl --max-time 5  -k -H "User-Agent: () { :; }; /bin/ls" https://1.2.3.4  ; done
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0
+curl: (28) Operation timed out after 5001 milliseconds with 0 bytes received
+command terminated with exit code 28
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0
+curl: (28) Operation timed out after 5001 milliseconds with 0 bytes received
+command terminated with exit code 28
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0
+curl: (28) Operation timed out after 5000 milliseconds with 0 bytes received
+command terminated with exit code 28
+
+- ### check cfos ips block log 
+
+
+```
+ubuntu@ip-10-0-1-100:~/202301$ ./checkipslog.sh
+date=2023-03-15 time=09:21:46 eventtime=1678872106 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.128.253 dstip=1.1.1.1 srcintf="net1" dstintf="eth0" sessionid=6 action="dropped" proto=6 service="HTTPS" policyid=3 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=44084 dstport=443 hostname="1.1.1.1" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=10485761 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-03-15 time=09:21:41 eventtime=1678872101 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.128.253 dstip=1.1.1.1 srcintf="net1" dstintf="eth0" sessionid=2 action="dropped" proto=6 service="HTTPS" policyid=3 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=56174 dstport=443 hostname="1.1.1.1" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=167772161 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-03-15 time=09:21:51 eventtime=1678872111 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.128.253 dstip=1.1.1.1 srcintf="net1" dstintf="eth0" sessionid=2 action="dropped" proto=6 service="HTTPS" policyid=3 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=60116 dstport=443 hostname="1.1.1.1" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=29360129 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+```
+or use cfos console 
+
+```
+FOS Container # execute  log filter category 4
+
+FOS Container # execute  log filter device disk
+
+FOS Container # execute log display
+date=2023-03-15 time=09:21:46 eventtime=1678872106 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.128.253 dstip=1.1.1.1 srcintf="net1" dstintf="eth0" sessionid=6 action="dropped" proto=6 service="HTTPS" policyid=3 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=44084 dstport=443 hostname="1.1.1.1" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=10485761 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+
+1 logs returned.
+```
