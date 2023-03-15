@@ -539,7 +539,7 @@ multitool01-deployment-bb4c98bb-flspr   1/1     Running   0          155m   10.2
 above we have two pod in two nodes. they are in different subnets. we can check on each hop with tcpdump etc tool.
 
 
-**(source pod:10.244.97.51)---[(calicoxxx)-(10.244.97.0/32)-ens5-(10-0.2.200)]---vpc-bridge---[(10.0.2.201)-ens5-vxlan.calico-(10.244.93.0/32)-(calicoxxx)]--(dst pod:10.244.93.50)** 
+-######**(src pod:10.244.97.51)---[(cali-)-(10.244.97.0/32)-ens5-(10-0.2.200)]-vpc-subnet-[(10.0.2.201)-ens5-vxlan.calico-(10.244.93.0/32)-(cali)]--(dst pod:10.244.93.50)**######
 
 from pod eth0 interface 10.244.97.51 to pod 10.244.93.50
 
