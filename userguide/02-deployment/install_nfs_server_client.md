@@ -1,17 +1,16 @@
-- why NFS 
+- ## why NFS 
 when cfos deployed as daemonSet in a multi-node cluster, you may want all cFOS POD share same configuration, then you need to mount cfos /data directory to a shared file system, for example, a NFS file system.  
 
-- install and setup  NFS server
+- ### install and setup  NFS server
 
 ```
 sudo apt-get update -y 
 sudo apt-get install nfs-server -y
 
 ```
-- create nfs config and start nfs server 
+- ### create nfs config and start nfs server 
 
 ```
-
 cat <<EOF | bash - 
 sudo -u ubuntu  mkdir /home/ubuntu/data -p
 sudo chmod 666 /home/ubuntu/data
@@ -25,9 +24,9 @@ EOF
 sudo systemctl enable --now nfs-server
 sudo exportfs -ar
 ```
-*here 10.0.x.x is the nodes IP that will mount NFS server*
+*here **10.0.x.x** is the nodes IP that will mount NFS server*
 
-- check NFS server status 
+- ###check NFS server status 
 check NFS server status with `systemctl status nfs-server`
 check NFS exports with `showmount -e`
 
@@ -56,19 +55,19 @@ Export list for ip-10-0-1-100:
 /home/ubuntu/data 10.0.2.202,10.0.2.201,10.0.2.200,10.0.1.100
 
 ```
-- install nfs client on worker node
-
+- ### install nfs client on worker node
 
 ```
 sudo apt-get install nfs-common -y
 
 ```
-- test mount on client machine
+- ### test mount on client machine
 
 ```
 mkdir -p ./tempfolder
 sudo mount 10.0.1.100:/home/ubuntu/data ./tempfolder
 sudo umount ./tempfolder
+
 ```
 
 
