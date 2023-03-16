@@ -26,7 +26,7 @@ sudo exportfs -ar
 ```
 *here **10.0.x.x** is the nodes IP that will mount NFS server*
 
-- ###check NFS server status 
+- ### check NFS server status 
 check NFS server status with `systemctl status nfs-server`
 check NFS exports with `showmount -e`
 
