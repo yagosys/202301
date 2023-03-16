@@ -23,6 +23,7 @@ then
         echo 'tigera-operator exist'
 else
   kubectl create -f tigera-operator.yaml
+  sleep 5
 fi
 
 #curl -fLO https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/custom-resources.yaml
