@@ -18,6 +18,20 @@ fi
 
 }
 
+function install_whereabouts {
+if kubectl get ds whereabouts -n kube-system
+then
+        echo "whereabouts already exist"
+else
+        cd /home/ubuntu
+        git clone https://github.com/k8snetworkplumbingwg/whereabouts && cd whereabouts
+        kubectl apply \
+            -f doc/crds/daemonset-install.yaml \
+            -f doc/crds/whereabouts.cni.cncf.io_ippools.yaml \
+            -f doc/crds/whereabouts.cni.cncf.io_overlappingrangeipreservations.yaml
+fi
+}
+
 function create_config_for_cfos {
 cat << EOF | kubectl apply -f -
 ---
@@ -173,12 +187,11 @@ spec:
       "name": "cfosdefaultcni5",
       "type": "bridge",
       "bridge": "cni5",
-      "isGateway": false,
+      "isGateway": true,
       "ipMasq": false,
       "hairpinMode": true,
       "ipam": {
           "type": "whereabouts",
-          "gateway": "10.1.128.252",
           "range": "10.1.128.0/24",
           "routes": [
               { "dst": "10.96.0.0/12","gw": "10.1.128.1" },
@@ -306,10 +319,42 @@ function restart_ds_fos_deployment {
 kubectl rollout restart ds fos-deployment
 }
 
+function create_net_att_def_cfosdefaultcni5hostlocal {
+cat << EOF | kubectl apply -f -
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition
+metadata:
+  name: cfosdefaultcni5
+spec:
+  config: |-
+    {
+      "cniVersion": "0.3.1",
+      "name": "cfosdefaultcni5",
+      "type": "bridge",
+      "bridge": "cni5",
+      "isGateway": true,
+      "ipMasq": false,
+      "hairpinMode": true,
+      "ipam": {
+          "type": "host-local",
+          "routes": [
+              { "dst": "10.96.0.0/12","gw": "10.1.128.1" },
+              { "dst": "10.0.0.2/32", "gw": "10.1.128.1" }
+          ],
+          "ranges": [
+              [{ "subnet": "10.1.128.0/24" }]
+          ]
+      }
+    }
+EOF
+}
+
 install_flannel_with_default_config
+install_whereabouts
 install_multus_with_default_auto_conf
 create_config_for_cfos
-create_net_att_def_cfosdefaultcni5
+#create_net_att_def_cfosdefaultcni5
+create_net_att_def_cfosdefaultcni5hostlocal
 create_cfos_ds_deployment
 create_demo_application
 restart_ds_fos_deployment
