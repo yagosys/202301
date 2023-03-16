@@ -1,4 +1,4 @@
-#https://www.cni.dev/plugins/current/ipam/host-local/#:~:text=host%2Dlocal%20IPAM%20plugin%20allocates,of%20multiple%20(disjoint)%20subnets.
+- # host-local configuration sample with bridge cni 
 ```
 host-local can be chained with other cni plugins for IP address allocation as well as route config etc.,
 
