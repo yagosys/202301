@@ -256,8 +256,7 @@ function install_multus_cni_if_worker_node_exist {
     then
             echo 'use multus default where multus configuration will be auto generatd'
     else
-            echo 'multus configuration will be set to use 70-multus.config'
-            sudo sed -i 's/multus-conf-file=auto/multus-conf-file=\/tmp\/multus-conf\/70-multus.conf/g' /home/ubuntu/multus-cni/deployments/multus-daemonset.yml 
+            echo 'comment out multus configuration will be set to use 70-multus.config'
     fi
 
  cat /home/ubuntu/multus-cni/deployments/multus-daemonset.yml | kubectl --kubeconfig /home/ubuntu/.kube/config apply -f -
@@ -392,7 +391,6 @@ CNINAME="${CNI}"
 case $CNINAME in
       "flannel")
      	 install_flannel_if_worker_node_exist_otherwise_untaint_master_node
-         rename_70_multus_to_00_multus_conf
       	 ;;
       "calico")
 #	   if [ $WORKER_COUNT  -eq 0 ]
