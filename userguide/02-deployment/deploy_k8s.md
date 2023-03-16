@@ -32,7 +32,7 @@ dockerinterbeing="/home/i/dockerinterbeing.yaml"
 *when worker_count=0, master node can be used to create workload*
 *only one master node will be created*
 
-- ##
+- ## deploy 
 
 ```
 cd ./deployment/k8s
