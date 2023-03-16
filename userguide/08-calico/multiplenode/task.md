@@ -66,7 +66,7 @@ use `kubectl get all -n calico-apiserver` to check api server is up and running
 
 use `sudo calicoctl node status` to check the  calico status and networking 
 
-- ## install  multus 
+- ## install  multus with multus-conf-file set to manual  
 *this section install multus cni but will not config to use multus as the default cni yet before we create multus crd*
 
 Multus CNI is a Container Network Interface (CNI) plugin for Kubernetes that allows multiple network interfaces to be attached to a Kubernetes pod. This means that a pod can have multiple network interfaces, each with its own IP address, and can communicate with different networks simultaneously. 
@@ -416,11 +416,10 @@ IP:               10.244.6.51
 ```
 
 
-- ### create multus secondary network crd  with bridge cni json config  
+- ## create multus secondary network crd  with bridge cni json config  
 
 
 ```
-echo 'do this on master node'
 cat << EOF | kubectl apply -f - 
 apiVersion: k8s.cni.cncf.io/v1
 kind: NetworkAttachmentDefinition
@@ -641,11 +640,10 @@ IP 10.244.97.51 > 10.244.93.50: ICMP echo request, id 60, seq 422, length 64
 05:55:35.202047 IP 10.0.2.201.40770 > 10.0.2.200.4789: VXLAN, flags [I] (0x08), vni 4096
 IP 10.244.93.50 > 10.244.97.51: ICMP echo reply, id 60, seq 422, length 64
 ```
-- ## deploy cfos daemonset
-*this section we deploy a cfos daemonset at each worker node use yaml file* 
 
-- ### deploy cfos configuration use configmap
 
+
+- ## use configmap to deploy cfos configuration 
 
 ```
 cat << EOF | kubectl apply -f -
@@ -789,7 +787,9 @@ data:
 EOF
 
 ```
-- ### create cfos daemonSet
+
+
+- ## deploy cfos daemonSet with new defaultNetwork and secondaryNetwork
 *cfos use annotations to specify default-network to "default-calico, and additional network to cfosdefaultcni5 crd*
 
 *cfos configured with static ip 10.1.128.252 on net1 interface*
@@ -1306,7 +1306,7 @@ you can see that cFOS have logged the block with reason - "Maliciou Websites".
 
 *we can use curl to generate attack traffic to target ip address, this traffic will be detected by cfos and block it* 
 ```
-ubuntu@ip-10-0-1-100:~/202301$ kubectl get pod | grep multi | grep -v termin | awk '{print $1}'  | while read line; do kubectl exec -t po/$line --  curl --max-time 5  -k -H "User-Agent: () { :; }; /bin/ls" https://1.2.3.4  ; done
+ubuntu@ip-10-0-1-100:~/202301$ kubectl get pod | grep multi | grep -v termin | awk '{print $1}'  | while read line; do kubectl exec -t po/$line --  curl --max-time 5  -k -H "User-Agent: () { :; }; /bin/ls" https://1.1.1.1  ; done
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
   0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0
