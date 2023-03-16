@@ -173,11 +173,12 @@ spec:
       "name": "cfosdefaultcni5",
       "type": "bridge",
       "bridge": "cni5",
-      "isGateway": true,
+      "isGateway": false,
       "ipMasq": false,
       "hairpinMode": true,
       "ipam": {
           "type": "whereabouts",
+          "gateway": "10.1.128.252",
           "range": "10.1.128.0/24",
           "routes": [
               { "dst": "10.96.0.0/12","gw": "10.1.128.1" },
