@@ -14,9 +14,8 @@ FLANNEL_MTU=8951
 FLANNEL_IPMASQ=true
 ```
 flannel will delegate the actual bridge creation etc bridge cni. depends on flannel cni config, a bridge and bridge interface on host will be created as bridge between host and POD. 
-the default bridge name is cni0, pod in same node can communicate with this bridge
+the default bridge name is cni0, pod in same node can communicate with this bridge, and use vxlan for cross node communcation.
 
-pod on node 1 ---veth ----bridge ----cri0---flannel1.1 ----layer 3 -----flannel1.1----cri0----bridge---veth --- pod on node2
 
 
 - install flannel 
@@ -64,9 +63,9 @@ I0227 23:20:36.498224       1 iptables.go:267] bootstrap done
 I0227 23:20:37.023021       1 kube.go:503] Creating the node lease for IPv4. This is the n.Spec.PodCIDRs: [10.244.1.0/24]
 I0227 23:20:37.028162       1 kube.go:503] Creating the node lease for IPv4. This is the n.Spec.PodCIDRs: [10.244.0.0/24]
 ```
-3. here lets create a default network with flannel plugins and assign to pod [TODO]
 
-create a default network with flannel plugins
+
+- ## create a default network with flannel plugins
 
 ```
 apiVersion: "k8s.cni.cncf.io/v1"
@@ -98,7 +97,6 @@ spec:
 
 above will create a net-attach-def which using flannel cni.
 the flannel cni will delegate the actual bridge operation to bridge cni. the bridge cni will create a bridge called test0 according the configuration. the flannel interface flannel1 will take care the cross-node communication. 
-flannel can also support use multiple tunnel interface configration. for example you want use flannel2. and flannel2 use vxlan id 2 . if you want do this. please refer url <TODO> 
  
 
 ```
@@ -111,7 +109,7 @@ ubuntu@ip-10-0-2-200:~$ ip add show dev test0
        valid_lft forever preferred_lft forever
 ```
 
-create a yaml file to create a POD to use this network
+use yaml file to create a POD to use this network
 
 ```
 ubuntu@ip-10-0-1-100:~$ cat nginx.yaml
@@ -144,7 +142,7 @@ then you will get two POD with one on each node.  they are reachable.
 
 
 
-4. create a node specifc network  
+- ## create a node specifc network  
 first create a net-attach-def with only metadata name and namespace
 
 
@@ -286,16 +284,4 @@ Connection: keep-alive
 ETag: "6398a011-267"
 Accept-Ranges: bytes
 ```
-
-
-here are few useful command 
-
-
-check the flannel.1 tunnel interface. you can see vxlan id 1 , and dstport 8472. 
-
-``
-3: flannel.1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 8951 qdisc noqueue state UNKNOWN mode DEFAULT group default
-    link/ether 4a:3b:64:c8:96:10 brd ff:ff:ff:ff:ff:ff promiscuity 0 minmtu 68 maxmtu 65535
-    vxlan id 1 local 10.0.1.100 dev ens5 srcport 0 0 dstport 8472 nolearning ttl auto ageing 300 udpcsum noudp6zerocsumtx noudp6zerocsumrx addrgenmode eui64 numtxqueues 1 numrxqueues 1 gso_max_size 65536 gso_max_segs 65535
-``` 
 
