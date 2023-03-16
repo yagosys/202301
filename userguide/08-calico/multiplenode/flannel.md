@@ -1220,6 +1220,8 @@ ubuntu@ip-10-0-2-200:~$ kubectl exec -it po/`kubectl get pods -l app=multitool01
 ubuntu@ip-10-0-2-200:~$
 
 ```
+
+```
 ubuntu@ip-10-0-2-200:~$ ip -d a | grep -e ^6: -A 3
 6: vethf39c65e7@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 8951 qdisc noqueue master cni0 state UP group default
     link/ether 66:08:0b:6c:79:42 brd ff:ff:ff:ff:ff:ff link-netns fa857895-d9fe-43e2-bd9e-cb0c494e7ff0 promiscuity 1 minmtu 68 maxmtu 65535
@@ -1234,7 +1236,7 @@ FLANNEL_SUBNET=10.244.1.1/24
 FLANNEL_MTU=8951
 FLANNEL_IPMASQ=true
 ```
-
+```
 ubuntu@ip-10-0-2-200:~$ ip a | grep 10.244.1.1 -B 2 -A 2
 4: cni0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 8951 qdisc noqueue state UP group default qlen 1000
     link/ether 56:a7:7c:96:8e:7a brd ff:ff:ff:ff:ff:ff
@@ -1243,12 +1245,8 @@ ubuntu@ip-10-0-2-200:~$ ip a | grep 10.244.1.1 -B 2 -A 2
     inet6 fe80::54a7:7cff:fe96:8e7a/64 scope link
 ubuntu@ip-10-0-2-200:~$
 ```
-```
-ubuntu@ip-10-0-2-200:~$ brctl show cni0
-bridge name     bridge id               STP enabled     interfaces
-cni0            8000.56a77c968e7a       no              veth794cfb61
-                                                        vethf39c65e7
-```
+
+
 
 ```
 # ip route get 10.244.2.3
