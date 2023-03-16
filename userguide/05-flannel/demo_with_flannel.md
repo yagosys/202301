@@ -339,7 +339,18 @@ EOF
 
 ```
 
-- ### use whereabouts as ipam for crd cfosdefaultcni5
+- ### install whereabouts plugins and use  whereabouts as ipam for net-attach-def cfosdefaultcni5
+
+```
+git clone https://github.com/k8snetworkplumbingwg/whereabouts && cd whereabouts
+kubectl apply \
+    -f doc/crds/daemonset-install.yaml \
+    -f doc/crds/whereabouts.cni.cncf.io_ippools.yaml \
+    -f doc/crds/whereabouts.cni.cncf.io_overlappingrangeipreservations.yaml
+
+```
+
+
 *this will allow unique ip address for net1 across entire cluster, then pod on different node will not have same ip address on different worker node*
 *whereabout allow exclude some ips from ip allocation*
 *inside ipam, the gateway is point to cfos*
