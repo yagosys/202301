@@ -61,7 +61,7 @@ for example
 sudo crictl pull ghcr.io/k8snetworkplumbingwg/multus-cni:stable  
 ```
 
-* the terraform installation log has redirected to the cloud console. access ec2 instance console will able to see it*
+*the terraform installation log has redirected to the cloud console. access ec2 instance console will able to see it*
 *meanwhile, the installation log also saved to file /var/log/user-data.log*
 
 *the kuberadm generate a token that will not expire. so workernode can always use this token to join master*
