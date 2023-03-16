@@ -339,6 +339,64 @@ EOF
 
 ```
 
+- ### use whereabouts as ipam for crd cfosdefaultcni5
+*this will allow unique ip address for net1 across entire cluster, then pod on different node will not have same ip address on different worker node*
+*whereabout allow exclude some ips from ip allocation*
+*inside ipam, the gateway is point to cfos*
+*the isGateway need set to false, otherise cni5 will become default gateway for this network*
+
+```
+cat << EOF | kubectl apply -f -
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition
+metadata:
+  name: cfosdefaultcni5
+spec:
+  config: |-
+    {
+      "cniVersion": "0.3.1",
+      "name": "cfosdefaultcni5",
+      "type": "bridge",
+      "bridge": "cni5",
+      "isGateway": false,
+      "ipMasq": false,
+      "hairpinMode": true,
+      "ipam": {
+          "type": "whereabouts",
+          "gateway": "10.1.128.252",
+          "range": "10.1.128.0/24",
+          "routes": [
+              { "dst": "10.96.0.0/12","gw": "10.1.128.1" },
+              { "dst": "10.0.0.2/32", "gw": "10.1.128.1" }
+          ],
+          "exclude": [
+           "10.1.128.1/32",
+           "10.1.128.2/32",
+           "10.1.128.254/32"
+          ]
+      }
+    }
+EOF
+
+
+```
+
+*restart deployment to get new ip address from whereabout*
+
+```
+ubuntu@ip-10-0-1-100:~$ kubectl rollout restart deployment multitool01-deployment
+deployment.apps/multitool01-deployment restarted
+```
+*now check the ip address assigned to net1 is unique cross the nodes*
+
+```
+ubuntu@ip-10-0-1-100:~$ kubectl get pod | grep multi | grep -v termin  | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- ip --br a show dev net1 ; done
+net1@if15        UP             10.1.128.4/24 fe80::bc91:a5ff:fed4:a114/64
+net1@if12        UP             10.1.128.3/24 fe80::64e6:67ff:fef5:2cfe/64
+net1@if12        UP             10.1.128.5/24 fe80::7c95:6ff:fe2b:6651/64
+```
+    
+
 - ### check the cfosdefaultcni5 net-attach-def
 
 
