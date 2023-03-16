@@ -1,12 +1,13 @@
-k8s installation  
-- the EC2 instance use file user-data-for_master_node.tftpl to do the installation for master node  
-- the EC2 instance use file user-data-for_worker_node.tftpl t odo the installation for workernode.  
+- ## k8s installation  
+*k8s installed by use kubeadm, terraform use file user-data-for_master_node.tftpl to do the installation on master node  and use file user-data-for_worker_node.tftpl t odo the installation for workernode*
 
-linux   
+- ### linux version 
+linux -AMD64
 -  ubuntu 22.04
 -  swap off
 
-images 
+- ### images versions 
+
 ```
 docker.io/flannel/flannel-cni-plugin       v1.1.2              7a2dcab94698c       8.25MB
 docker.io/flannel/flannel                  v0.21.2             7b7f3acab868d       65.1MB
@@ -22,9 +23,8 @@ registry.k8s.io/pause                      3.6                 6270bb605e12e    
 registry.k8s.io/pause                      3.9                 e6f1816883972       750kB
 ```
 
-
-tool installed
-
+- ### tools installed 
+```
 - linux-modules-extra
 - cri-o cri-o-runc cri-tools
 - containernetworking-plugins 
@@ -33,44 +33,46 @@ tool installed
 - kubelet
 - kubectl
 - kubeadm 
+- jq 
+```
+- ### kernel moduels 
 
-kernel modules   
-
+```
 - overlay
 - br_netfilter
+```
 
-sysctl.conf  
-
+- ### sysctl.conf  
+```
 - net.bridge.bridge-nf-call-iptables  = 1
 - net.bridge.bridge-nf-call-ip6tables = 1
 - net.ipv4.ip_forward                 = 1
-
-kubernetes cni  
-- whereabouts
-- multus 
-- flannel (when workernode>0)
+```
 
 
 
-*special notes:*  
 
+**special notes:**
 
-- due to some region image download is slow. therefore. the script will use crictl pull to download image before start deploy the yaml file that use image.   
+*due to some region image download is slow. therefore. the script will use crictl pull to download image before start deploy the yaml file that use image*
 
 for example 
 ```
 sudo crictl pull ghcr.io/k8snetworkplumbingwg/multus-cni:stable  
 ```
 
-- the terraform installation log has redirected to the cloud console. access ec2 instance console will able to see it.
-meanwhile, the installation log also saved to file /var/log/user-data.log   
+* the terraform installation log has redirected to the cloud console. access ec2 instance console will able to see it*
+*meanwhile, the installation log also saved to file /var/log/user-data.log*
 
-- the kuberadm generate a token that will not expire. so workernode can always use this token to join master. 
-if you do not want a never expired token (--token-ttl-0) , you can change it in kubeadm init command.  
+*the kuberadm generate a token that will not expire. so workernode can always use this token to join master*
+*if you do not want a never expired token (--token-ttl-0) , you can change it in kubeadm init command*
+
 ```
 sudo kubeadm init --cri-socket=unix:///var/run/crio/crio.sock --apiserver-advertise-address=$IPADDR  --apiserver-cert-extra-sans=$IPADDR  --service-cidr=$SERVICE_CIDR --pod-network-cidr=$POD_CIDR --node-name $NODENAME  --token-ttl=0 -v=5  
 ```
-- the kubeAPI is listen on default port ec2 instance private IP:6443 port. the kubectl client config is under ~/.kube/config 
-you have to ssh into master node to access the cluster API.   
+
+*the kubeAPI is listen on default port ec2 instance private IP:6443 port. the kubectl client config is under ~/.kube/config*
+*you have to ssh into master node to access the cluster API*
+
 
 
