@@ -6,10 +6,15 @@ kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/
 
 function install_multus_with_default_auto_conf {
 
-sudo crictl pull ghcr.io/k8snetworkplumbingwg/multus-cni:stable
-cd /home/ubuntu
-git clone https://github.com/intel/multus-cni.git
-cat /home/ubuntu/multus-cni/deployments/multus-daemonset.yml | kubectl apply -f -
+if kubectl get ds kube-multus-ds -n kube-system
+then
+        echo "multus already exist"
+else
+         sudo crictl pull ghcr.io/k8snetworkplumbingwg/multus-cni:stable
+         cd /home/ubuntu
+         git clone https://github.com/intel/multus-cni.git
+         kubectl apply -f  /home/ubuntu/multus-cni/deployments/multus-daemonset.yml
+fi
 
 }
 
@@ -172,18 +177,22 @@ spec:
       "ipMasq": false,
       "hairpinMode": true,
       "ipam": {
-          "type": "host-local",
+          "type": "whereabouts",
+          "range": "10.1.128.0/24",
           "routes": [
               { "dst": "10.96.0.0/12","gw": "10.1.128.1" },
               { "dst": "10.0.0.2/32", "gw": "10.1.128.1" }
           ],
-          "ranges": [
-              [{ "subnet": "10.1.128.0/24" }]
+          "exclude": [
+           "10.1.128.1/32",
+           "10.1.128.2/32",
+           "10.1.128.254/32"
           ]
       }
     }
 EOF
 }
+
 
 function create_cfos_ds_deployment { 
 
