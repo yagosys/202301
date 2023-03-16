@@ -1,12 +1,16 @@
-- check kube-dns
+- ## check kube-dns
 
-*check kube-dns service*
+- ### check whether coredns pod has IP address
+
+*coredns ds will get ip address from cni plugin, if there is no cni exist or cni is not working properl. coredns POD will not able to get ip, you need install and config cni first*
+
+- ### check kube-dns service*
 ```
 ubuntu@ip-10-0-1-100:~$ kubectl get svc -n kube-system
 NAME       TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)                  AGE
 kube-dns   ClusterIP   10.96.0.10   <none>        53/UDP,53/TCP,9153/TCP   82m
 ```
-*check kube-dns is able to resolve local service*
+- ### check kube-dns is able to resolve local service*
 ```
 ubuntu@ip-10-0-1-100:~$ dig kubernetes.default.svc.cluster.local @10.96.0.10 | grep -A 1 'ANSWER SECTION'
 ;; ANSWER SECTION:
@@ -14,7 +18,7 @@ kubernetes.default.svc.cluster.local. 30 IN A   10.96.0.1
 ubuntu@ip-10-0-1-100:~$
 ```
 
-*check kube-dns is able to resolve internet address*
+- ### check kube-dns is able to resolve internet address*
 
 ```
 ubuntu@ip-10-0-1-100:~$ dig www.google.com @10.96.0.10 | grep -A 1 'ANSWER SECTION'
@@ -22,7 +26,7 @@ ubuntu@ip-10-0-1-100:~$ dig www.google.com @10.96.0.10 | grep -A 1 'ANSWER SECTI
 www.google.com.         30      IN      A       172.217.31.4
 ```
 
-*check master dns resolve config*
+- ### check master dns resolve config*
 
 ```
 ubuntu@ip-10-0-1-100:~$ resolvectl status
@@ -58,7 +62,7 @@ Current Scopes: none
      Protocols: -DefaultRoute +LLMNR -mDNS -DNSOverTLS DNSSEC=no/unsupported
 ubuntu@ip-10-0-1-100:~$
 ```
-*check master node whether can resolve k8s service name*
+- ### check master node whether can resolve k8s service name*
 ```
 ubuntu@ip-10-0-1-100:~$ curl -k https://kubernetes.default.svc.cluster.local
 {
@@ -73,7 +77,7 @@ ubuntu@ip-10-0-1-100:~$ curl -k https://kubernetes.default.svc.cluster.local
 }
 ```
 
-- throubleshooting command
+- ### some useful throubleshooting command
 
 ```
 ubuntu@ip-10-0-1-100:~$ kubectl get pod -l  k8s-app=kube-dns -n kube-system -o wide
