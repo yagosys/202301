@@ -1,6 +1,6 @@
-- kubernetes annotation 
+-  ### kubernetes annotation 
 
-kubenetes annotation is a key-value pair and its  a way to attach metadata to object. clients such as tools and library can read this metadata.
+*kubenetes annotation is a key-value pair and its  a way to attach metadata to object. clients such as tools and library can read this metadata*
 
 ```
 kubectl patch deployment nginx -p '{"spec": {"template":{"metadata":{"annotations":{"k8s.v1.cni.cncf.io/networks":"cfosdefaultcni5"}}}} }'
@@ -84,17 +84,18 @@ Annotations:      k8s.v1.cni.cncf.io/network-status:
                     }]
 ```
 
-how to use api-resources 
+- ### get help from api-resources 
 
-everything is kubernetes is API, also include customer defined resource, for example, the net-attach-def CRD, it's api-group is "k8s.cni.cncf.io" . 
-so we can use kubectl api-resources to check it. 
+*everything is kubernetes is API, also include customer defined resource, for example, the net-attach-def CRD, it's api-group is "k8s.cni.cncf.io"*
+*so we can use kubectl api-resources to check it*
+
 ```
 kubectl api-resources --api-group=k8s.cni.cncf.io
 NAME                             SHORTNAMES       APIVERSION           NAMESPACED   KIND
 network-attachment-definitions   net-attach-def   k8s.cni.cncf.io/v1   true         NetworkAttachmentDefinition
 ```
 
-then we can use "kubectl explain network-attachment-definitions" to to the detail spec. 
+then we can use `kubectl explain network-attachment-definitions` to to the detail spec. 
 
 for example, below you will find the spec.config definision is cni json formatted config. 
 
@@ -112,18 +113,18 @@ DESCRIPTION:
 with this information,you can get the hint that if I have some syntax error in the json-formatted CNI configuration. the kube-API server will not complain it, it will still create a CR (custome resource) for you. however, the CNI plugin will complain the error message.
 
 
-- list pod from selected node
+- ### list pod from selected node
 ```
 kubectl get pods -l app=fos --field-selector spec.nodeName=ip-10-0-2-201
 ```
 
-- scale out the deployment 
+- ### scale out the deployment 
 ```
 ubuntu@ip-10-0-1-100:~/202301$ kubectl scale deployment multitool01-deployment --replicas=10
 deployment.apps/multitool01-deployment scaled
 
 ```
-- check the status of deployment
+- ### check the status of deployment
 
 ```
 ubuntu@ip-10-0-1-100:~/202301$ kubectl rollout status deployment multitool01-deployment
@@ -131,16 +132,76 @@ deployment "multitool01-deployment" successfully rolled out
 ubuntu@ip-10-0-1-100:~/202301$
 ```
 
-- check the status of daemonSet
+- ### check the status of daemonSet
 
 ```
 ubuntu@ip-10-0-1-100:~/202301$ kubectl rollout status ds fos-deployment
 daemon set "fos-deployment" successfully rolled out
 ubuntu@ip-10-0-1-100:~/202301$
 ```
-- untaint a master node
+- ### untaint a master node
 
 ```
  kubectl  taint nodes --all node-role.kubernetes.io/control-plane-
 ```
 
+- ### reapply modified yaml file
+
+```
+kubectl -f xxx.yaml replace
+```
+- ### create resouce from yaml file, it resource already exist, it will fail
+
+```
+kubectl -f xxx.yaml create 
+```
+
+- ### make the resource reach the state that specified in the yaml file. it does not matter whether the resource already exist
+
+```
+kubectl -f xxx.yaml apply
+```
+
+- ### use labels
+
+```
+ubuntu@ip-10-0-1-100:/etc/cni/net.d$ kubectl get node --show-labels
+NAME            STATUS   ROLES           AGE     VERSION   LABELS
+ip-10-0-2-200   Ready    <none>          7h52m   v1.26.2   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/arch=amd64,kubernetes.io/hostname=ip-10-0-2-200,kubernetes.io/os=linux
+ip-10-0-2-201   Ready    <none>          7h52m   v1.26.2   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/arch=amd64,kubernetes.io/hostname=ip-10-0-2-201,kubernetes.io/os=linux
+ip1001100       Ready    control-plane   7h55m   v1.26.2   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/arch=amd64,kubernetes.io/hostname=ip1001100,kubernetes.io/os=linux,node-role.kubernetes.io/control-plane=,node.kubernetes.io/exclude-from-external-load-balancers=
+ubuntu@ip-10-0-1-100:/etc/cni/net.d$ kubectl label nodes ip-10-0-2-200 node-role.kubernetes.io/worker=worker
+node/ip-10-0-2-200 labeled
+ubuntu@ip-10-0-1-100:/etc/cni/net.d$ kubectl label nodes ip-10-0-2-201 node-role.kubernetes.io/worker=worker
+node/ip-10-0-2-201 labeled
+ubuntu@ip-10-0-1-100:/etc/cni/net.d$ kubectl get node --show-labels
+NAME            STATUS   ROLES           AGE     VERSION   LABELS
+ip-10-0-2-200   Ready    worker          7h53m   v1.26.2   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/arch=amd64,kubernetes.io/hostname=ip-10-0-2-200,kubernetes.io/os=linux,node-role.kubernetes.io/worker=worker
+ip-10-0-2-201   Ready    worker          7h53m   v1.26.2   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/arch=amd64,kubernetes.io/hostname=ip-10-0-2-201,kubernetes.io/os=linux,node-role.kubernetes.io/worker=worker
+ip1001100       Ready    control-plane   7h55m   v1.26.2   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/arch=amd64,kubernetes.io/hostname=ip1001100,kubernetes.io/os=linux,node-role.kubernetes.io/control-plane=,node.kubernetes.io/exclude-from-external-load-balancers=
+```
+
+- ### remove a node from cluster out of scheduler 
+
+```
+ubuntu@ip-10-0-1-100:/etc/cni/net.d$ kubectl cordon ip-10-0-2-201
+node/ip-10-0-2-201 cordoned
+ubuntu@ip-10-0-1-100:/etc/cni/net.d$ kubectl get nodes
+NAME            STATUS                     ROLES           AGE     VERSION
+ip-10-0-2-200   Ready                      worker          7h56m   v1.26.2
+ip-10-0-2-201   Ready,SchedulingDisabled   worker          7h56m   v1.26.2
+ip1001100       Ready                      control-plane   7h58m   v1.26.2
+
+```
+- ### move cordoned node back to scheduler
+
+```
+ubuntu@ip-10-0-1-100:/etc/cni/net.d$ kubectl uncordon ip-10-0-2-201
+node/ip-10-0-2-201 uncordoned
+ubuntu@ip-10-0-1-100:/etc/cni/net.d$ kubectl get nodes
+NAME            STATUS   ROLES           AGE     VERSION
+ip-10-0-2-200   Ready    worker          7h58m   v1.26.2
+ip-10-0-2-201   Ready    worker          7h58m   v1.26.2
+ip1001100       Ready    control-plane   8h      v1.26.2
+ubuntu@ip-10-0-1-100:/etc/cni/net.d$
+```
