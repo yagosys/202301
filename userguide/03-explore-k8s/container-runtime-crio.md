@@ -1,33 +1,38 @@
-- crio container runtime
-the installed container runtime is crio. crio is the high level container runtime which offer cri interface.
-the crio by default use unix socket to communicate with other components, the unix socket address of crio is unix:///var/run/crio/crio.sock
+- ##  crio container runtime
 
-when kubeadm doing init, use --cri-socket to specifc the crio socket. in case you have multiple container runtime running, you need to specify one.
+*the installed container runtime is crio. crio is the high level container runtime which offer cri interface.the crio by default use unix socket to communicate with other components, the unix socket address of crio is unix:///var/run/crio/crio.sock*
+
+*when kubeadm doing init, use --cri-socket to specifc the crio socket. in case you have multiple container runtime running, you need to specify one*
 
 
 ```
 sudo kubeadm init --cri-socket=unix:///var/run/crio/crio.sock
 ```
+*CRI-O is an open-source container runtime designed to work specifically with Kubernetes, CRI-O communicates with other Kubernetes components using the Container Runtime Interface (CRI)*
 
-CRI-O is an open-source container runtime designed to work specifically with Kubernetes, CRI-O communicates with other Kubernetes components using the Container Runtime Interface (CRI)
-CRIO use CRI interface talk to both kubernetes API server and kubelet.  kubernetes API send POD request to CRI-O, while kubelet actually create the POD.  CRI-O is also managing the CNI plugin.
-runc is low level container runtime, CRIO-O use runc as it's runtime. 
+*CRIO use CRI interface talk to both kubernetes API server and kubelet.  kubernetes API send POD request to CRI-O, while kubelet actually create the POD.  CRI-O is also managing the CNI plugin*
 
-the configuration of crio by default is under /etc/crio/crio.conf.d . the crio runctime configuration is /etc/crio/crio.conf.d/01-crio-runc.conf 
+*runc is low level container runtime, CRIO-O use runc as it's runtime*
 
-here is a few command that can be used to check the crio status
+*the configuration of crio by default is under /etc/crio/crio.conf.d . the crio runctime configuration is /etc/crio/crio.conf.d/01-crio-runc.conf*
 
 
-- check container default linux capabilities.
+*here is a few command that can be used to check the crio status*
+
+
+
+- #### check container default linux capabilities.
 
 ```
 ubuntu@ip-10-0-1-100:/etc/crio/crio.conf.d$ sudo crio-status config | grep default_capabilities
     default_capabilities = ["CHOWN", "DAC_OVERRIDE", "FSETID", "FOWNER", "SETGID", "SETUID", "SETPCAP", "NET_BIND_SERVICE", "KILL"]`
 ```
-above you will see that crio by default does not grant NET_RAW to POD. so by default container will not able to use ping command
+
+*above you will see that crio by default does not grant NET_RAW to POD. so by default container will not able to use ping command, you need to add NET_RAW capability to POD if your POD need use ping*
 
 
-- check crio cni plugin configuration
+
+- #### check crio cni plugin configuration
 
 ```
 ubuntu@ip-10-0-1-100:/etc/crio/crio.conf.d$ sudo crio-status config | grep crio.network -A 3
@@ -37,12 +42,12 @@ ubuntu@ip-10-0-1-100:/etc/crio/crio.conf.d$ sudo crio-status config | grep crio.
     plugin_dirs = ["/opt/cni/bin/", "/usr/lib/cni/"]
 ```
 
-cni_default_network is the the default CNI network name to be selected. If not set or "", then
- CRI-O will pick-up the first one found in network_dir.
+*cni_default_network is the the default CNI network name to be selected. If not set or "", then
+ CRI-O will pick-up the first one found in network_dir*
 
-for example, the /etc/cni/net.d/ has 
-00-multus.conf  10-flannel.conflist  200-loopback.conf  multus.d  whereabouts.d
-. the crio will pickup 00-multus.conf for crio.network configuraiton.
+*for example, the /etc/cni/net.d/ has*
+`00-multus.conf  10-flannel.conflist  200-loopback.conf  multus.d  whereabouts.d`
+*the crio will pickup 00-multus.conf for crio.network configuraiton*
 
 you can use journalctl -f -u crio to check the related log messages 
 
@@ -62,7 +67,7 @@ Feb 27 12:49:27 ip-10-0-1-100 systemd[1]: Started Container Runtime Interface fo
 
 ```
 
-- use crictl to manage container image
+- #### use crictl to manage container image
 
 crictl is client tool that talk to crio, you can use it to pull image and create container etc.,   
 ```
@@ -124,16 +129,16 @@ docker.io/library/ubuntu                   latest              58db3edaf2be6    
 ```
 
 
-- list a containers detail information with crictl 
+- #### list a containers detail information with crictl 
 
-get a running container id use crictl command, assume the container has name "fos"
+*get a running container id use crictl command, assume the container has name "fos"*
 ```
 ubuntu@ip-10-0-2-200:~$ sudo crictl ps  --name fos
 CONTAINER           IMAGE                                                              CREATED             STATE               NAME                ATTEMPT             POD ID              POD
 d66f513db6fa5       68ddf4677772a952f7222a5c153e135f7ffe77682bc185fe7753a898adccc504   17 minutes ago      Running             fos                 1                   9dcdc89057f93       fos-deployment-pmrkp
 ```
 
-then we can use this container id to show the detail information about this container
+*then we can use this container id to show the detail information about this container*
 ```
 ubuntu@ip-10-0-2-200:~$ sudo crictl inspect d66f513db6fa5 | jq .status.mounts
 [
@@ -215,9 +220,10 @@ ubuntu@ip-10-0-2-200:~$ sudo crictl inspect d66f513db6fa5 | jq .info.runtimeSpec
 ]
 
 ```
-- enter a container's namespace
+- #### enter a container's namespace
 
- for example, below we enter cfos all linux namespace 
+*container is a group of linux namespace, so you can use nsenter to enter namespace, for example, below we enter cfos all linux namespace*
+
 ```
 ubuntu@ip-10-0-2-200:~$ sudo nsenter -a -t `sudo crictl inspect $containerid | jq .info.pid` /bin/sh
 # ip a
@@ -284,11 +290,14 @@ ubuntu@ip-10-0-2-200:~$ sudo nsenter -a -t `sudo crictl inspect $containerid | j
   372 root      4252 S    /bin/sh
   374 root      4252 R    ps
 #
+```
 
-- copy file from host to container
+- #### copy file from host to container
 
 for example, below will copy tcpdump binary from your host to the targetd container
 
 ```
 sudo cp ./tcpdump `sudo crictl inspect d66f513db6fa5 | jq -r .info.runtimeSpec.root.path`/tmp
 ```
+*you can also use `kubectl cp` to do same if target container has `tar` installed*
+
