@@ -1,7 +1,8 @@
 function install_flannel_with_default_config {
 
 kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
-
+sleep 5
+kubectl rollout status ds/kube-flannel-ds -n kube-flannel
 }
 
 function install_multus_with_default_auto_conf {
@@ -14,7 +15,10 @@ else
          cd /home/ubuntu
          git clone https://github.com/intel/multus-cni.git
          kubectl apply -f  /home/ubuntu/multus-cni/deployments/multus-daemonset.yml
+	 sleep 5
+	 kubectl rollout status ds/kube-multus-ds -n kube-system
 fi
+
 
 }
 
@@ -29,6 +33,8 @@ else
             -f doc/crds/daemonset-install.yaml \
             -f doc/crds/whereabouts.cni.cncf.io_ippools.yaml \
             -f doc/crds/whereabouts.cni.cncf.io_overlappingrangeipreservations.yaml
+	sleep 5
+	kubectl rollout status ds/whereabouts -n kube-system
 fi
 }
 
@@ -193,6 +199,7 @@ spec:
       "ipam": {
           "type": "whereabouts",
           "range": "10.1.128.0/24",
+          "gateway": "10.1.128.1",
           "routes": [
               { "dst": "10.96.0.0/12","gw": "10.1.128.1" },
               { "dst": "10.0.0.2/32", "gw": "10.1.128.1" }
@@ -356,5 +363,8 @@ create_config_for_cfos
 #create_net_att_def_cfosdefaultcni5
 create_net_att_def_cfosdefaultcni5hostlocal
 create_cfos_ds_deployment
+sleep 5
+kubectl rollout status ds/fos-deployment 
 create_demo_application
+sleep 5 
 restart_ds_fos_deployment
