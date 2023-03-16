@@ -1,5 +1,5 @@
-the kubernetes default valus is defined in file   
-variable.tf.   
+- ## k8s default value 
+*the kubernetes default valus is defined in file variable.tf*
 
 ```
 vpc cidr : 10.0.0.0/16
@@ -13,7 +13,7 @@ clusterdnsip : 10.96.0.10
 ```
 *if you change pod cidr from 10.244.0.0/16 to something else, then you will also need flannel configuration to match it. this is not included in the script*  
 
-*please be aware the CNI do not always honor the pod CIDR.it often has it's own POD CIDR, for example, the bridge CNI has default 10.85.0.0/16, the flannel has 10.244.0.0/16 regardless cluster level podcidr setup.*  
+*please be aware that some  CNI do not always honor the pod CIDR.it often has it's own POD CIDR, for example, the bridge CNI has default 10.85.0.0/16, the flannel has 10.244.0.0/16 regardless cluster level podcidr setup.*  
 
 
 
