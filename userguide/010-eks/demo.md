@@ -1,3 +1,9 @@
+- ## network diagram
+
+```
+ eth0-application pod --net1--10.0.200/24--net1---cfos pod --- eth0 --- internet 
+
+```
 - ## install eks cluster 
 
 ```
