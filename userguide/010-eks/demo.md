@@ -201,6 +201,7 @@ ADFS-Admin:~ $ kubectl create -f fos_license.yaml
 configmap/fos-license created
 ```
 - ### install cfos from yaml file
+```
 cat << | kubectl apply -f - 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -351,6 +352,8 @@ spec:
 EOF
 
 ```
+- ### check result 
+```
 ADFS-Admin:~/environment $ kubectl create -f cfos_ds_deployment.yaml 
 clusterrole.rbac.authorization.k8s.io/configmap-reader created
 rolebinding.rbac.authorization.k8s.io/read-configmaps created
@@ -359,7 +362,6 @@ rolebinding.rbac.authorization.k8s.io/read-secrets created
 configmap/foscfgfirewallpolicy created
 service/fos-deployment created
 daemonset.apps/fos-deployment created
-```
 
 ADFS-Admin:~/environment $ kubectl get pod
 NAME                   READY   STATUS    RESTARTS   AGE
@@ -479,5 +481,4 @@ rtt min/avg/max/mdev = 0.867/1.251/1.635/0.384 ms
   "readme": "https://ipinfo.io/missingauth"
 }/ # 
 
-```
 ```
