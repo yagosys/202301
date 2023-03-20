@@ -1,1 +1,1 @@
-kubectl get pod | grep multi | grep -v termin | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- curl -k -I https://1.1.1.1 ; done
+kubectl get pod | grep multi | grep -v termin | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- curl --max-time 5  -k -I https://1.1.1.1 ; done
