@@ -1,15 +1,15 @@
 - ## network diagram
 
 ```
- eth0-application pod --net1--10.0.200/24--net1---cfos pod --- eth0 --- internet 
+ eth0-application pod --net1--10.0.200/24--net1---cfos pod --- eth0 --- internet
 
 ```
-- ## install eks cluster 
+- ## install eks cluster
 
 ```
-cat << EOF | eksctl create cluster -f 
+cat << EOF | eksctl create cluster -f
 
-ADFS-Admin:~/EKSDemo (main) $ cat EKSDemoConfig.yaml 
+ADFS-Admin:~/EKSDemo (main) $ cat EKSDemoConfig.yaml
 apiVersion: eksctl.io/v1alpha5
 availabilityZones:
 - ap-east-1b
@@ -84,7 +84,7 @@ vpc:
   nat:
     gateway: Single
 
-EOF 
+EOF
 
 ```
 
@@ -98,7 +98,7 @@ ADFS-Admin:~/EKSDemo (main) $ eksctl create cluster -f EKSDemoConfig.yaml
 2023-03-19 01:01:12 [ℹ]  subnets for ap-east-1b - public:10.0.0.0/19 private:10.0.64.0/19
 2023-03-19 01:01:12 [ℹ]  subnets for ap-east-1a - public:10.0.32.0/19 private:10.0.96.0/19
 2023-03-19 01:01:12 [ℹ]  nodegroup "DemoNodeGroup" will use "ami-028a68d319d88fe0c" [Ubuntu2004/1.25]
-2023-03-19 01:01:12 [ℹ]  using SSH public key "/home/ec2-user/.ssh/id_rsa.pub" as "eksctl-EKSDemo-nodegroup-DemoNodeGroup-d9:13:25:30:68:71:06:75:d6:1c:68:4f:88:24:ab:4a" 
+2023-03-19 01:01:12 [ℹ]  using SSH public key "/home/ec2-user/.ssh/id_rsa.pub" as "eksctl-EKSDemo-nodegroup-DemoNodeGroup-d9:13:25:30:68:71:06:75:d6:1c:68:4f:88:24:ab:4a"
 2023-03-19 01:01:12 [ℹ]  using Kubernetes version 1.25
 2023-03-19 01:01:12 [ℹ]  creating EKS cluster "EKSDemo" in "ap-east-1" region with managed nodes
 2023-03-19 01:01:12 [ℹ]  1 nodegroup (DemoNodeGroup) was included (based on the include/exclude rules)
@@ -108,12 +108,12 @@ ADFS-Admin:~/EKSDemo (main) $ eksctl create cluster -f EKSDemoConfig.yaml
 2023-03-19 01:01:12 [ℹ]  Kubernetes API endpoint access will use default of {publicAccess=true, privateAccess=false} for cluster "EKSDemo" in "ap-east-1"
 2023-03-19 01:01:12 [ℹ]  CloudWatch logging will not be enabled for cluster "EKSDemo" in "ap-east-1"
 2023-03-19 01:01:12 [ℹ]  you can enable it with 'eksctl utils update-cluster-logging --enable-types={SPECIFY-YOUR-LOG-TYPES-HERE (e.g. all)} --region=ap-east-1 --cluster=EKSDemo'
-2023-03-19 01:01:12 [ℹ]  
-2 sequential tasks: { create cluster control plane "EKSDemo", 
-    2 sequential sub-tasks: { 
+2023-03-19 01:01:12 [ℹ]
+2 sequential tasks: { create cluster control plane "EKSDemo",
+    2 sequential sub-tasks: {
         wait for control plane to become ready,
         create managed nodegroup "DemoNodeGroup",
-    } 
+    }
 }
 2023-03-19 01:01:12 [ℹ]  building cluster stack "eksctl-EKSDemo-cluster"
 2023-03-19 01:01:13 [ℹ]  deploying stack "eksctl-EKSDemo-cluster"
@@ -146,14 +146,14 @@ ADFS-Admin:~/EKSDemo (main) $ eksctl create cluster -f EKSDemoConfig.yaml
 2023-03-19 01:17:11 [ℹ]  node "ip-10-0-20-197.ap-east-1.compute.internal" is ready
 2023-03-19 01:17:12 [ℹ]  kubectl command should work with "/home/ec2-user/.kube/config", try 'kubectl get nodes'
 2023-03-19 01:17:12 [✔]  EKS cluster "EKSDemo" in "ap-east-1" region is ready
-ADFS-Admin:~/EKSDemo (main) $ 
+ADFS-Admin:~/EKSDemo (main) $
 ```
 - ## install multus
 
-git clone multus then install 
+git clone multus then install
 
 ```
-kubectl create -f multus-daemonset.yml 
+kubectl create -f multus-daemonset.yml
 customresourcedefinition.apiextensions.k8s.io/network-attachment-definitions.k8s.cni.cncf.io created
 clusterrole.rbac.authorization.k8s.io/multus created
 clusterrolebinding.rbac.authorization.k8s.io/multus created
@@ -161,7 +161,7 @@ serviceaccount/multus created
 configmap/multus-cni-config created
 daemonset.apps/kube-multus-ds created
 ```
-- ## create net-attach-def 
+- ## create net-attach-def
 
 ```
 cat << EOF | kubectl apply -f -
@@ -191,24 +191,24 @@ spec:
           ]
       }
     }
-EOF 
+EOF
 
 networkattachmentdefinition.k8s.cni.cncf.io/cfosdefaultcni5 created
 
 ```
-- ## deploy cfos daemonset 
+- ## deploy cfos daemonset
 
 - ### install dockersecret and cfos license
 
 ```
-ADFS-Admin:~ $ kubectl create -f dockersecret.yaml 
+ADFS-Admin:~ $ kubectl create -f dockersecret.yaml
 secret/dockerinterbeing created
-ADFS-Admin:~ $ kubectl create -f fos_license.yaml 
+ADFS-Admin:~ $ kubectl create -f fos_license.yaml
 configmap/fos-license created
 ```
 - ### install cfos from yaml file
 ```
-cat << | kubectl apply -f - 
+cat << | kubectl apply -f -
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -326,7 +326,7 @@ spec:
         app: fos
       annotations:
         k8s.v1.cni.cncf.io/networks: '[ { "name": "cfosdefaultcni5",  "ips": [ "10.0.200.252/32" ], "mac": "CA:FE:C0:FF:00:02" } ]'
-        #k8s.v1.cni.cncf.io/networks: '[ { "name": "cfosdefaultcni5" } ] ' 
+        #k8s.v1.cni.cncf.io/networks: '[ { "name": "cfosdefaultcni5" } ] '
     spec:
       containers:
       - name: fos
@@ -358,9 +358,9 @@ spec:
 EOF
 
 ```
-- ### check result 
+- ### check result
 ```
-ADFS-Admin:~/environment $ kubectl create -f cfos_ds_deployment.yaml 
+ADFS-Admin:~/environment $ kubectl create -f cfos_ds_deployment.yaml
 clusterrole.rbac.authorization.k8s.io/configmap-reader created
 rolebinding.rbac.authorization.k8s.io/read-configmaps created
 clusterrole.rbac.authorization.k8s.io/secrets-reader created
@@ -378,28 +378,28 @@ ADFS-Admin:~/environment $ kubectl exec -it po/fos-deployment-9ffwt -- sh
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
-    inet6 ::1/128 scope host 
+    inet6 ::1/128 scope host
        valid_lft forever preferred_lft forever
-3: eth0@if9: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9001 qdisc noqueue state UP group default 
+3: eth0@if9: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9001 qdisc noqueue state UP group default
     link/ether 82:4c:40:65:df:a5 brd ff:ff:ff:ff:ff:ff link-netnsid 0
     inet 10.0.18.63/32 scope global eth0
        valid_lft forever preferred_lft forever
-    inet6 fe80::804c:40ff:fe65:dfa5/64 scope link 
+    inet6 fe80::804c:40ff:fe65:dfa5/64 scope link
        valid_lft forever preferred_lft forever
-5: net1@if10: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
+5: net1@if10: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default
     link/ether c2:a2:44:6f:bd:8e brd ff:ff:ff:ff:ff:ff link-netnsid 0
     inet 10.0.200.252/24 brd 10.0.200.255 scope global net1
        valid_lft forever preferred_lft forever
-    inet6 fe80::c0a2:44ff:fe6f:bd8e/64 scope link 
+    inet6 fe80::c0a2:44ff:fe6f:bd8e/64 scope link
        valid_lft forever preferred_lft forever
-# 
+#
 ```
 
 
-- ### deployment application 
+- ### deployment application
 
 ```
-cat << EOF | kubectl apply -f - 
+cat << EOF | kubectl apply -f -
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -446,26 +446,26 @@ ADFS-Admin:~/environment $ kubectl exec -it po/multitool01-deployment-779b44cdc4
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
-    inet6 ::1/128 scope host 
+    inet6 ::1/128 scope host
        valid_lft forever preferred_lft forever
-3: eth0@if13: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9001 qdisc noqueue state UP group default 
+3: eth0@if13: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9001 qdisc noqueue state UP group default
     link/ether ba:20:3c:f8:e2:2f brd ff:ff:ff:ff:ff:ff link-netnsid 0
     inet 10.0.15.6/32 scope global eth0
        valid_lft forever preferred_lft forever
-    inet6 fe80::b820:3cff:fef8:e22f/64 scope link 
+    inet6 fe80::b820:3cff:fef8:e22f/64 scope link
        valid_lft forever preferred_lft forever
-5: net1@if15: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
+5: net1@if15: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default
     link/ether 4e:95:73:59:01:c4 brd ff:ff:ff:ff:ff:ff link-netnsid 0
     inet 10.0.200.254/24 brd 10.0.200.255 scope global net1
        valid_lft forever preferred_lft forever
-    inet6 fe80::4c95:73ff:fe59:1c4/64 scope link 
+    inet6 fe80::4c95:73ff:fe59:1c4/64 scope link
        valid_lft forever preferred_lft forever
 / # ip r
-default via 10.0.200.252 dev net1 
-10.0.0.2 via 10.0.200.1 dev net1 
-10.0.200.0/24 dev net1 proto kernel scope link src 10.0.200.254 
-10.96.0.0/12 via 10.0.200.1 dev net1 
-169.254.1.1 dev eth0 scope link 
+default via 10.0.200.252 dev net1
+10.0.0.2 via 10.0.200.1 dev net1
+10.0.200.0/24 dev net1 proto kernel scope link src 10.0.200.254
+10.96.0.0/12 via 10.0.200.1 dev net1
+169.254.1.1 dev eth0 scope link
 / # ping 1.1.1.1
 PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
 64 bytes from 1.1.1.1: icmp_seq=1 ttl=51 time=1.64 ms
@@ -485,6 +485,108 @@ rtt min/avg/max/mdev = 0.867/1.251/1.635/0.384 ms
   "org": "AS16509 Amazon.com, Inc.",
   "timezone": "Asia/Hong_Kong",
   "readme": "https://ipinfo.io/missingauth"
-}/ # 
+}/ #
 
+```
+
+- ### scale node
+
+```
+eksctl scale nodegroup DemoNodeGroup --cluster EKSDemo -N 2 -M 2
+```
+
+- ###  the cfos will be automatically scaled
+```
+ADFS-Admin:~/environment $ kubectl get node -o wide
+NAME                                        STATUS   ROLES    AGE    VERSION   INTERNAL-IP   EXTERNAL-IP     OS-IMAGE             KERNEL-VERSION    CONTAINER-RUNTIME
+ip-10-0-31-161.ap-east-1.compute.internal   Ready    <none>   34m    v1.25.6   10.0.31.161   18.162.130.31   Ubuntu 20.04.6 LTS   5.15.0-1031-aws   containerd://1.6.12
+ip-10-0-61-118.ap-east-1.compute.internal   Ready    <none>   2m8s   v1.25.6   10.0.61.118   43.198.99.228   Ubuntu 20.04.6 LTS   5.15.0-1031-aws   containerd://1.6.12
+ADFS-Admin:~/environment $ kubectl get pod -o wide
+NAME                                      READY   STATUS    RESTARTS   AGE    IP            NODE                                        NOMINATED NODE   READINESS GATES
+fos-deployment-7pwq7                      1/1     Running   0          22m    10.0.14.159   ip-10-0-31-161.ap-east-1.compute.internal   <none>           <none>
+fos-deployment-j485h                      1/1     Running   0          115s   10.0.32.67    ip-10-0-61-118.ap-east-1.compute.internal   <none>           <none>
+multitool01-deployment-779b44cdc4-g55tz   1/1     Running   0          21m    10.0.24.147   ip-10-0-31-161.ap-east-1.compute.internal   <none>           <none>
+multitool01-deployment-779b44cdc4-wkwz4   1/1     Running   0          21m    10.0.9.33     ip-10-0-31-161.ap-east-1.compute.internal   <none>           <none>
+ADFS-Admin:~/environment $
+
+
+```
+scale application
+
+```
+
+ADFS-Admin:~/environment $ kubectl scale deployment multitool01-deployment --replicas=4
+deployment.apps/multitool01-deployment scaled
+ADFS-Admin:~/environment $ kubectl get pod -o wide
+NAME                                      READY   STATUS    RESTARTS   AGE   IP            NODE                                        NOMINATED NODE   READINESS GATES
+fos-deployment-7pwq7                      1/1     Running   0          50m   10.0.14.159   ip-10-0-31-161.ap-east-1.compute.internal   <none>           <none>
+fos-deployment-j485h                      1/1     Running   0          30m   10.0.32.67    ip-10-0-61-118.ap-east-1.compute.internal   <none>           <none>
+multitool01-deployment-6fd4f6dd6d-2xbvh   1/1     Running   0          67s   10.0.39.5     ip-10-0-61-118.ap-east-1.compute.internal   <none>           <none>
+multitool01-deployment-6fd4f6dd6d-j4m2s   1/1     Running   0          67s   10.0.28.8     ip-10-0-31-161.ap-east-1.compute.internal   <none>           <none>
+multitool01-deployment-6fd4f6dd6d-jw9nd   1/1     Running   0          5s    10.0.9.33     ip-10-0-31-161.ap-east-1.compute.internal   <none>           <none>
+multitool01-deployment-6fd4f6dd6d-kcvhm   1/1     Running   0          5s    10.0.46.224   ip-10-0-61-118.ap-east-1.compute.internal   <none>           <none>
+
+
+```
+check the ping reachability
+
+```
+ADFS-Admin:~/environment $ kubectl exec -it po/multitool01-deployment-6fd4f6dd6d-2xbvh -- ping -c 1 10.0.39.5
+PING 10.0.39.5 (10.0.39.5) 56(84) bytes of data.
+64 bytes from 10.0.39.5: icmp_seq=1 ttl=64 time=0.021 ms
+
+--- 10.0.39.5 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.021/0.021/0.021/0.000 ms
+ADFS-Admin:~/environment $ kubectl exec -it po/multitool01-deployment-6fd4f6dd6d-2xbvh -- ping -c 1 10.0.28.8
+PING 10.0.28.8 (10.0.28.8) 56(84) bytes of data.
+64 bytes from 10.0.28.8: icmp_seq=1 ttl=62 time=0.562 ms
+
+--- 10.0.28.8 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.562/0.562/0.562/0.000 ms
+ADFS-Admin:~/environment $ kubectl exec -it po/multitool01-deployment-6fd4f6dd6d-2xbvh -- ping -c 1 10.0.9.33
+PING 10.0.9.33 (10.0.9.33) 56(84) bytes of data.
+64 bytes from 10.0.9.33: icmp_seq=1 ttl=62 time=1.17 ms
+
+--- 10.0.9.33 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 1.166/1.166/1.166/0.000 ms
+ADFS-Admin:~/environment $ kubectl exec -it po/multitool01-deployment-6fd4f6dd6d-2xbvh -- ping -c 1 10.0.46.224
+PING 10.0.46.224 (10.0.46.224) 56(84) bytes of data.
+64 bytes from 10.0.46.224: icmp_seq=1 ttl=63 time=0.108 ms
+
+--- 10.0.46.224 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.108/0.108/0.108/0.000 ms
+```
+
+- ## check cfos iptabels
+
+*chain fcn_nat shall have a snat entry out from eth0, if you do not see this, reconfig the firewall policy*
+
+```
+ADFS-Admin:~/environment $ kubectl exec -it po/fos-deployment-7pwq7 -- sh
+# iptables -L -t nat --verbose
+Chain PREROUTING (policy ACCEPT 1 packets, 84 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+   10   840 fcn_prenat  all  --  any    any     anywhere             anywhere
+
+Chain INPUT (policy ACCEPT 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+
+Chain OUTPUT (policy ACCEPT 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+
+Chain POSTROUTING (policy ACCEPT 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+   11   900 fcn_nat    all  --  any    any     anywhere             anywhere
+
+Chain fcn_nat (1 references)
+ pkts bytes target     prot opt in     out     source               destination
+    1    84 MASQUERADE  all  --  any    eth0    anywhere             anywhere
+
+Chain fcn_prenat (1 references)
+ pkts bytes target     prot opt in     out     source               destination
+#
 ```
