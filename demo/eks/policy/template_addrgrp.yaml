@@ -35,6 +35,10 @@ spec:
               type: string
             firewallpolicyapiurl:
               type: string
+            labelvalue:
+              type: string
+            lablekey:
+              type: string
   targets:
     - target: admission.k8s.gatekeeper.sh
       rego: |
@@ -67,8 +71,12 @@ spec:
             "msg" : msg 
           }] {
           input.review.object.metadata.labels.app==input.parameters.label
+          namespace := input.review.object.metadata.namespace
+          label := input.review.object.spec.podSelector.matchLabels.app
           dstipblock :=  input.review.object.spec.egress[_].to[_].ipBlock.cidr
-          src_addr_group := input.parameters.addrgrouplabel
+          #src_addr_group := input.parameters.addrgrouplabel
+          t := concat("",[namespace,"app"])
+          src_addr_group := concat("",[t,label])
           ipsprofile := input.parameters.ipsprofile
           avprofile := input.parameters.avprofile
           sslsshprofile := input.parameters.sslsshprofile
