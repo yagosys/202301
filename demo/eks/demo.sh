@@ -18,7 +18,7 @@ function restart_cfos_if_not_ready {
 }
 
 function install_gatekeeperv3 {
-    kubectl --kubeconfig /home/ubuntu/.kube/config apply -f https://raw.githubusercontent.com/open-policy-agent/gatekeeper/master/deploy/gatekeeper.yaml
+    kubectl apply -f https://raw.githubusercontent.com/open-policy-agent/gatekeeper/master/deploy/gatekeeper.yaml
 }
 
 kubectl create -f multus-daemonset.yml
