@@ -1,62 +1,12 @@
 #!/bin/bash
 
-# Set the namespace and deployment name
-NAMESPACE="default"
-DEPLOYMENT_NAME="multitool01-deployment"
+function updatecfosfirewalladdress {
+  kubectl exec -it po/cfosclientpod -- curl -H "Content-Type: application/json" -X POST -d '{ "data": {"name": "'$IP'", "subnet": "'$IP' 255.255.255.255"}}' http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/address
+}
 
-# Set the label selector for the pods you want to watch
-LABEL_SELECTOR="app=multitool01"
-
-SRC_ADDR_GROUP="cfossrc"
-
-# Initialize an empty list to store the IP addresses
-IP_LIST=()
-kubectl run pod --image=praqma/network-multitool
-sleep 10
-# Loop indefinitely to watch for changes in the IP addresses of the pods
-old_POD_IPS=$(kubectl get pods -n default -l app=multitool01 -o json | jq -r  '.items[].metadata.annotations."k8s.v1.cni.cncf.io/network-status" | fromjson | .[] | select(.interface == "net1") | .ips[]' | uniq | tr '\n' ' ')
-while true; do
-  # Use kubectl to get the IP addresses of the pods that match the label selector
-  #POD_IPS=$(kubectl get pods -n $NAMESPACE -l $LABEL_SELECTOR -o jsonpath='{.items[*].status.podIP}')
-          
-          POD_IPS=$(kubectl get pods -n default -l app=multitool01 -o json | jq -r  '.items[].metadata.annotations."k8s.v1.cni.cncf.io/network-status" | fromjson | .[] | select(.interface == "net1") | .ips[]' | uniq | tr '\n' ' ')
-          echo $POD_IPS
-          if [ "$POD_IPS" != "$old_POD_IPS" ]; then
-          
-             # Convert the space-separated list of IP addresses to an array
-                read -ra IP_ARRAY <<< "$POD_IPS"
-                MEMBER=""
-                MEMBER1=""
-                
-                POD_CIDR='{"name":"pod_CIDR"}'
-                kubectl exec -it po/pod -- curl -H "Content-Type: application/json" -X POST -d '{ "data": {"name": "pod_CIDR", "subnet": "10.0.0.0 255.255.0.0"}}' http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/address
-                # Loop through the array of IP addresses
-                for IP in "${IP_ARRAY[@]}"; do
-                  # Check if the IP address is already in the list
-                #  if [[ ! " ${IP_LIST[*]} " =~ " $IP " ]]; then
-                    # If the IP address is not in the list, add it and print a message
-                    IP_LIST+=("$IP")
-                    echo "New pod IP address detected: $IP, update cfos firewall address"
-                    kubectl exec -it po/pod -- curl -H "Content-Type: application/json" -X POST -d '{ "data": {"name": "'$IP'", "subnet": "'$IP' 255.255.255.255"}}' http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/address
-                    #sleep 1
-                    MEMBER='{"name":"'$IP'"},'
-                    MEMBER1+=$MEMBER
-                    
-                #  fi
-                
-                done
-              
-                
-                *MEMBER1+=$POD_CIDR
-                memberlist="[$(echo "$MEMBER1" | sed 's/,$//')]"
-                echo $memberlist
-                #echo '\n'
-                
-              #memberlist='[{"name":"10.0.52.19"},{"name":"10.0.53.237"},{"name":"10.0.19.107"},{"name":"10.0.17.202"}]'
-              
-                EXECLUDEIP="none"
-                #
-                if kubectl exec -it po/pod -- curl \
+function updatecfosfirewalladdressgroup {
+                local memberlist="$1"
+                if kubectl exec -it po/cfosclientpod -- curl \
                   -H "Content-Type: application/json" \
                   -X PUT \
                   -d '{"data": {"name": "'$SRC_ADDR_GROUP'", "member": '$memberlist', "exclude": "enable", "exclude-member": [ {"name": "'$EXECLUDEIP'"}]}}' \
@@ -64,11 +14,120 @@ while true; do
                 then
                   echo $memberlist added to cfos
                   old_POD_IPS=$POD_IPS
-                fi
+                fi               
+}
+
+function createcfosfirewallpolicy {
+              if kubectl exec -it po/cfosclientpod --  curl \
+               -H "Content-Type: application/json" \
+               -X POST \
+               -d '{ "data": 
+                     {"policyid":"20", 
+                       "name": "corp-traffic", 
+                       "srcintf": [{"name": "any"}], 
+                       "dstintf": [{"name": "eth0"}], 
+                       "srcaddr": [{"name": "'$SRC_ADDR_GROUP'"}],
+                       "service": [{"name": "ALL"}],
+                       "nat":"enable",
+                       "utm-status":"enable",
+                       "action": "accept",
+                       "logtraffic": "all",
+                       "ssl-ssh-profile": "deep-inspection",
+                       "ips-sensor": "ipsprofile",
+                       "av-profile": "avprofile",
+                       "dstaddr": [{"name": "all"}]}}' \
+                http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/policy
+              then 
+                echo $firewall policy created on cfos
+              fi
+  
+}
+
+
+function getPodNet1Ips {
+  local namesapce="$1"
+  local label="$2"
+  kubectl get pods -n "$namespace" -l "$label" -o json | jq -r  '.items[].metadata.annotations."k8s.v1.cni.cncf.io/network-status" | fromjson | .[] | select(.interface == "net1") | .ips[]' | uniq | tr '\n' ' '
+}
+
+
+function createClientPod {
+  while true; do
+  if kubectl get pod cfosclientpod 
+  then 
+  break
+  else 
+      kubectl run cfosclientpod --image=praqma/network-multitool
+  fi
+  done
+}
+
+function updateCfos {
+                #local POD_IPS="$1"
+                echo updateCfos got $POD_IPS 
+               # Convert the space-separated list of IP addresses to an array
+                read -ra IP_ARRAY <<< "$POD_IPS"
+                MEMBER=""
+                MEMBER1=""
                 
-                # Sleep for 10 seconds before checking again
-         fi       #
-                sleep 10
-                echo 'wait 10 seconds and then detect PODS ip changing'
+                for IP in "${IP_ARRAY[@]}"; do
+
+                    IP_LIST+=("$IP")
+                    echo "New pod IP address detected: $IP, update cfos firewall address"
+
+                    updatecfosfirewalladdress
+
+                    MEMBER='{"name":"'$IP'"},'
+                    MEMBER1+=$MEMBER
+
+                done
+              
+                memberlist="[$(echo "$MEMBER1" | sed 's/,$//')]"
+                echo $memberlist
+  
+                EXECLUDEIP="none"
+                updatecfosfirewalladdressgroup $memberlist
+                
+}
+
+function watchPodandUpdateCfosFirwallAddressGrpforSelectedNamespaceandLabel {
+IP_LIST=()
+old_POD_IPS=$(getPodNet1Ips $NAMESPACE $LABEL_SELECTOR)
+#echo $old_POD_IPS
+while true; do
+
+          POD_IPS=$(getPodNet1Ips $NAMESPACE  $LABEL_SELECTOR)
+          #echo $POD_IPS
+          if [ "$POD_IPS" != "$old_POD_IPS" ]; then
+          
+              updateCfos $POD_IPS
+                
+         fi  
+                sleep $INTERVAL
+                echo 'loop for  detect PODS ip changing'
         
 done
+}
+
+# Set the namespace and deployment name
+NAMESPACE="default"
+DEPLOYMENT_NAME="multitool01-deployment"
+
+# Set the label selector for the pods you want to watch
+LABEL_SELECTOR="app=multitool01"
+
+#SRC_ADDR_GROUP=$(echo $NAMESPACE$LABEL_SELECTOR | tr -d '=')
+SRC_ADDR_GROUP="cfossrc"
+INTERVAL=10
+
+# Initialize an empty list to store the IP addresses
+
+#kubectl run pod --image=praqma/network-multitool
+createClientPod
+POD_IPS=$(getPodNet1Ips $NAMESPACE  $LABEL_SELECTOR)
+#echo calling updateCfos with $POD_IPS
+createcfosfirewallpolicy
+updateCfos
+
+watchPodandUpdateCfosFirwallAddressGrpforSelectedNamespaceandLabel
+
