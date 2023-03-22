@@ -7,7 +7,7 @@ DEPLOYMENT_NAME="multitool01-deployment"
 # Set the label selector for the pods you want to watch
 LABEL_SELECTOR="app=multitool01"
 
-SRC_ADDR_GROUP=$NAMESPACE$LABEL_SELECTOR
+SRC_ADDR_GROUP="cfossrc"
 
 # Initialize an empty list to store the IP addresses
 IP_LIST=()
@@ -27,7 +27,9 @@ while true; do
                 read -ra IP_ARRAY <<< "$POD_IPS"
                 MEMBER=""
                 MEMBER1=""
-              
+                
+                POD_CIDR='{"name":"pod_CIDR"}'
+                kubectl exec -it po/pod -- curl -H "Content-Type: application/json" -X POST -d '{ "data": {"name": "pod_CIDR", "subnet": "10.0.0.0 255.255.0.0"}}' http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/address
                 # Loop through the array of IP addresses
                 for IP in "${IP_ARRAY[@]}"; do
                   # Check if the IP address is already in the list
@@ -39,14 +41,15 @@ while true; do
                     #sleep 1
                     MEMBER='{"name":"'$IP'"},'
                     MEMBER1+=$MEMBER
+                    
                 #  fi
                 
                 done
               
-                #echo '\n'
+                
+                *MEMBER1+=$POD_CIDR
                 memberlist="[$(echo "$MEMBER1" | sed 's/,$//')]"
-              
-                #echo $memberlist
+                echo $memberlist
                 #echo '\n'
                 
               #memberlist='[{"name":"10.0.52.19"},{"name":"10.0.53.237"},{"name":"10.0.19.107"},{"name":"10.0.17.202"}]'
