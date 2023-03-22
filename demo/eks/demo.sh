@@ -17,8 +17,12 @@ function restart_cfos_if_not_ready {
     done
 }
 
+function install_gatekeeperv3 {
+    kubectl --kubeconfig /home/ubuntu/.kube/config apply -f https://raw.githubusercontent.com/open-policy-agent/gatekeeper/master/deploy/gatekeeper.yaml
+}
+
 kubectl create -f multus-daemonset.yml
-kubeclt create -f  nad_bridge_cn_cfosdefaultcni5_10_1_200.yaml
+kubectl create -f  nad_bridge_cn_cfosdefaultcni5_10_1_200.yaml
 #kubectl create -f nad_bridge_cni_10_0_200_cfosdefauultcni5.yaml
 kubectl rollout status ds/kube-multus-ds -n kube-system
 sleep 10
@@ -39,3 +43,4 @@ restart_cfos_if_not_ready
 echo "sleep 10"
 sleep 10
 kubectl get pod | grep multi | grep -v termin  | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- ping -c1 1.1.1.1 ; done
+
