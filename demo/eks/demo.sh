@@ -18,7 +18,8 @@ function restart_cfos_if_not_ready {
 }
 
 kubectl create -f multus-daemonset.yml
-kubectl create -f nad_bridge_cni_10_0_200_cfosdefauultcni5.yaml
+kubeclt create -f  nad_bridge_cn_cfosdefaultcni5_10_1_200.yaml
+#kubectl create -f nad_bridge_cni_10_0_200_cfosdefauultcni5.yaml
 kubectl rollout status ds/kube-multus-ds -n kube-system
 sleep 10
 kubectl create -f dockersecret.yaml
