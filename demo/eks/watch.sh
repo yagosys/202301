@@ -1,12 +1,12 @@
 #!/bin/bash
 
 function updatecfosfirewalladdress {
-  kubectl exec -it po/cfosclientpod -- curl -H "Content-Type: application/json" -X POST -d '{ "data": {"name": "'$IP'", "subnet": "'$IP' 255.255.255.255"}}' http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/address
+  kubectl exec -it po/clientpod -- curl -H "Content-Type: application/json" -X POST -d '{ "data": {"name": "'$IP'", "subnet": "'$IP' 255.255.255.255"}}' http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/address
 }
 
 function updatecfosfirewalladdressgroup {
                 local memberlist="$1"
-                if kubectl exec -it po/cfosclientpod -- curl \
+                if kubectl exec -it po/clientpod -- curl \
                   -H "Content-Type: application/json" \
                   -X PUT \
                   -d '{"data": {"name": "'$SRC_ADDR_GROUP'", "member": '$memberlist', "exclude": "enable", "exclude-member": [ {"name": "'$EXECLUDEIP'"}]}}' \
@@ -18,7 +18,7 @@ function updatecfosfirewalladdressgroup {
 }
 
 function createcfosfirewallpolicy {
-              if kubectl exec -it po/cfosclientpod --  curl \
+              if kubectl exec -it po/clientpod --  curl \
                -H "Content-Type: application/json" \
                -X POST \
                -d '{ "data": 
@@ -33,8 +33,9 @@ function createcfosfirewallpolicy {
                        "action": "accept",
                        "logtraffic": "all",
                        "ssl-ssh-profile": "deep-inspection",
-                       "ips-sensor": "ipsprofile",
-                       "av-profile": "avprofile",
+                       "ips-sensor": "default",
+                       "webfilter-profile": "default",
+                       "av-profile": "default",
                        "dstaddr": [{"name": "all"}]}}' \
                 http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/policy
               then 
@@ -53,11 +54,11 @@ function getPodNet1Ips {
 
 function createClientPod {
   while true; do
-  if kubectl get pod cfosclientpod 
+  if kubectl get pod clientpod 
   then 
   break
   else 
-      kubectl run cfosclientpod --image=praqma/network-multitool
+      kubectl run clientpod --image=praqma/network-multitool
   fi
   done
 }
@@ -100,7 +101,7 @@ while true; do
           #echo $POD_IPS
           if [ "$POD_IPS" != "$old_POD_IPS" ]; then
           
-              updateCfos $POD_IPS
+              updateCfos #$POD_IPS
                 
          fi  
                 sleep $INTERVAL
