@@ -35,88 +35,108 @@ spec:
               type: string
             firewallpolicyapiurl:
               type: string
-            labelvalue:
-              type: string
-            lablekey:
-              type: string
+            policyid :
+              type: string 
+
   targets:
     - target: admission.k8s.gatekeeper.sh
       rego: |
         package k8segressnetworkpolicytocfosutmpolicy
-        import future.keywords.every
-          pod_egress_has_http_port {
-             input.review.object.spec.egress[_].ports[_].port == 80
-          }
-          pod_egress_has_https_port {
-            input.review.object.spec.egress[_].ports[_].port == 443
-          }
+
           
-          pod_egress_has_dns_port {
-            input.review.object.spec.egress[_].ports[_].port == 53
-            input.review.object.spec.egress[_].ports[_].protocol == "UDP"
-          }
-
-          service_dns = "DNS" {
-            pod_egress_has_dns_port
-          }
-
-          service_http = "HTTP" {
-            pod_egress_has_http_port
-          }
-
-          service_https = "HTTPS" {
-            pod_egress_has_https_port
-          }
           violation[{
             "msg" : msg 
           }] {
-          input.review.object.metadata.labels.app==input.parameters.label
-          namespace := input.review.object.metadata.namespace
-          label := input.review.object.spec.podSelector.matchLabels.app
-          dstipblock :=  input.review.object.spec.egress[_].to[_].ipBlock.cidr
-          #src_addr_group := input.parameters.addrgrouplabel
-          t := concat("",[namespace,"app"])
-          src_addr_group := concat("",[t,label])
-          ipsprofile := input.parameters.ipsprofile
-          avprofile := input.parameters.avprofile
-          sslsshprofile := input.parameters.sslsshprofile
-          action  := input.parameters.action
-          srcintf := input.parameters.srcintf
-          token := "4252d60858fb48"
-          podcidr := input.parameters.podcidr
-          outgoingport := input.parameters.outgoingport
-          firewalladdressapiurl := input.parameters.firewalladdressapiurl
-          firewallpolicyapiurl := input.parameters.firewallpolicyapiurl
-          firewalladdrgrpapiurl := input.parameters.firewalladdressgrpapiurl
-          myip := http.send({
-           "method": "GET",
-           "url": "https://ipinfo.io/",
-           "headers": {
-           "Authorization": sprintf("Bearer %s", [token])
-           }
-          }).body.ip
+                          
 
-          headers := {
-           "Content-Type": "application/json",
-          }
-          
-          addrgrpbody := {
-            "data":  {"name": src_addr_group, "member": [{"name": "none"}]}
-          }
-
-
-          dstaddrresp := http.send({
-            "method": "POST",
-            "url":  firewalladdrgrpapiurl,
-            "headers": headers,
-            "body": addrgrpbody
-          })
+                          
+                          #the NetworkPolicy must has label under metadata which match the constraint
+                          input.review.object.metadata.labels.app==input.parameters.label
+                          
+                          
+                          #GET INPUT from reguar NetworkPolicy for cfos firewall policy
+                          namespace := input.review.object.metadata.namespace
+                          label := input.review.object.spec.podSelector.matchLabels.app
+                             t := concat("",[namespace,"app"])
+                          src_addr_group := concat("",[t,label])
+                          dstipblock :=  input.review.object.spec.egress[_].to[_].ipBlock.cidr
+                          policyname := input.review.object.metadata.name
+                          
+                          #GET INPUT from constraint template
+                          policyid := input.parameters.policyid 
+                          ipsprofile := input.parameters.ipsprofile
+                          avprofile := input.parameters.avprofile
+                          sslsshprofile := input.parameters.sslsshprofile
+                          action  := input.parameters.action
+                          srcintf := input.parameters.srcintf   
+                          utmstatus := input.parameters.utmstatus
+                          outgoingport := input.parameters.outgoingport
+                          
+                          
+                          #firewalladdressapiurl := input.parameters.firewalladdressapiurl
+                          firewallpolicyapiurl := input.parameters.firewallpolicyapiurl
+                          firewalladdrgrpapiurl := input.parameters.firewalladdressgrpapiurl
+        
+                            #Begin Update cfos AddrGrp
+                            #AddrGrp has an member with name "none"
+                                      
+                                      headers := {
+                                      "Content-Type": "application/json",
+                                      }
+                            
+                                      addrgrpbody := {
+                                        "data":  {"name": src_addr_group, "member": [{"name": "none"}]}
+                                      }
+                            
+                            
+                                      addrGroupResp := http.send({
+                                        "method": "POST",
+                                        "url":  firewalladdrgrpapiurl,
+                                        "headers": headers,
+                                        "body": addrgrpbody
+                                      })
+                                      
+                            #End Update cfos AddrGrp
+                            
+                                      
+                            #Begin of Firewall Policy update
+                                      
+                                      firewallPolicybody := {
+                                        "data": 
+                                          {"policyid":policyid, 
+                                                  "name": policyname, 
+                                                  "srcintf": [{"name": srcintf}], 
+                                                  "dstintf": [{"name": outgoingport}], 
+                                                  "srcaddr": [{"name": src_addr_group}],
+                                                  "service": [{"name":"ALL"}],
+                                                  "nat":"enable",
+                                                  "utm-status":utmstatus,
+                                                  "action": "accept",
+                                                  "logtraffic": "all",
+                                                  "ssl-ssh-profile": sslsshprofile,
+                                                  "ips-sensor": ipsprofile,
+                                                  "webfilter-profile": "default",
+                                                  "av-profile": avprofile,
+                                                  "dstaddr": [{"name": "all"}]
+                                          }
+                                      }
+                                      
+                                      firewallPolicyResp := http.send({
+                                        "method": "POST",
+                                         "url":firewallpolicyapiurl, 
+                                       "headers": headers,
+                                         "body": firewallPolicybody
+                                       })
+                                      
+                            #End of Firewall Policy Update       
  
-
-          msg :=sprintf("\n{%v,%v} ", [
-          addrgrpbody,
-          dstaddrresp.status_code
-         ])
-        } 
+                      msg :=sprintf(  "\n{%v %v } ", [
+                                                            addrGroupResp.status_code,
+                                                            firewallPolicyResp.status_code
+                                                        
+                                                      
+                                                    ]
+                                   )
+              } 
 
         
