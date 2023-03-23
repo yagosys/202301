@@ -43,7 +43,6 @@ spec:
       rego: |
         package k8segressnetworkpolicytocfosutmpolicy
 
-          
           violation[{
             "msg" : msg 
           }] {
@@ -97,7 +96,22 @@ spec:
                                       })
                                       
                             #End Update cfos AddrGrp
-                            
+                           services := {
+                              "http": ["TCP:80"],
+                              "https": ["TCP:443"],
+                              "dns": ["UDP:53"]
+                            } 
+                            some i
+                            num_ports = count(input.review.object.spec.egress[_].ports)
+                            num_ports>0
+                            protocol := input.review.object.spec.egress[_].ports[i].protocol
+                            port := sprintf("%v",[input.review.object.spec.egress[_].ports[i].port])
+                            key := concat(":", [ protocol, port ])
+                            some service; services[service][_] == key
+
+                            # "service": [{"name": service_https},{"name":service_http}, {"name":service_dns}],
+
+
                                       
                             #Begin of Firewall Policy update
                                       
@@ -130,9 +144,11 @@ spec:
                                       
                             #End of Firewall Policy Update       
  
-                      msg :=sprintf(  "\n{%v %v } ", [
+                      msg :=sprintf(  "\n{%v %v %v } ", [
                                                             addrGroupResp.status_code,
-                                                            firewallPolicyResp.status_code
+                                                            firewallPolicyResp.status_code,
+                                                            count(service)
+                                                            
                                                         
                                                       
                                                     ]
