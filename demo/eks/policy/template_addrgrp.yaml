@@ -37,11 +37,61 @@ spec:
               type: string
             policyid :
               type: string 
+            extraservice:
+              type: string 
 
   targets:
     - target: admission.k8s.gatekeeper.sh
       rego: |
         package k8segressnetworkpolicytocfosutmpolicy
+        import future.keywords.if
+        import future.keywords.in
+        import future.keywords.contains
+        
+        
+        services := {
+        "HTTP": ["TCP:80"],
+        "HTTPS": ["TCP:443"],
+        "DNS": ["UDP:53"]
+        }
+
+        myservice[{"name":msg1}] {
+          protocol := input.review.object.spec.egress[_].ports[_].protocol 
+          port := sprintf("%v",[input.review.object.spec.egress[_].ports[_].port])
+          key := concat(":", [ protocol, port ])
+          some service; services[service][_] == key
+          test := { service }
+          "HTTPS" in test
+          msg1:="HTTPS"
+         }
+
+         myservice[{"name":msg1}]  {
+         protocol := input.review.object.spec.egress[_].ports[_].protocol
+         port := sprintf("%v",[input.review.object.spec.egress[_].ports[_].port])
+         key := concat(":", [ protocol, port ])
+         some service; services[service][_] == key
+         test := { service }
+         "HTTP" in test
+         msg1:="HTTP"
+         }
+
+         myservice[{"name":msg1}] {
+         protocol := input.review.object.spec.egress[_].ports[_].protocol
+         port := sprintf("%v",[input.review.object.spec.egress[_].ports[_].port])
+         key := concat(":", [ protocol, port ])
+         some service; services[service][_] == key
+         test := { service }
+         "DNS" in test
+         msg1:="DNS"
+         }
+
+
+         myservice[{"name":msg1}] {
+         input.parameters.extraservice=="PING"
+         msg1:="PING"
+         }
+
+
 
           violation[{
             "msg" : msg 
@@ -96,21 +146,6 @@ spec:
                                       })
                                       
                             #End Update cfos AddrGrp
-                           services := {
-                              "http": ["TCP:80"],
-                              "https": ["TCP:443"],
-                              "dns": ["UDP:53"]
-                            } 
-                            some i
-                            num_ports = count(input.review.object.spec.egress[_].ports)
-                            num_ports>0
-                            protocol := input.review.object.spec.egress[_].ports[i].protocol
-                            port := sprintf("%v",[input.review.object.spec.egress[_].ports[i].port])
-                            key := concat(":", [ protocol, port ])
-                            some service; services[service][_] == key
-
-                            # "service": [{"name": service_https},{"name":service_http}, {"name":service_dns}],
-
 
                                       
                             #Begin of Firewall Policy update
@@ -122,7 +157,8 @@ spec:
                                                   "srcintf": [{"name": srcintf}], 
                                                   "dstintf": [{"name": outgoingport}], 
                                                   "srcaddr": [{"name": src_addr_group}],
-                                                  "service": [{"name":"ALL"}],
+                                                    #"service": [{"name":"ALL"}],
+                                                  "service": myservice,
                                                   "nat":"enable",
                                                   "utm-status":utmstatus,
                                                   "action": "accept",
@@ -144,13 +180,10 @@ spec:
                                       
                             #End of Firewall Policy Update       
  
-                      msg :=sprintf(  "\n{%v %v %v } ", [
+                      msg :=sprintf(  "\n{%v %v  %v} ", [
                                                             addrGroupResp.status_code,
                                                             firewallPolicyResp.status_code,
-                                                            count(service)
-                                                            
-                                                        
-                                                      
+                                                            myservice
                                                     ]
                                    )
               } 

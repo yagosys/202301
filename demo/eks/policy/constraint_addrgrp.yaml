@@ -21,4 +21,4 @@ spec:
     sslsshprofile: "deep-inspection"
     action: "permit"
     srcintf: "any"
-
+    extraservice: "PING"
