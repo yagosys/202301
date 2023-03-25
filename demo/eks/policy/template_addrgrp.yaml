@@ -55,36 +55,31 @@ spec:
         "DNS": ["UDP:53"]
         }
 
-        myservice[{"name":msg1}] {
+        get_service(cfosservice) := msg1 {
           protocol := input.review.object.spec.egress[_].ports[_].protocol 
           port := sprintf("%v",[input.review.object.spec.egress[_].ports[_].port])
           key := concat(":", [ protocol, port ])
           some service; services[service][_] == key
           test := { service }
-          "HTTPS" in test
-          msg1:="HTTPS"
+          cfosservice in test
+          msg1 := cfosservice
          }
 
-         myservice[{"name":msg1}]  {
-         protocol := input.review.object.spec.egress[_].ports[_].protocol
-         port := sprintf("%v",[input.review.object.spec.egress[_].ports[_].port])
-         key := concat(":", [ protocol, port ])
-         some service; services[service][_] == key
-         test := { service }
-         "HTTP" in test
-         msg1:="HTTP"
+        myservice[{
+           "name" : get_service("HTTPS")
+          }] {
+               1==1
          }
-
-         myservice[{"name":msg1}] {
-         protocol := input.review.object.spec.egress[_].ports[_].protocol
-         port := sprintf("%v",[input.review.object.spec.egress[_].ports[_].port])
-         key := concat(":", [ protocol, port ])
-         some service; services[service][_] == key
-         test := { service }
-         "DNS" in test
-         msg1:="DNS"
+        myservice[{
+           "name" : get_service("HTTP")
+          }] {
+               1==1
          }
-
+        myservice[{
+           "name" : get_service("DNS")
+          }] {
+               1==1
+         }
 
          myservice[{"name":msg1}] {
          input.parameters.extraservice=="PING"
