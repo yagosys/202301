@@ -1,2 +1,2 @@
 kubectl apply -f gatekeeper.yaml; kubectl apply -f template_addrgrp.yaml ; kubectl apply -f constraint_addrgrp.yaml; kubectl create -f  networkPolicySameple.yaml
-./watch.sh
+kubectl apply -f watchandupdatcfospodip.yaml
