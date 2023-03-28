@@ -1,5 +1,17 @@
 #!/bin/bash
 
+function getPodApplabel {
+	label_value=$(kubectl get pods -o json -A | jq -r '[.items[] | select(.metadata.annotations != null and .metadata.annotations["k8s.v1.cni.cncf.io/networks"] != null and (.metadata.annotations["k8s.v1.cni.cncf.io/networks"] | (contains("cfosdefaultcni5") and contains("default-route")))) | .metadata.labels.app] | unique[]')
+	LABEL_SELECTOR=$(echo app=$label_value)
+	echo $LABEL_SELECTOR
+}
+
+function getPodNamespace {
+namespace=$(kubectl get pods -o json -A | jq -r '[.items[] | select(.metadata.annotations != null and .metadata.annotations["k8s.v1.cni.cncf.io/networks"] != null and (.metadata.annotations["k8s.v1.cni.cncf.io/networks"] | (contains("cfosdefaultcni5") and contains("default-route")))) | .metadata.namespace] | unique[]')
+        echo $namespace
+}
+
+
 function updatecfosfirewalladdress {
   echo updatecfosfirewalladdress IP=$IP
   curl -H "Content-Type: application/json" -X POST -d '{ "data": {"name": "'$IP'", "subnet": "'$IP' 255.255.255.255"}}' http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/address
@@ -118,13 +130,17 @@ done
 
 # Set the namespace and deployment name
 #NAMESPACE="default"
-NAMESPACE=$NAMESPACE
+#NAMESPACE=$NAMESPACE
+NAMESPACE=$(getPodNamespace)
 DEPLOYMENT_NAME="multitool01-deployment"
+echo NAMESPACE=$NAMESPACE
 
 
 # Set the label selector for the pods you want to watch
 #LABEL_SELECTOR="app=multitool01"
-LABEL_SELECTOR=$LABEL_SELECTOR
+#LABEL_SELECTOR=$LABEL_SELECTOR
+LABEL_SELECTOR=$(getPodApplabel)
+echo LABEL=$LABEL_SELECTOR
 
 SRC_ADDR_GROUP=$(echo $NAMESPACE$LABEL_SELECTOR | sed 's/[^A-Za-z]//g')
 #SRC_ADDR_GROUP="cfossrc"
@@ -134,7 +150,7 @@ INTERVAL=10
 
 POD_IPS=$(getPodNet1Ips $NAMESPACE  $LABEL_SELECTOR)
 
-if [ -z $POD_IPS ]; then 
+if [[ -z $POD_IPS ]]; then 
 echo "no ip exist "
 else
 updateCfos
