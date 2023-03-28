@@ -13,7 +13,7 @@ kubernetesNetworkConfig:
   serviceIPv4CIDR: 10.96.0.0/12
 managedNodeGroups:
 - amiFamily: Ubuntu2004
-  desiredCapacity: 2
+  desiredCapacity: 1
   disableIMDSv1: false
   disablePodIMDS: false
   iam:
@@ -33,7 +33,7 @@ managedNodeGroups:
       xRay: false
   instanceSelector: {}
   instanceTypes:
-  - t3.small
+  - t3.large
   labels:
     alpha.eksctl.io/cluster-name: EKSDemo
     alpha.eksctl.io/nodegroup-name: DemoNodeGroup
