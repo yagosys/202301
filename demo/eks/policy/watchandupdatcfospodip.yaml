@@ -14,6 +14,18 @@ rules:
 - apiGroups: [""]
   resources: ["pods"]
   verbs: ["list", "get", "watch"]
+- apiGroups: [""]
+  resources: ["configmaps"]
+  verbs: ["list","get","watch","create"]
+- apiGroups: [""]
+  resources: ["nodes"]
+  verbs: ["list", "get", "watch"]
+- apiGroups: ["apps"]
+  resources: ["daemonsets"]
+  verbs: ["get", "list", "watch", "patch", "update"]
+- apiGroups: ["constraints.gatekeeper.sh"]
+  resources: ["k8segressnetworkpolicytocfosutmpolicy"]
+  verbs: ["list","get","watch"]
     #- apiGroups: [""]
     #  resources: ["pods/exec"]
     #  verbs: ["create"]
@@ -43,4 +55,15 @@ spec:
   containers:
   - name: kubectl-container
     image: interbeing/kubectl-cfos:latest
-
+      #    env:
+      #    - name: NAMESPACE
+      #      value: "default"
+      #    - name: DEPLOYMENT_NAME
+      #      value: "multitool01-deployment"
+      #    - name: LABEL_SELECTOR
+      #      value: "app=multitool01"
+      #  command: ["/bin/sh", "-c"]
+#    args:
+#    - while true; do
+#        sleep 9999999;
+#      done
