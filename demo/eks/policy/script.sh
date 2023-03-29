@@ -1,4 +1,34 @@
 #!/bin/bash
+function restartcfosifnodenumberchanaged {
+previous_node_count=$(kubectl get nodes -o json | jq '.items | length')
+echo $previous_node_count
+
+while true; do
+  node_count=$(kubectl get nodes -o json | jq '.items | length')
+
+  if [ "$previous_node_count" -ne "$node_count" ]; then
+    echo "Number of nodes changed: $node_count"
+    echo "restart fos-deployment"
+    kubectl rollout status ds/kube-multus-ds -n kube-system
+    sleep 30
+    kubectl rollout restart ds/fos-deployment
+    previous_node_count="$node_count"
+  fi
+  sleep 180 
+  echo "watch node number change"
+done
+}
+
+function getCfosPodIp {
+cfospodips=($(kubectl get pods -l app=fos -o json | jq -r '.items[].status.podIP'))
+echo cfospodips
+}
+
+
+function getPolicyId {
+policyid=$(kubectl get K8sEgressNetworkPolicyToCfosUtmPolicy cfosnetworkpolicy -o jsonpath='{.spec.parameters.policyid}')
+echo $policyid
+}
 
 function getPodApplabel {
 	label_value=$(kubectl get pods -o json -A | jq -r '[.items[] | select(.metadata.annotations != null and .metadata.annotations["k8s.v1.cni.cncf.io/networks"] != null and (.metadata.annotations["k8s.v1.cni.cncf.io/networks"] | (contains("cfosdefaultcni5") and contains("default-route")))) | .metadata.labels.app] | unique[]')
@@ -12,19 +42,39 @@ namespace=$(kubectl get pods -o json -A | jq -r '[.items[] | select(.metadata.an
 }
 
 
+function curltocfosupdatefirewalladdress {
+  for ip in "${cfospodips[@]}"; do
+  cfosurl=$ip
+  #cfosurl=http://fos-deployment.default.svc.cluster.local
+  curl -H "Content-Type: application/json" -X POST -d '{ "data": {"name": "'$IP'", "subnet": "'$IP' 255.255.255.255"}}' http://$cfosurl/api/v2/cmdb/firewall/address
+  done 
+}
+
 function updatecfosfirewalladdress {
+  getCfosPodIp
   echo updatecfosfirewalladdress IP=$IP
-  curl -H "Content-Type: application/json" -X POST -d '{ "data": {"name": "'$IP'", "subnet": "'$IP' 255.255.255.255"}}' http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/address
+  curltocfosupdatefirewalladdress
+
+#  curl -H "Content-Type: application/json" -X POST -d '{ "data": {"name": "'$IP'", "subnet": "'$IP' 255.255.255.255"}}' http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/address
+}
+
+function curltocfosupdatefirewalladdrgrp {
+      for ip in "${cfospodips[@]}"; do
+      cfosurl=$ip
+      curl \
+                  -H "Content-Type: application/json" \
+                  -X PUT \
+                  -d '{"data": {"name": "'$SRC_ADDR_GROUP'", "member": '$memberlist', "exclude": "enable", "exclude-member": [ {"name": "'$EXECLUDEIP'"}]}}' \
+                  http://$cfosurl/api/v2/cmdb/firewall/addrgrp
+                  #http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/addrgrp
+      done
 }
 
 function updatecfosfirewalladdressgroup {
                 local memberlist="$1"
                 echo memberlist=$memberlist
-                if curl \
-                  -H "Content-Type: application/json" \
-                  -X PUT \
-                  -d '{"data": {"name": "'$SRC_ADDR_GROUP'", "member": '$memberlist', "exclude": "enable", "exclude-member": [ {"name": "'$EXECLUDEIP'"}]}}' \
-                  http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/addrgrp
+                getCfosPodIp
+                if curltocfosupdatefirewalladdrgrp
                 then
                   echo $memberlist added to cfos
                   old_POD_IPS=$POD_IPS
@@ -32,6 +82,8 @@ function updatecfosfirewalladdressgroup {
 }
 
 function createcfosfirewallpolicy {
+      for ip in "${cfospodips[@]}"; do
+      cfosurl=$ip
               if  curl \
                -H "Content-Type: application/json" \
                -X POST \
@@ -51,10 +103,11 @@ function createcfosfirewallpolicy {
                        "webfilter-profile": "default",
                        "av-profile": "default",
                        "dstaddr": [{"name": "all"}]}}' \
-                http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/policy
+                http://$cfosurl/api/v2/cmdb/firewall/policy
               then 
                 echo $firewall policy created on cfos
               fi
+      done
   
 }
 
@@ -120,12 +173,23 @@ while true; do
           if [ "$POD_IPS" != "$old_POD_IPS" ]; then
           
               updateCfos #$POD_IPS
+	      createcfosfirewallpolicyifnogatekeeperpolicyexist
                 
          fi  
                 sleep $INTERVAL
                 echo 'loop for  detect PODS ip changing'
         
 done
+}
+
+function createcfosfirewallpolicyifnogatekeeperpolicyexist {
+policyid=$(getPolicyId)
+echo $policyid
+if [[ -n "$policyid" ]]; then
+echo "policy already created by gatekeeper"
+else
+createcfosfirewallpolicy
+fi
 }
 
 # Set the namespace and deployment name
@@ -154,7 +218,10 @@ if [[ -z $POD_IPS ]]; then
 echo "no ip exist "
 else
 updateCfos
-createcfosfirewallpolicy
-fi
-watchPodandUpdateCfosFirwallAddressGrpforSelectedNamespaceandLabel
+createcfosfirewallpolicyifnogatekeeperpolicyexist
 
+fi
+
+watchPodandUpdateCfosFirwallAddressGrpforSelectedNamespaceandLabel &
+restartcfosifnodenumberchanaged &
+wait
