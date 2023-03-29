@@ -24,9 +24,8 @@ function insert_snat_entry_if_not_exist {
 	    if kubectl  exec -it po/$cfospod -- iptables -t nat -C  fcn_nat -o eth0 -j MASQUERADE
             then 
 		    echo "snat exist, do nothing"
-		    break
 	    else   
-		    echo "insert snat entry to eth0"
+		    echo "insert snat entry to eth0 to $cfospod in $nodeName"
 		    kubectl exec -it po/$cfospod -- iptables -t nat -A fcn_nat -o eth0 -j MASQUERADE
            fi
 	 done
@@ -37,16 +36,16 @@ function install_gatekeeperv3 {
 }
 
 kubectl create -f multus-daemonset.yml
-#kubectl create -f  nad_bridge_cn_cfosdefaultcni5_10_1_200.yaml
-#kubectl create -f nad_bridge_cni_10_0_200_cfosdefauultcni5.yaml
-kubectl create -f nad_bridge_cn_cfosdefaultcni5_10_1_200_no_snat.yaml
+#kubectl create -f nad_bridge_cn_cfosdefaultcni5_10_1_200_no_snat.yaml
+kubectl create -f nad_bridge_cn_cfosdefaultcni5_10_1_200_no_snat_new.yaml
 kubectl rollout status ds/kube-multus-ds -n kube-system
 sleep 10
 kubectl create -f dockersecret.yaml
 kubectl create -f fos_license.yaml
 #kubectl create -f cfos_firewallpolicy.yaml
 sleep 10
-kubectl create -f app.yaml
+#kubectl create -f app.yaml
+kubectl create -f app_with_custom_route.yaml
 kubectl rollout status deployment
 kubectl create -f cfos_account.yaml
 echo "sleep 10"
@@ -55,8 +54,7 @@ kubectl create -f cfos.yaml
 echo "sleep 10"
 sleep 10
 kubectl rollout status ds/fos-deployment
-#restart_cfos_if_not_ready
-insert_snat_entry_if_not_exist 
+#insert_snat_entry_if_not_exist 
 echo "sleep 10"
 sleep 10
 kubectl create -f ./policy/watchandupdatcfospodip.yaml
