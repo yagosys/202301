@@ -993,26 +993,19 @@ multitool01-deployment-88ff6b48c-t97t6   1/1     Running   0          51m   10.0
 
 ```
 cat << EOF > Dockerfile
-# Use Alpine Linux as the base image
 FROM alpine:latest
-
-# Install curl, tar, and CA certificates
 RUN apk add --no-cache curl jq tar bash ca-certificates
-
-# Set the kubectl version
 ARG KUBECTL_VERSION="v1.25.0"
-
-# Download and install kubectl
 RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl \
     && chmod +x kubectl \
     && mv kubectl /usr/local/bin/
 
 COPY script.sh /script.sh
 RUN chmod +x /script.sh
-# Set the workdir
 ENTRYPOINT ["/script.sh"]
 EOF
 ```
+
 use docker build to build image, and push to image repository 
 
 ```
@@ -1021,9 +1014,9 @@ docker build . -t $repo; docker push $repo
 ```
 
 - ### the bash script 
+
 ```
 cat <<EOF >script.sh
-#!/bin/bash
 function restartcfosifnodenumberchanaged {
 previous_node_count=$(kubectl get nodes -o json | jq '.items | length')
 echo $previous_node_count
@@ -1072,7 +1065,6 @@ curl -s \
 }
 
 function getPodApplabel {
-#	label_value=$(kubectl get pods -o json -A | jq -r '[.items[] | select(.metadata.annotations != null and .metadata.annotations["k8s.v1.cni.cncf.io/networks"] != null and (.metadata.annotations["k8s.v1.cni.cncf.io/networks"] | (contains("cfosdefaultcni5") and contains("default-route")))) | .metadata.labels.app] | unique[]')
         label_value=$(kubectl get pods -o json -A | jq -r '[.items[] | select(.metadata.annotations != null and .metadata.annotations["k8s.v1.cni.cncf.io/networks"] != null and (.metadata.annotations["k8s.v1.cni.cncf.io/networks"] | (contains("cfosdefaultcni5") and contains("default-route")))) | "app=" + .metadata.labels.app] | unique[]')
 
 	LABEL_SELECTOR=$(echo $label_value)
@@ -1098,7 +1090,6 @@ function updatecfosfirewalladdress {
   echo updatecfosfirewalladdress IP=$IP
   curltocfosupdatefirewalladdress
 
-#  curl -H "Content-Type: application/json" -X POST -d '{ "data": {"name": "'$IP'", "subnet": "'$IP' 255.255.255.255"}}' http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/address
 }
 
 function curltocfosupdatefirewalladdrgrp {
@@ -1234,11 +1225,6 @@ done
 }
 
 function createcfosfirewallpolicyifnogatekeeperpolicyexist {
-#policyid=$(getPolicyId)
-#echo $policyid
-#if [[ -n "$policyid" ]]; then
-#echo "policy already created by gatekeeper"
-#else
 if [[ -n $(getPolicyId ) ]] ; then  
 echo "policy already created by gatekeeper"
 else 
@@ -1248,20 +1234,16 @@ createcfosfirewallpolicy
 fi
 }
 
-# Set the namespace and deployment name
 NAMESPACE=$(getPodNamespace)
 DEPLOYMENT_NAME="multitool01-deployment"
 echo NAMESPACE=$NAMESPACE
 
 
-# Set the label selector for the pods you want to watch
 LABEL_SELECTOR=$(getPodApplabel)
 echo LABEL=$LABEL_SELECTOR
 
-#SRC_ADDR_GROUP=$(echo $NAMESPACE$LABEL_SELECTOR | sed 's/[^A-Za-z]//g')
 INTERVAL=10
 
-# Initialize an empty list to store the IP addresses
 
 read -ra NAMESPACELIST  <<< "$NAMESPACE" 
 read -ra LABELLIST <<< "$LABEL_SELECTOR"
