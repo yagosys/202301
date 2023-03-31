@@ -35,16 +35,13 @@ function install_gatekeeperv3 {
     kubectl apply -f https://raw.githubusercontent.com/open-policy-agent/gatekeeper/master/deploy/gatekeeper.yaml
 }
 
-eksctl create cluster -f EKSDemoConfigAWSLinux.yaml 
+eksctl create cluster -f EKSDemoConfigAWSLinux.yaml &&
 kubectl create -f multus-daemonset.yml
 kubectl create -f nad_macvlan_cfosdefaultcni5_10_1_200_no_snat.yaml
 kubectl rollout status ds/kube-multus-ds -n kube-system
 sleep 10
 kubectl create -f dockersecret.yaml
 kubectl create -f fos_license.yaml
-sleep 10
-kubectl create -f app_with_custom_route.yaml
-kubectl rollout status deployment
 kubectl create -f cfos_account.yaml
 echo "sleep 10"
 sleep 10
@@ -53,9 +50,13 @@ echo "sleep 10"
 sleep 10
 kubectl rollout status ds/fos-deployment
 #insert_snat_entry_if_not_exist 
+kubectl create -f app_with_custom_route.yaml
+kubectl create -f test_app_testtest.yaml
+kubectl rollout status deployment
 echo "sleep 10"
 sleep 10
 kubectl create -f ./policy/watchandupdatcfospodip.yaml
-sleep 10
+sleep 15
 kubectl get pod | grep multi | grep -v termin  | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- ping -c1 1.1.1.1 ; done
+kubectl get pod | grep testtest | grep -v termin  | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- ping -c1 1.1.1.1 ; done
 
