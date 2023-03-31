@@ -798,6 +798,7 @@ spec:
     image: interbeing/kubectl-cfos:latest
 EOF 
 
+```
 - ### check both deployment now shall able to access internet via cfos 
 
 ```
