@@ -1,3 +1,12 @@
+- ## description 
+this demostration will guide you to setup cfos on EKS cluster with AWS VPC CNI and macvlan CNI. 
+application use secondary network interface to route traffic to cfos for security inspection.
+multus CNI is used to manage the CNI operation.
+
+- ## diagram
+
+application -----net1----net1--cfos--eth0--internet
+
 - ## install eksctl
 
 ```
@@ -1298,5 +1307,7 @@ EOF
 ```
 - ### opa
 - ### troubleshooting cfos
+- ### demo cfos webfilter feature
+- ### demo cfos ips feature 
 - demo script
 
