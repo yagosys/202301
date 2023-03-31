@@ -902,7 +902,7 @@ by combine the namespace and label which is defaultappnewtest.
 ```
 ➜  ✗ kubectl scale deployment testtest-deployment --replicas=4
 deployment.apps/testtest-deployment scaled
-```
+
 ➜  ✗ kubectl get pod -l app=newtest
 NAME                                   READY   STATUS    RESTARTS   AGE
 testtest-deployment-5768f678d7-4b4wf   1/1     Running   0          110s
