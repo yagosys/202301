@@ -1011,7 +1011,6 @@ use docker build to build image, and push to image repository
 ```
 repo="interbeing/kubectl-cfos:latest"
 docker build . -t $repo; docker push $repo
-```
 
 - ### the bash script 
 
