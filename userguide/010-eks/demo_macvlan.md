@@ -924,7 +924,7 @@ config firewall addrgrp
 end
 ```
 
-- ### scale the node use eksctl 
+- ### use eksctl to scale nodes
 we scale the node to 2 nodes. aws will use autoscalling group to luanch new work node and join kubernetes cluster. it will take sometime. 
 
 
@@ -935,7 +935,7 @@ we scale the node to 2 nodes. aws will use autoscalling group to luanch new work
 2023-03-31 14:51:51 [ℹ]  scaling nodegroup "DemoNodeGroup" in cluster EKSDemo
 2023-03-31 14:51:53 [ℹ]  waiting for scaling of nodegroup "DemoNodeGroup" to complete
 2023-03-31 14:52:23 [ℹ]  nodegroup successfully scaled
-```
+
 
 ➜  eks git:(main) ✗ kubectl get node
 NAME                                        STATUS   ROLES    AGE     VERSION
@@ -1011,7 +1011,7 @@ use docker build to build image, and push to image repository
 ```
 repo="interbeing/kubectl-cfos:latest"
 docker build . -t $repo; docker push $repo
-
+```
 - ### the bash script 
 
 ```
