@@ -800,7 +800,6 @@ EOF
 
 - ### check both deployment now shall able to access internet via cfos 
 
-
 ```
 ➜  ✗ kubectl get pod | grep multi | grep -v termin  | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- ping -c1 1.1.1.1 ; done
 PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
@@ -841,6 +840,7 @@ PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
 --- 1.1.1.1 ping statistics ---
 1 packets transmitted, 1 received, 0% packet loss, time 0ms
 rtt min/avg/max/mdev = 1.054/1.054/1.054/0.000 ms
+
 ```
 
 - ## check cfos firewall addressgroup
@@ -946,7 +946,7 @@ ip-10-0-39-35.ap-east-1.compute.internal    Ready    <none>   31s     v1.25.7-ek
 - ### check new cfos DaemonSet on new work node
 
 ```
-➜  eks git:(main) ✗ k get pod -o wide
+  ✗ k get pod -o wide
 NAME                                     READY   STATUS    RESTARTS   AGE    IP            NODE                                        NOMINATED NODE   READINESS GATES
 clientpod                                1/1     Running   0          24m    10.0.1.1      ip-10-0-29-226.ap-east-1.compute.internal   <none>           <none>
 fos-deployment-6zwrj                     1/1     Running   0          90s    10.0.15.143   ip-10-0-29-226.ap-east-1.compute.internal   <none>           <none>
@@ -959,14 +959,15 @@ testtest-deployment-5768f678d7-4b4wf     1/1     Running   0          13m    10.
 testtest-deployment-5768f678d7-8m52w     1/1     Running   0          24m    10.0.18.189   ip-10-0-29-226.ap-east-1.compute.internal   <none>           <none>
 testtest-deployment-5768f678d7-nxlvq     1/1     Running   0          13m    10.0.20.149   ip-10-0-29-226.ap-east-1.compute.internal   <none>           <none>
 testtest-deployment-5768f678d7-vdmv5     1/1     Running   0          24m    10.0.30.19    ip-10-0-29-226.ap-east-1.compute.internal   <none>           <none>
+
 ```
 
 - ### scale out application to use new node 
 
 ```
-➜  eks git:(main) ✗ kubectl scale deployment multitool01-deployment --replicas=8
+✗ kubectl scale deployment multitool01-deployment --replicas=8
 deployment.apps/multitool01-deployment scaled
-➜  eks git:(main) ✗ kubectl get pod -l app=multitool01
+✗ kubectl get pod -l app=multitool01
 NAME                                     READY   STATUS    RESTARTS   AGE
 multitool01-deployment-88ff6b48c-d2drz   1/1     Running   0          51m
 multitool01-deployment-88ff6b48c-ggr46   1/1     Running   0          22s
@@ -976,7 +977,7 @@ multitool01-deployment-88ff6b48c-pzssg   1/1     Running   0          51m
 multitool01-deployment-88ff6b48c-r5thd   1/1     Running   0          22s
 multitool01-deployment-88ff6b48c-t7zqp   1/1     Running   0          22s
 multitool01-deployment-88ff6b48c-t97t6   1/1     Running   0          51m
-➜  eks git:(main) ✗ kubectl get pod -l app=multitool01 -o wide
+✗ kubectl get pod -l app=multitool01 -o wide
 NAME                                     READY   STATUS    RESTARTS   AGE   IP            NODE                                        NOMINATED NODE   READINESS GATES
 multitool01-deployment-88ff6b48c-d2drz   1/1     Running   0          51m   10.0.9.6      ip-10-0-29-226.ap-east-1.compute.internal   <none>           <none>
 multitool01-deployment-88ff6b48c-ggr46   1/1     Running   0          26s   10.0.46.50    ip-10-0-39-35.ap-east-1.compute.internal    <none>           <none>
@@ -1020,7 +1021,7 @@ docker build . -t $repo; docker push $repo
 ```
 
 - ### the bash script 
-
+```
 cat <<EOF >script.sh
 #!/bin/bash
 function restartcfosifnodenumberchanaged {
