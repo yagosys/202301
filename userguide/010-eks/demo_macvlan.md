@@ -231,10 +231,105 @@ The aws-node DaemonSet manages the AWS VPC CNI plugin for Kubernetes, which is r
 podname=$(kubectl get pods -n kube-system -l k8s-app=aws-node -o jsonpath='{.items[*].metadata.name}' | tr ' ' '\n')
 kubectl -n kube-system get pod $podname -o jsonpath='{.spec.containers[0].env}' | jq .
 ```
+the output will looks like below
+
+```
+[
+  {
+    "name": "ADDITIONAL_ENI_TAGS",
+    "value": "{}"
+  },
+  {
+    "name": "AWS_VPC_CNI_NODE_PORT_SUPPORT",
+    "value": "true"
+  },
+  {
+    "name": "AWS_VPC_ENI_MTU",
+    "value": "9001"
+  },
+  {
+    "name": "AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG",
+    "value": "false"
+  },
+  {
+    "name": "AWS_VPC_K8S_CNI_EXTERNALSNAT",
+    "value": "false"
+  },
+  {
+    "name": "AWS_VPC_K8S_CNI_LOGLEVEL",
+    "value": "DEBUG"
+  },
+  {
+    "name": "AWS_VPC_K8S_CNI_LOG_FILE",
+    "value": "/host/var/log/aws-routed-eni/ipamd.log"
+  },
+  {
+    "name": "AWS_VPC_K8S_CNI_RANDOMIZESNAT",
+    "value": "prng"
+  },
+  {
+    "name": "AWS_VPC_K8S_CNI_VETHPREFIX",
+    "value": "eni"
+  },
+  {
+    "name": "AWS_VPC_K8S_PLUGIN_LOG_FILE",
+    "value": "/var/log/aws-routed-eni/plugin.log"
+  },
+  {
+    "name": "AWS_VPC_K8S_PLUGIN_LOG_LEVEL",
+    "value": "DEBUG"
+  },
+  {
+    "name": "DISABLE_INTROSPECTION",
+    "value": "false"
+  },
+  {
+    "name": "DISABLE_METRICS",
+    "value": "false"
+  },
+  {
+    "name": "DISABLE_NETWORK_RESOURCE_PROVISIONING",
+    "value": "false"
+  },
+  {
+    "name": "ENABLE_IPv4",
+    "value": "true"
+  },
+  {
+    "name": "ENABLE_IPv6",
+    "value": "false"
+  },
+  {
+    "name": "ENABLE_POD_ENI",
+    "value": "false"
+  },
+  {
+    "name": "ENABLE_PREFIX_DELEGATION",
+    "value": "false"
+  },
+  {
+    "name": "WARM_ENI_TARGET",
+    "value": "1"
+  },
+  {
+    "name": "WARM_PREFIX_TARGET",
+    "value": "1"
+  },
+  {
+    "name": "MY_NODE_NAME",
+    "valueFrom": {
+      "fieldRef": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.nodeName"
+      }
+    }
+  }
+]
+```
 
 by default, there is no pod resource in default namespace. 
 ```
-kubectl get node -o wide  & kubectl get pod 
+kubectl get node -o wide  && kubectl get pod 
 ```
 you shall see output 
 ```
@@ -288,8 +383,9 @@ spec:
 ```
 copy and poast below code to your client terminal to install multus-cni.
 ```
-git clone https://github.com/k8snetworkplumbingwg/multus-cni.git && cd multus-cni
-cat ./deployments/multus-daemonset.yml | kubectl apply -f -
+[ -d "multus-cni" ] && echo "Directory multus-cni already exists." || { git clone https://github.com/k8snetworkplumbingwg/multus-cni.git  }
+
+cat ./multus-cni/deployments/multus-daemonset.yml | kubectl apply -f -
 ```
 you shall see  below output
 
@@ -302,7 +398,7 @@ remote: Compressing objects: 100% (185/185), done.
 remote: Total 39809 (delta 87), reused 217 (delta 69), pack-reused 39542
 Receiving objects: 100% (39809/39809), 49.75 MiB | 763.00 KiB/s, done.
 Resolving deltas: 100% (18315/18315), done.
-➜  multus-cni git:(master) cat ./deployments/multus-daemonset.yml | kubectl apply -f -
+➜  multus-cni git:(master) cat ./multus-cni/deployments/multus-daemonset.yml | kubectl apply -f -
 customresourcedefinition.apiextensions.k8s.io/network-attachment-definitions.k8s.cni.cncf.io created
 clusterrole.rbac.authorization.k8s.io/multus created
 clusterrolebinding.rbac.authorization.k8s.io/multus created
@@ -312,7 +408,7 @@ daemonset.apps/kube-multus-ds created
 
 ```
 
-- ## check the multus instalation 
+- ## check the multus installation 
 
 ```
 kubectl rollout status ds/kube-multus-ds -n kube-system
@@ -1260,16 +1356,32 @@ date=2023-04-03 time=03:07:43 eventtime=1680491263 tz="+0000" logid="0316013056"
 we scale replicas from 2 to 4 for testtest-deployment which has label app=newtest, the firewall addrgroup name is created by clientpod 
 by combine the namespace and label which is defaultappnewtest. 
 ```
-➜  ✗ kubectl scale deployment testtest-deployment --replicas=4
+kubectl scale deployment testtest-deployment --replicas=4 &&
+kubectl get pod -l app=newtest
+```
+you shall see output 
+```
 deployment.apps/testtest-deployment scaled
-
-➜  ✗ kubectl get pod -l app=newtest
 NAME                                   READY   STATUS    RESTARTS   AGE
 testtest-deployment-5768f678d7-4b4wf   1/1     Running   0          110s
 testtest-deployment-5768f678d7-8m52w   1/1     Running   0          12m
 testtest-deployment-5768f678d7-nxlvq   1/1     Running   0          110s
 testtest-deployment-5768f678d7-vdmv5   1/1     Running   0          12m
 ```
+you can use below cli command to check the ip address for each pod on net1 interface 
+
+````
+kubectl get pod | grep testtest | awk '{print $1}'  | while read line; do kubectl  exec po/$line -- ip -4 --br a show dev net1; done
+```
+the output will be 
+
+```
+net1@if2         UP             10.1.200.25/24
+net1@if2         UP             10.1.200.24/24
+net1@if2         UP             10.1.200.23/24
+net1@if2         UP             10.1.200.26/24
+```
+
 - ### check cfos firewall addressgroup has also updated 
 *the addressgroup defaultappnewtest now have 4 member pod ip*
 
@@ -1290,24 +1402,30 @@ we scale the node to 2 nodes. aws will use autoscalling group to luanch new work
 
 
 ```
- eksctl scale nodegroup DemoNodeGroup --cluster EKSDemo -N 2 -M 2 --region ap-east-1
+eksctl scale nodegroup DemoNodeGroup --cluster EKSDemo -N 2 -M 2 --region ap-east-1 && kubectl get node
 
-➜  ✗ eksctl scale nodegroup DemoNodeGroup --cluster EKSDemo -N 2 -M 2 --region ap-east-1
+```
+you will see output 
+
+```
+➜  ✗ eksctl scale nodegroup DemoNodeGroup --cluster EKSDemo -N 2 -M 2 --region ap-east-1 && kubectl get node
 2023-03-31 14:51:51 [ℹ]  scaling nodegroup "DemoNodeGroup" in cluster EKSDemo
 2023-03-31 14:51:53 [ℹ]  waiting for scaling of nodegroup "DemoNodeGroup" to complete
 2023-03-31 14:52:23 [ℹ]  nodegroup successfully scaled
-
-
-➜  eks git:(main) ✗ kubectl get node
+➜  ✗ kubectl get node
 NAME                                        STATUS   ROLES    AGE     VERSION
 ip-10-0-29-226.ap-east-1.compute.internal   Ready    <none>   3h25m   v1.25.7-eks-a59e1f0
 ip-10-0-39-35.ap-east-1.compute.internal    Ready    <none>   31s     v1.25.7-eks-a59e1f0
 
 ```
+
 - ### check new cfos DaemonSet on new work node
 
+```kubectl get pod -o wide 
 ```
-  ✗ k get pod -o wide
+you will see another cfos POD will be created on new work node 
+```
+✗ kubectl  get pod -o wide
 NAME                                     READY   STATUS    RESTARTS   AGE    IP            NODE                                        NOMINATED NODE   READINESS GATES
 clientpod                                1/1     Running   0          24m    10.0.1.1      ip-10-0-29-226.ap-east-1.compute.internal   <none>           <none>
 fos-deployment-6zwrj                     1/1     Running   0          90s    10.0.15.143   ip-10-0-29-226.ap-east-1.compute.internal   <none>           <none>
@@ -1326,8 +1444,14 @@ testtest-deployment-5768f678d7-vdmv5     1/1     Running   0          24m    10.
 - ### scale out application to use new node 
 
 ```
-✗ kubectl scale deployment multitool01-deployment --replicas=8
+kubectl scale deployment multitool01-deployment --replicas=8 && kubectl get pod -l app=multitool01 
+```
+
+we can scale out the deployment so some of the new pod will be scahedule to new work node. the output will like below eventualy 
+
+```
 deployment.apps/multitool01-deployment scaled
+
 ✗ kubectl get pod -l app=multitool01
 NAME                                     READY   STATUS    RESTARTS   AGE
 multitool01-deployment-88ff6b48c-d2drz   1/1     Running   0          51m
@@ -1349,6 +1473,9 @@ multitool01-deployment-88ff6b48c-r5thd   1/1     Running   0          26s   10.0
 multitool01-deployment-88ff6b48c-t7zqp   1/1     Running   0          26s   10.0.63.68    ip-10-0-39-35.ap-east-1.compute.internal    <none>           <none>
 multitool01-deployment-88ff6b48c-t97t6   1/1     Running   0          51m   10.0.31.97    ip-10-0-29-226.ap-east-1.compute.internal   <none>           <none>
 ```
+
+- ### test whether all these POD can access internet via cFOS 
+
 
 - ### how to build clientpod 
 
