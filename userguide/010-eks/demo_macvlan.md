@@ -3,6 +3,8 @@
 This demostration will guide you to setup cfos on EKS cluster with AWS VPC CNI and macvlan CNI. 
 application pod will use additional network to communicate with cfos. We will install multus on EKS to manage additional network.
 
+In this demo. we will show how to setup cFOS use additional network  to route traffic from two application to internet. We use multus CNI to manage additional network for traffic between cFOS and application POD. macvlan CNI is used as the actual CNI for secondary network. in this setup. application POD ip address is visiable to cFOS. there is no SNAT enabled on net1 interface. so cFOS will need to add each POD IP address to address group and use it as source address in the firewall policy.  We then use a clientPOD that keep update the real POD ip address from kubernetes to cFOS address group.  we also demo how cFOS can detect malicous URL from application POD to internet even the traffic is HTTPS based .
+
 
 
 - ## Network Diagram
@@ -12,8 +14,8 @@ eth0-application pod--net1---net1--cfos--eth0--internet
 *the eth0 interface on POD will be managed by AWS VPC CNI which is the default CNI for EKS*
 *the net1 itnerface on POD will be managed by macvlan CNI which is used for application POD send traffic to cFOS*
 
-
-- ## required iam user for create EKS clustr  
+- ## Preparation 
+- ### required iam user for create EKS clustr  
 
 You will use eksctl to create EKS cluster, When you use eksctl to create an Amazon EKS cluster, it requires an IAM user with sufficient permissions. The IAM user should have the following minimum permissions:
 
@@ -29,7 +31,7 @@ AmazonVPCFullAccess: This managed policy allows eksctl to create and manage the 
 
 AWSCloudFormationFullAccess: This managed policy provides eksctl with permissions to create, update, and delete CloudFormation stacks, which are used to manage the infrastructure resources for your EKS cluster.
 
-- ## install eksctl and aws cli  on your client machine
+- ### install eksctl and aws cli  on your client machine
 
 Client machine is any machine that can be used to create EKS cluster, and access EKS. you will need install eksctl and aws cli and config access credentials for AWS cloud. 
 
@@ -49,12 +51,11 @@ Enter your Access Key ID, Secret Access Key, default region name, and default ou
 Install eksctl:
 Download and install eksctl following the instructions for your operating system on the official eksctl https://docs.aws.amazon.com/eks/latest/userguide/eksctl.html
 
-- ## check your client environment
+- ### check your client environment
 The `aws iam simulate-principal-policy` command is used to simulate the set of IAM policies attached to a principal (user, group, or role) to test their permissions for specific API actions. This command can help you determine whether a specific principal has the necessary permissions to perform a set of actions.
 for example. you shall see result "EvalDecsion": allowed" 
 
-- ## check your client environment 
-check below cli command see whether any of them fails 
+use  below cli command see whether any of them fails 
 ```
 aws --version && eksctl version 
 aws configure list
@@ -62,13 +63,15 @@ myarn=$(aws sts get-caller-identity --output text | awk '{print $2}')
 aws iam simulate-principal-policy --policy-source-arn $myarn --action-names "eks:CreateCluster" "eks:DescribeCluster" "ec2:CreateVpc" "iam:CreateRole" "cloudformation:CreateStack" | grep Eval
 ```
 
-- ## create ssh key for access eks work node 
+- ### create ssh key for access eks work node 
 paste cli command below in your client terminal to create ssh key if not exist 
 
 ```
 [ -f ~/.ssh/id_rsa.pub ] || ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa -N ''
 ```
-- ## create eks cluster config file for eksctl to use
+- ## create EKS cluster 
+
+we use eksctl and eks config file to create EKS cluster.  
 
 below is a standard EKS config with all default configuration
 
@@ -219,7 +222,7 @@ you shall see below output from above command
 ```
 
 
-- ## access the eks cluster from your client machine 
+- ### access the eks cluster from your client machine 
 once EKS cluster is ready, a kubeconfig will be modified or created on your client machine which enable you to access the remote cluster. 
 
 *you can  use `eksctl utils write-kubeconfig`  to re-config the kubeconfig file to access eks if you mess-up the configuration*
