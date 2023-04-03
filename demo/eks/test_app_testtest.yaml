@@ -16,13 +16,20 @@ spec:
       annotations:
         k8s.v1.cni.cncf.io/networks: '[ { "name": "cfosdefaultcni5",  "default-route": ["10.1.200.252"]  } ]'
     spec:
+      initContainers:
+      - name: init-wait
+        image: alpine
+        command: ["sh", "-c", "ip route add 10.0.0.0/16 via 169.254.1.1"]
+        securityContext:
+          capabilities:
+            add: ["NET_ADMIN"]
       containers:
         - name: newtest
           image: praqma/network-multitool
           imagePullPolicy: Always
-          args:
-            - /bin/sh
-            - -c
-            - ip route add 10.0.0.0/16  via 169.254.1.1; /usr/sbin/nginx -g "daemon off;"
+ #           args:
+ #           - /bin/sh
+ #           - -c
+ #           - ip route add 10.0.0.0/16  via 169.254.1.1; /usr/sbin/nginx -g "daemon off;"
           securityContext:
             privileged: true
