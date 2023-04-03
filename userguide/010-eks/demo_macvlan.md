@@ -1431,6 +1431,8 @@ net1@if2         UP             10.1.200.26/24
 cfospod=$(kubectl get pod | grep fos | awk '{print $1}')
 kubectl exec -it po/$cfospod -- fcnsh
 ```
+use `show firewall addrgrp` to check the address members 
+```
 FOS Container # show firewall addrgrp
 config firewall addrgrp
     edit "defaultappmultitool"
@@ -1441,6 +1443,7 @@ config firewall addrgrp
     next
 end
 ```
+
 
 - ### use eksctl to scale nodes
 we scale the node to 2 nodes. aws will use autoscalling group to luanch new work node and join kubernetes cluster. it will take sometime. 
