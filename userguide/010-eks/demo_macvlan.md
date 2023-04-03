@@ -1412,7 +1412,7 @@ testtest-deployment-5768f678d7-vdmv5   1/1     Running   0          12m
 ```
 you can use below cli command to check the ip address for each pod on net1 interface 
 
-````
+```
 kubectl get pod | grep testtest | awk '{print $1}'  | while read line; do kubectl  exec po/$line -- ip -4 --br a show dev net1; done
 ```
 the output will be 
