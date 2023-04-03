@@ -1,4 +1,5 @@
-- ## description 
+- ## Description
+
 This demostration will guide you to setup cfos on EKS cluster with AWS VPC CNI and macvlan CNI. 
 application pod will use additional network to communicate with cfos. We will install multus on EKS to manage additional network.
 
@@ -8,10 +9,11 @@ application pod will use additional network to communicate with cfos. We will in
 
 eth0-application pod--net1---net1--cfos--eth0--internet
 
-the eth0 interface on POD will be managed by AWS VPC CNI which is the default CNI for EKS.
-the net1 itnerface on POD will be managed by macvlan CNI which is used for application POD send traffic to cFOS.
+*the eth0 interface on POD will be managed by AWS VPC CNI which is the default CNI for EKS*
+*the net1 itnerface on POD will be managed by macvlan CNI which is used for application POD send traffic to cFOS*
 
-- ## iam user for create EKS clustr  
+
+- ## required iam user for create EKS clustr  
 
 You will use eksctl to create EKS cluster, When you use eksctl to create an Amazon EKS cluster, it requires an IAM user with sufficient permissions. The IAM user should have the following minimum permissions:
 
@@ -29,9 +31,8 @@ AWSCloudFormationFullAccess: This managed policy provides eksctl with permission
 
 - ## install eksctl and aws cli  on your client machine
 
-client machine is any machine that used to create EKS cluster, and access EKS. you will need install eksctl and aws cli and config access credentials for AWS cloud. 
+Client machine is any machine that can be used to create EKS cluster, and access EKS. you will need install eksctl and aws cli and config access credentials for AWS cloud. 
 
- 
 
 eksctl is a command-line tool for creating and managing Amazon EKS clusters. To create an EKS cluster using eksctl, follow these steps:
 
@@ -45,25 +46,25 @@ aws configure
 ```
 Enter your Access Key ID, Secret Access Key, default region name, and default output format when prompted.
 
-
 Install eksctl:
 Download and install eksctl following the instructions for your operating system on the official eksctl https://docs.aws.amazon.com/eks/latest/userguide/eksctl.html
 
 - ## check your client environment
-The aws iam simulate-principal-policy command is used to simulate the set of IAM policies attached to a principal (user, group, or role) to test their permissions for specific API actions. This command can help you determine whether a specific principal has the necessary permissions to perform a set of actions.
+The `aws iam simulate-principal-policy` command is used to simulate the set of IAM policies attached to a principal (user, group, or role) to test their permissions for specific API actions. This command can help you determine whether a specific principal has the necessary permissions to perform a set of actions.
 for example. you shall see result "EvalDecsion": allowed" 
 
 - ## check your client environment 
+check below cli command see whether any of them fails 
 ```
-aws --version
+aws --version && eksctl version 
 aws configure list
 myarn=$(aws sts get-caller-identity --output text | awk '{print $2}')
 aws iam simulate-principal-policy --policy-source-arn $myarn --action-names "eks:CreateCluster" "eks:DescribeCluster" "ec2:CreateVpc" "iam:CreateRole" "cloudformation:CreateStack" | grep Eval
-eksctl version 
 ```
 
 - ## create ssh key for access eks work node 
 paste cli command below in your client terminal to create ssh key if not exist 
+
 ```
 [ -f ~/.ssh/id_rsa.pub ] || ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa -N ''
 ```
@@ -74,6 +75,8 @@ below is a standard EKS config with all default configuration
 *you will need generate your own ssh key , which you can use ssh-keygen and place it under ~/.ssh/id*
 *the kubernetes serviceCIDR is 10.96.0.0/12*
 *the VPC has subnet 10.0.0.0/16*
+*the default region and az is on ap-east-1, you can change to other regions and az if you want*
+
 
 the kubernetes version is 1.25
 paste below script on your client terminal to create eks cluster 
