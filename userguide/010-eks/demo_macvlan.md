@@ -774,9 +774,11 @@ default via 169.254.1.1 dev eth0
 *multus delegate to aws-cni for eth0 interface, multus delegate to macvlan cni for net1 interface*
 
 ```
+cfospodname=$(kubectl get pod -l app=fos -o jsonpath='{.items[0].metadata.name}')
 kubectl describe po/$cfospodname
 ```
-the output will be 
+
+the output shall looks like below 
 ```
 Name:             fos-deployment-x8vzj
 Namespace:        default
@@ -891,10 +893,16 @@ Events:
 *use sysctl sh go back to sh*
 
 ```
+cfospodname=$(kubectl get pod -l app=fos -o jsonpath='{.items[0].metadata.name}')
 kubectl exec -it po/$cfospodname -- sh
-# fcnsh
+``` 
+you will be dropped into the shell. then type  `fcnsh` to enter cFOS shell
 ```
+fcnsh
+```
+you will see  cFOS cli interface, where you can use fortiOS cli 
 
+```
 FOS Container # show firewall policy
 config firewall policy
 end
@@ -905,6 +913,9 @@ end
 FOS Container # sysctl sh
 #
 ``` 
+
+you can use `sysctl sh` command back to cFOS container linux shell
+
 - ### create demo application deployment 
 
 *the replicas=4 mean it will create 4 POD on this work node*
