@@ -1,13 +1,37 @@
 - ## description 
-this demostration will guide you to setup cfos on EKS cluster with AWS VPC CNI and macvlan CNI. 
-application use secondary network interface to route traffic to cfos for security inspection.
-multus CNI is used to manage the CNI operation.
+This demostration will guide you to setup cfos on EKS cluster with AWS VPC CNI and macvlan CNI. 
+application pod will use additional network to communicate with cfos. We will install multus on EKS to manage additional network.
 
-- ## diagram
 
-application -----net1----net1--cfos--eth0--internet
 
-- ## install eksctl and aws cli 
+- ## Network Diagram
+
+eth0-application pod--net1---net1--cfos--eth0--internet
+
+the eth0 interface on POD will be managed by AWS VPC CNI which is the default CNI for EKS.
+the net1 itnerface on POD will be managed by macvlan CNI which is used for application POD send traffic to cFOS.
+
+- ## iam user for create EKS clustr  
+
+You will use eksctl to create EKS cluster, When you use eksctl to create an Amazon EKS cluster, it requires an IAM user with sufficient permissions. The IAM user should have the following minimum permissions:
+
+AmazonEKSFullAccess: This managed policy provides the necessary permissions to manage EKS clusters.
+
+AmazonEKSClusterPolicy: This managed policy allows creating and managing the resources required for an EKS cluster, such as VPCs, subnets, and security groups.
+
+AmazonEC2FullAccess: This managed policy provides permissions to manage EC2 instances and other related resources, such as key pairs, Elastic IPs, and snapshots.
+
+IAMFullAccess: This managed policy allows eksctl to create and manage IAM roles for your Kubernetes workloads and the Kubernetes control plane.
+
+AmazonVPCFullAccess: This managed policy allows eksctl to create and manage the VPC resources required for the EKS cluster, such as VPCs, subnets, route tables, and NAT gateways.
+
+AWSCloudFormationFullAccess: This managed policy provides eksctl with permissions to create, update, and delete CloudFormation stacks, which are used to manage the infrastructure resources for your EKS cluster.
+
+- ## install eksctl and aws cli  on your client machine
+
+client machine is any machine that used to create EKS cluster, and access EKS. you will need install eksctl and aws cli and config access credentials for AWS cloud. 
+
+ 
 
 eksctl is a command-line tool for creating and managing Amazon EKS clusters. To create an EKS cluster using eksctl, follow these steps:
 
@@ -25,14 +49,34 @@ Enter your Access Key ID, Secret Access Key, default region name, and default ou
 Install eksctl:
 Download and install eksctl following the instructions for your operating system on the official eksctl https://docs.aws.amazon.com/eks/latest/userguide/eksctl.html
 
+- ## check your client environment
+The aws iam simulate-principal-policy command is used to simulate the set of IAM policies attached to a principal (user, group, or role) to test their permissions for specific API actions. This command can help you determine whether a specific principal has the necessary permissions to perform a set of actions.
+for example. you shall see result "EvalDecsion": allowed" 
 
+- ## check your client environment 
+```
+aws --version
+aws configure list
+myarn=$(aws sts get-caller-identity --output text | awk '{print $2}')
+aws iam simulate-principal-policy --policy-source-arn $myarn --action-names "eks:CreateCluster" "eks:DescribeCluster" "ec2:CreateVpc" "iam:CreateRole" "cloudformation:CreateStack" | grep Eval
+eksctl version 
+```
+
+- ## create ssh key for access eks work node 
+paste cli command below in your client terminal to create ssh key if not exist 
+```
+[ -f ~/.ssh/id_rsa.pub ] || ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa -N ''
+```
 - ## create eks cluster config file for eksctl to use
 
-*below is a standard EKS config with all default configuration*
+below is a standard EKS config with all default configuration
+
 *you will need generate your own ssh key , which you can use ssh-keygen and place it under ~/.ssh/id*
 *the kubernetes serviceCIDR is 10.96.0.0/12*
 *the VPC has subnet 10.0.0.0/16*
-*the kubernetes version is 1.25*
+
+the kubernetes version is 1.25
+paste below script on your client terminal to create eks cluster 
 
 ```
 cat << EOF | eksctl create cluster -f -
@@ -173,7 +217,7 @@ you shall see below output from above command
 
 
 - ## access the eks cluster from your client machine 
-once EKS cluster is ready, a kubeconfig will be modified or created on your client machine will enable you to access the remote cluster. 
+once EKS cluster is ready, a kubeconfig will be modified or created on your client machine which enable you to access the remote cluster. 
 
 *you can  use `eksctl utils write-kubeconfig`  to re-config the kubeconfig file to access eks if you mess-up the configuration*
 
@@ -265,7 +309,86 @@ daemonset.apps/kube-multus-ds created
 kubectl rollout status ds/kube-multus-ds -n kube-system
 ```
 ```
+- ## chech the multus cni now become the default cni for EKS on work node
 
+you will see that cni name is "multus-cni-network" with delegate to "aws-cni" 
+```
+➜  010-eks git:(main) ✗ kubectl get node -o wide
+NAME                                       STATUS   ROLES    AGE    VERSION               INTERNAL-IP   EXTERNAL-IP    OS-IMAGE         KERNEL-VERSION                  CONTAINER-RUNTIME
+ip-10-0-14-93.ap-east-1.compute.internal   Ready    <none>   141m   v1.25.7-eks-a59e1f0   10.0.14.93    18.167.17.26   Amazon Linux 2   5.10.173-154.642.amzn2.x86_64   containerd://1.6.6
+➜  010-eks git:(main) ✗ ssh ec2-user@18.167.17.26
+Last login: Mon Apr  3 01:59:32 2023 from 115.197.132.80
+
+       __|  __|_  )
+       _|  (     /   Amazon Linux 2 AMI
+      ___|\___|___|
+
+https://aws.amazon.com/amazon-linux-2/
+[ec2-user@ip-10-0-14-93 ~]$ sudo su
+[root@ip-10-0-14-93 ec2-user]# cat /etc/cni/net.d/00-multus.conf | jq .
+{
+  "cniVersion": "0.3.1",
+  "name": "multus-cni-network",
+  "type": "multus",
+  "capabilities": {
+    "portMappings": true
+  },
+  "kubeconfig": "/etc/cni/net.d/multus.d/multus.kubeconfig",
+  "delegates": [
+    {
+      "cniVersion": "0.4.0",
+      "name": "aws-cni",
+      "disableCheck": true,
+      "plugins": [
+        {
+          "name": "aws-cni",
+          "type": "aws-cni",
+          "vethPrefix": "eni",
+          "mtu": "9001",
+          "podSGEnforcingMode": "strict",
+          "pluginLogFile": "/var/log/aws-routed-eni/plugin.log",
+          "pluginLogLevel": "DEBUG"
+        },
+        {
+          "name": "egress-v4-cni",
+          "type": "egress-v4-cni",
+          "mtu": 9001,
+          "enabled": "false",
+          "randomizeSNAT": "prng",
+          "nodeIP": "10.0.14.93",
+          "ipam": {
+            "type": "host-local",
+            "ranges": [
+              [
+                {
+                  "subnet": "169.254.172.0/22"
+                }
+              ]
+            ],
+            "routes": [
+              {
+                "dst": "0.0.0.0/0"
+              }
+            ],
+            "dataDir": "/run/cni/v6pd/egress-v4-ipam"
+          },
+          "pluginLogFile": "/var/log/aws-routed-eni/egress-v4-plugin.log",
+          "pluginLogLevel": "DEBUG"
+        },
+        {
+          "type": "portmap",
+          "capabilities": {
+            "portMappings": true
+          },
+          "snat": true
+        }
+      ]
+    }
+  ]
+}
+[root@ip-10-0-14-93 ec2-user]#
+
+```
 - ## install multus crd for EKS
 
 We need create additional network for application pod to communicate with cFOS. we use multus CRD to create this. 
@@ -304,7 +427,6 @@ spec:
 EOF
 ```
 - ### check the crd installation
-this crd wont create anything so far. later we will create application to use this crd to get ip address. at that time. the macvlan interface will be created on the work node.
 
 ```
 ✗ kubectl get net-attach-def cfosdefaultcni5 -o yaml
@@ -325,7 +447,8 @@ spec:
 
 - ### install docker secret to pull cfos image from docker repository
 
-*assume you have cfos image on your private docker hub repository. then you will need create secret to pull cfos image*
+assume you have cfos image on your private docker hub repository. then you will need create secret to pull cfos image
+please follow <TODO> to create a docker secret 
 
 ```
 kubectl create -f dockersecret.yaml
