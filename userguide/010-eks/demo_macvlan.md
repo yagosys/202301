@@ -7,17 +7,24 @@ multus CNI is used to manage the CNI operation.
 
 application -----net1----net1--cfos--eth0--internet
 
-- ## install eksctl
+- ## install eksctl and aws cli 
+
+eksctl is a command-line tool for creating and managing Amazon EKS clusters. To create an EKS cluster using eksctl, follow these steps:
+
+Install and configure the AWS CLI:
+First, make sure you have the AWS CLI installed on your computer. You can download and install it from the official AWS CLI website: https://aws.amazon.com/cli/
+
+Once installed, configure the AWS CLI with your AWS credentials by running:
 
 ```
-✗ eksctl version
-0.134.0
+aws configure
 ```
-- ## config aws credential 
+Enter your Access Key ID, Secret Access Key, default region name, and default output format when prompted.
 
-use `aws configure` to config aws credential to access aws. 
 
-- ## isntall kubectl , aws cli etc 
+Install eksctl:
+Download and install eksctl following the instructions for your operating system on the official eksctl https://docs.aws.amazon.com/eks/latest/userguide/eksctl.html
+
 
 - ## create eks cluster config file for eksctl to use
 
@@ -25,9 +32,10 @@ use `aws configure` to config aws credential to access aws.
 *you will need generate your own ssh key , which you can use ssh-keygen and place it under ~/.ssh/id*
 *the kubernetes serviceCIDR is 10.96.0.0/12*
 *the VPC has subnet 10.0.0.0/16*
+*the kubernetes version is 1.25*
 
 ```
-✗ cat << EOF | eksctl create cluster -f -
+cat << EOF | eksctl create cluster -f -
 apiVersion: eksctl.io/v1alpha5
 availabilityZones:
 - ap-east-1b
@@ -103,7 +111,10 @@ vpc:
     gateway: Single
 EOF
 ```
+
 - ### check the EKS cluster that created 
+
+you shall see below output from above command 
 
 ```
 2023-03-31 11:14:02 [ℹ]  eksctl version 0.134.0
@@ -160,11 +171,21 @@ EOF
 2023-03-31 11:28:54 [✔]  EKS cluster "EKSDemo" in "ap-east-1" region is ready
 ```
 
-- ## access the eks cluster from your client machine 
-*you client will be configured to access the eks cluster*
-*you can  use `eksctl utils write-kubeconfig`  to re-config the kubeconfig file to access eks if you mess-up the configuration*
-*you shall see a kubernetes cluster with 1 node in ready state*
 
+- ## access the eks cluster from your client machine 
+once EKS cluster is ready, a kubeconfig will be modified or created on your client machine will enable you to access the remote cluster. 
+
+*you can  use `eksctl utils write-kubeconfig`  to re-config the kubeconfig file to access eks if you mess-up the configuration*
+
+you shall see a kubernetes cluster with 1 node in ready state, "Ready" status indicate that CNI component is also ready. you can use command 
+The aws-node DaemonSet manages the AWS VPC CNI plugin for Kubernetes, which is responsible for assigning AWS VPC IP addresses to Kubernetes pods. To view the environment variables and configuration for the aws-node CNI, you can inspect the aws-node DaemonSet.
+
+```
+podname=$(kubectl get pods -n kube-system -l k8s-app=aws-node -o jsonpath='{.items[*].metadata.name}' | tr ' ' '\n')
+kubectl -n kube-system get pod $podname -o jsonpath='{.spec.containers[0].env}' | jq .
+```
+
+by default, there is no pod resource in default namespace. 
 ```
 ✗ kubectl get node
 NAME                                        STATUS   ROLES    AGE   VERSION
@@ -175,14 +196,53 @@ No resources found in default namespace.
 
 - ## install multus
 
+Amazon EKS supports Multus, a Container Network Interface (CNI) plugin that enables you to attach multiple network interfaces to your Kubernetes pods. This can be useful for workloads requiring additional network isolation or advanced networking features. In this demo. application pod will use additional network to communicate with cFOS. so we will need install multus with additional CNI. 
+
+To use Multus on Amazon EKS, you'll need to install and configure it manually. Here's a high-level overview of the steps:
+
+Create a VPC and configure the required subnets for your EKS cluster.
+
+Deploy an EKS cluster using eksctl or any other method you prefer.
+
+Install the Multus CNI plugin on your EKS cluster. You can find the installation instructions in the official Multus GitHub repository: https://github.com/k8snetworkplumbingwg/multus-cni#quickstart
+In this demo, we will use macvlan as secondary CNI for EKS. the macvlan CNI has installed by default on EKS.so we do not need reinstall macvlan.
+
+Configure your CNI plugins. Multus works as a "meta-plugin" that calls other CNI plugins. You'll need to have at least one additional CNI plugin installed and configured. Popular choices include Flannel, Calico, and Weave. You can find a list of CNI plugins here: https://github.com/containernetworking/plugins
+
+Create NetworkAttachmentDefinition custom resources (CRs) that define the network configuration for your additional network interfaces. Here's an example:
+
+```
+apiVersion: "k8s.cni.cncf.io/v1"
+kind: NetworkAttachmentDefinition
+metadata:
+  name: macvlan-conf
+spec:
+  config: '{
+      "cniVersion": "0.3.0",
+      "type": "macvlan",
+      "master": "eth1",
+      "mode": "bridge",
+      "ipam": {
+        "type": "host-local",
+        "subnet": "10.1.200.0/24",
+        "rangeStart": "10.1.200.20",
+        "rangeEnd": "10.1.200.50",
+        "routes": [
+          { "dst": "0.0.0.0/0" }
+        ],
+        "gateway": "10.1.200.1"
+      }
+    }'
+
+```
+copy and poast below code to your client terminal to install multus-cni.
 ```
 git clone https://github.com/k8snetworkplumbingwg/multus-cni.git && cd multus-cni
 cat ./deployments/multus-daemonset.yml | kubectl apply -f -
 ```
-you shall see 
+you shall see  below output
 
 ```
-➜  eks git:(main) ✗ git clone https://github.com/k8snetworkplumbingwg/multus-cni.git && cd multus-cni
 ➜  eks git:(main) ✗ git clone https://github.com/k8snetworkplumbingwg/multus-cni.git && cd multus-cni
 Cloning into 'multus-cni'...
 remote: Enumerating objects: 39809, done.
@@ -198,22 +258,28 @@ clusterrolebinding.rbac.authorization.k8s.io/multus created
 serviceaccount/multus created
 configmap/multus-cni-config created
 daemonset.apps/kube-multus-ds created
+
 - ## check the multus instalation 
 
 ```
 kubectl rollout status ds/kube-multus-ds -n kube-system
 ```
-➜  multus-cni git:(master)
 ```
 
-- ## install multus crd 
+- ## install multus crd for EKS
 
-*this is a CRD which as kind "NetworkAttachmentDefinition*
-*the CRD has name cfosdefaultcni5*
-*inside CRD, it include the json formatted cni configuration*
+We need create additional network for application pod to communicate with cFOS. we use multus CRD to create this. 
+
+*the API for this CRD is k8s.cni.cncf.io/v1* 
+*this is a CRD which has kind "NetworkAttachmentDefinition*
+*the CRD has name cfosdefaultcni5*.
+*inside CRD, it include the json formatted cni configuration, it is the actual cni configuration*
 *the cni use macvlan*
 *the cni mode is bridge*
+*"master interface for this maclan is eth0, so EKS will not create additional ENI as we only use this network for communication between applicaton POD to cFOS POD*
 *the ipam is host-local*
+
+copy and paste below code to your terminal window
 
 ```
 cat << EOF | kubectl create -f -
@@ -241,7 +307,7 @@ EOF
 this crd wont create anything so far. later we will create application to use this crd to get ip address. at that time. the macvlan interface will be created on the work node.
 
 ```
-➜  eks git:(main) ✗ kubectl get net-attach-def cfosdefaultcni5 -o yaml
+✗ kubectl get net-attach-def cfosdefaultcni5 -o yaml
 apiVersion: k8s.cni.cncf.io/v1
 kind: NetworkAttachmentDefinition
 metadata:
@@ -256,9 +322,8 @@ spec:
     "ipam": { "type": "host-local", "subnet": "10.1.200.0/24", "rangeStart": "10.1.200.20",
     "rangeEnd": "10.1.200.253", "gateway": "10.1.200.1" } }'
 ```
-- ###  
 
-- ### install docker secret to pull cfos image for docker repository
+- ### install docker secret to pull cfos image from docker repository
 
 *assume you have cfos image on your private docker hub repository. then you will need create secret to pull cfos image*
 
@@ -273,16 +338,18 @@ secret/dockerinterbeing created
 NAME               TYPE                             DATA   AGE
 dockerinterbeing   kubernetes.io/dockerconfigjson   1      8s
 ➜  eks git:(main) ✗
+
 ```
 - ###  create a configmap with cfos license
-
 *cfos require a license to be functional. the license can be configured use cfos cli or use kubernetes configmap*
-
+*cfos will use kubenetes API to read the configmap once cfos start*
+*once cFOS container boot up, it will read the configmap to obtain the license*
 *cfos license configmap has below format*
 
-*cfos will use kubenetes API to read the configmap once cfos start*
+replace "past your base64 encoded license here" with you actual license data to create your configmap for license , then create the configmap from license file.
 
 ```
+cat << EOF > fos_license.yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -295,11 +362,11 @@ data:
      -----BEGIN FGT VM LICENSE-----
      paste your base64 encoded license here
      -----END FGT VM LICENSE-----
+EOF
+kubectl create -f fos_license.yaml
 ```
-here is an example
-
+you shall see output 
 ```
-➜ ✗ kubectl create -f fos_license.yaml
 configmap/fos-license created
 ➜ ✗ kubectl get cm fos-license
 NAME          DATA   AGE
@@ -313,6 +380,7 @@ so we need assign role with permission to cfos POD based on least priviledge pri
 *below we create ClusterRole to read configmaps and secrets and bind them to default serviceaccount* 
 *when we create cfos POD with default serviceaccount, the pod will have permission to read configmap and secret*
 
+copy and paste below code to your client terminal window to create role for cFOS
 
 ```
 cat << EOF | kubectl create -f - 
@@ -371,6 +439,7 @@ roleRef:
   apiGroup: ""
 EOF
 ```
+
 you will see 
 ```
 clusterrole.rbac.authorization.k8s.io/configmap-reader created
@@ -381,8 +450,8 @@ rolebinding.rbac.authorization.k8s.io/read-secrets created
 
 - ### create cfos daemonSet
 
-* we will create cfos as daemonSet, will each node will have single cfos POD*
-* cfos will be attached to net-attach-def CRD which created in previous step*
+*we will create cfos as daemonSet, so each node will have single cfos POD*
+*cfos will be attached to net-attach-def CRD which created in previous step*
 *cfos configured a clusterIP service for restapi port*
 *cfos use annotation to attach to crd. the "k8s.v1.cni.cncf.io/networks" means for secondary network, the default interface inside cfos will be net1 by default*
 *cfos will have fixed ip "10.1.200.252/32" which is the range of crd cni configuration*
@@ -390,7 +459,9 @@ rolebinding.rbac.authorization.k8s.io/read-secrets created
 *the linux capabilities NET_ADMIN, SYS_AMDIN, NET_RAW are required for use ping, sniff and syslog*
 *the cfos image will be pulled from docker hub with pull secret*
 *the  cfos container mount /data to a directory in host work node, the /data save license, and configuration file etc.,*
+*you need to change the line "image: interbeing/fos:v7231x86 to your actual image respository*
 
+copy and paste below code to your terminal window to create cfos DaemonSet
 ```
 cat << EOF | kubectl create -f - 
 apiVersion: v1
@@ -469,9 +540,14 @@ fos-deployment-x8vzj   1/1     Running   0          2m37s
 *check cfos container log*
 
 *below you will see that cfos container have sucessfully load the license from configmap and system is ready*
-```
-➜  eks git:(main) ✗ kubectl logs -f $(kubectl get pod -o jsonpath='{.items[0].metadata.name}')
+copy and paste below command to check cFOS license 
 
+```
+kubectl logs -f $(kubectl get pod -o jsonpath='{.items[0].metadata.name}')
+```
+
+*below you will see that cfos container have sucessfully load the license from configmap and system is ready*
+```
 System is starting...
 
 Firmware version is 7.2.0.0231
@@ -497,8 +573,11 @@ System is ready.
 
 ```
 
-➜  ✗ cfospodname=$(kubectl get pod -o jsonpath='{.items[0].metadata.name}')
-➜  ✗ kubectl exec -it po/$cfospodname -- ip a
+cfospodname=$(kubectl get pod -o jsonpath='{.items[0].metadata.name}')
+kubectl exec -it po/$cfospodname -- ip a
+```
+the output will be 
+```
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet 127.0.0.1/8 scope host lo
@@ -518,11 +597,17 @@ System is ready.
     inet6 fe80::8c2c:2aff:fe6b:9049/64 scope link
        valid_lft forever preferred_lft forever
 
-➜  ✗ kubectl exec -it po/$cfospodname -- ip route
+```
+cfospodname=$(kubectl get pod -o jsonpath='{.items[0].metadata.name}')
+kubectl exec -it po/$cfospodname -- ip route
+```
+the output will be 
+```
 default via 169.254.1.1 dev eth0
 10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.252
 169.254.1.1 dev eth0 scope link
 ```
+
 - ### check cfos POD description
 *the serviceAccount is default which granted read configmap and secret in previous step*
 *the annotations usr k8s.v1.cni.cncf.io/networks to tell CRD to assign IP for it*
@@ -530,7 +615,10 @@ default via 169.254.1.1 dev eth0
 *multus delegate to aws-cni for eth0 interface, multus delegate to macvlan cni for net1 interface*
 
 ```
-➜  eks git:(main) ✗ kubectl describe po/$cfospodname
+kubectl describe po/$cfospodname
+```
+the output will be 
+```
 Name:             fos-deployment-x8vzj
 Namespace:        default
 Priority:         0
@@ -634,8 +722,9 @@ Events:
   Normal  Pulled          14m   kubelet            Successfully pulled image "interbeing/fos:v7231x86" in 5.773955482s (5.77396476s including waiting)
   Normal  Created         14m   kubelet            Created container fos
   Normal  Started         14m   kubelet            Started container fos
-➜  eks git:(main) ✗
 ```
+
+
 
 - ### check cfos configuration use cfos cli
 *at this moment, cfos has no configuration but a license*
@@ -643,8 +732,10 @@ Events:
 *use sysctl sh go back to sh*
 
 ```
-➜  ✗ kubectl exec -it po/$cfospodname -- sh
+kubectl exec -it po/$cfospodname -- sh
 # fcnsh
+```
+
 FOS Container # show firewall policy
 config firewall policy
 end
@@ -663,6 +754,7 @@ FOS Container # sysctl sh
 *the net1 interface use network cfosdefaultcni5 to communicate with cfos net1*
 *the POD need to install a route for 10.0.0.0/16 subnet with nexthop to 169.254.1.1, as these traffic do not want goes to cfos*
 
+copy and paste below script on your client terminal to create application deployment
 ```
 cat << EOF | kubectl create -f -  
 apiVersion: apps/v1
@@ -686,9 +778,7 @@ spec:
       containers:
         - name: multitool01
           image: praqma/network-multitool
-            #image: nginx:latest
           imagePullPolicy: Always
-            #command: ["/bin/sh","-c"]
           args:
             - /bin/sh
             - -c
@@ -710,7 +800,7 @@ multitool01-deployment-88ff6b48c-pzssg   1/1     Running   0          33s
 multitool01-deployment-88ff6b48c-t97t6   1/1     Running   0          33s
 ```
 - ### create another deployment with different label
-*this deployment has different label* 
+we want demo to support multiple application based on the label. so we create one more deployment with different label.
 
 ```
 cat << EOF | kubectl create -f -
@@ -748,11 +838,17 @@ EOF
 - ### create a pod to manage the networkpolicy and keep update pod ip address to cfos firewall policy 
 
 this pod will create firewall policy for two deployment which has annotations to use cfosdefaultcni5 netwok
+
 this pod will update application pod ip address to cfos addressgroup.
+
 this pod will also privode pod address update for the firewall policy that created by gatekeeper
+
 this pod use image which is build use docker build . you can use Dockerfile to build image and modify the script
+
 this pod also monitor the node number change, if work node increased or decreased ,it will restart cfos DaemonSet. 
 
+
+copy and paste below script to your terminal window to create clientpod. this clientpod is mainly use kubectl client to obtain the POD ip address with label and namespace, then use curl to update the cFOS addressgroup to keep the ip address in cFOS to sync with application POD in kubernetes. I have already build the image for this clientpod and put it on dockerhub. so we can directly create POD with that image. 
 
 ```
 cat << EOF | kubectl create -f -
@@ -905,6 +1001,64 @@ config firewall policy
 end
 
 ```
+- ### verify whether cFOS is in health state 
+
+the cFOS might running to some SSL related issue, if that happen, use below script to fix it 
+```
+#!/bin/bash
+
+# Get list of node names
+node_list=$(kubectl get nodes -o=jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}')
+
+
+for nodeName in $node_list; do
+        kubectl rollout status deployment multitool01-deployment
+        cfospod=`kubectl get pods -l app=fos --field-selector spec.nodeName=$nodeName |    cut -d ' ' -f 1 | tail -n -1`
+        multpod=`kubectl get pods -l app=multitool01 --field-selector spec.nodeName=$nodeName |   cut -d ' ' -f 1 | tail -n -1`
+        result=$(kubectl exec -it po/$multpod -- curl -k  https://1.1.1.1 2>&1 | grep -o 'decryption failed or bad record mac')
+        if [ "$result" = "decryption failed or bad record mac" ]
+        then
+        echo "cfos is not ready, delete cfos pod"
+        kubectl delete po/$cfospod
+        else
+                echo " on $nodeName cfos is ready"
+
+        fi
+done
+```
+- ### demo cfos l7 security feature -Web Filter feature 
+use below script to access eicar to simulate access malicous website. 
+```
+ kubectl get pod | grep multi | grep -v termin | awk '{print $1}'  | while read line; do kubectl exec -t po/$line --  curl -k -I  https://www.eicar.org/download/eicar.com.txt  ; done
+
+```
+you will see that cFOS will block it  with 403 Forrbidden
+
+```
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0HTTP/1.1 403 Forbidden
+X-Frame-Options: SAMEORIGIN
+X-XSS-Protection: 1; mode=block
+X-Content-Type-Options: nosniff
+Content-Security-Policy: frame-ancestors 'self'
+Content-Type: text/html; charset="utf-8"
+Content-Length: 5211
+Connection: Close
+```
+- ### check the webfilter log on cFOS
+```
+kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/webf.0  ; done
+```
+you shall see 
+```
+➜  ✗ kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/webf.0  ; done
+date=2023-04-03 time=01:03:20 eventtime=1680483800 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=2 srcip=10.1.200.20 srcport=38064 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
+date=2023-04-03 time=01:03:21 eventtime=1680483801 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=4 srcip=10.1.200.22 srcport=44070 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
+date=2023-04-03 time=01:03:22 eventtime=1680483802 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=27 srcip=10.1.200.253 srcport=54314 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
+date=2023-04-03 time=01:03:23 eventtime=1680483803 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=34 srcip=10.1.200.21 srcport=56950 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
+```
+
 - ### scale the app deployment 
 we scale replicas from 2 to 4 for testtest-deployment which has label app=newtest, the firewall addrgroup name is created by clientpod 
 by combine the namespace and label which is defaultappnewtest. 
@@ -1001,6 +1155,8 @@ multitool01-deployment-88ff6b48c-t97t6   1/1     Running   0          51m   10.0
 
 - ### how to build clientpod 
 
+you can modify the clientpod image by build it with Dockerfile or podman etc., if you want to enhance it for your own needs.
+
 ```
 cat << EOF > Dockerfile
 FROM alpine:latest
@@ -1016,13 +1172,16 @@ ENTRYPOINT ["/script.sh"]
 EOF
 ```
 
-use docker build to build image, and push to image repository 
+here we use docker build to build image, and push to image repository 
+replace the repo with your own repo.
 
 ```
 repo="interbeing/kubectl-cfos:latest"
 docker build . -t $repo; docker push $repo
 ```
 - ### the bash script 
+
+the script.sh file also provided as an example for your reference. you can improve it.
 
 ```
 cat <<EOF >script.sh
@@ -1305,9 +1464,3 @@ wait
 
 EOF
 ```
-- ### opa
-- ### troubleshooting cfos
-- ### demo cfos webfilter feature
-- ### demo cfos ips feature 
-- demo script
-
