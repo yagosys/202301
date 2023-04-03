@@ -1212,7 +1212,11 @@ EOF
 - ### check both deployment now shall able to access internet via cfos 
 
 ```
-➜  ✗ kubectl get pod | grep multi | grep -v termin  | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- ping -c1 1.1.1.1 ; done
+kubectl get pod | grep multi | grep -v termin  | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- ping -c1 1.1.1.1 ; done
+```
+you will see that each pod will able to ping 1.1.1.1 
+
+```
 PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
 64 bytes from 1.1.1.1: icmp_seq=1 ttl=51 time=1.09 ms
 
@@ -1238,7 +1242,13 @@ PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
 1 packets transmitted, 1 received, 0% packet loss, time 0ms
 rtt min/avg/max/mdev = 1.156/1.156/1.156/0.000 ms
 
-➜  ✗ kubectl get pod | grep testtest | grep -v termin  | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- ping -c1 1.1.1.1 ; done
+```
+for other pod with label app=newtest , it also able to ping 1.1.1.1
+```
+kubectl get pod | grep testtest | grep -v termin  | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- ping -c1 1.1.1.1 ; done
+```
+ping result
+```
 PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
 64 bytes from 1.1.1.1: icmp_seq=1 ttl=51 time=0.987 ms
 
