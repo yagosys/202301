@@ -1428,6 +1428,9 @@ net1@if2         UP             10.1.200.26/24
 *the addressgroup defaultappnewtest now have 4 member pod ip*
 
 ```
+cfospod=$(kubectl get pod | grep fos | awk '{print $1}')
+kubectl exec -it po/$cfospod -- fcnsh
+```
 FOS Container # show firewall addrgrp
 config firewall addrgrp
     edit "defaultappmultitool"
