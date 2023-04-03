@@ -1268,6 +1268,8 @@ rtt min/avg/max/mdev = 1.054/1.054/1.054/0.000 ms
 *the firewall addrgrp has each POD IP in the group*
 
 ```
+cfospod=$(kubectl get pod | grep fos | awk '{print $1}')
+kubectl exec -it po/$cfospod -- fcnsh
 FOS Container # show firewall addrgrp
 config firewall addrgrp
     edit "defaultappmultitool"
