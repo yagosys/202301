@@ -234,12 +234,13 @@ kubectl -n kube-system get pod $podname -o jsonpath='{.spec.containers[0].env}' 
 
 by default, there is no pod resource in default namespace. 
 ```
-kubectl get node
+kubectl get node -o wide  & kubectl get pod 
 ```
 you shall see output 
 ```
-NAME                                        STATUS   ROLES    AGE   VERSION
-ip-10-0-29-226.ap-east-1.compute.internal   Ready    <none>   17m   v1.25.7-eks-a59e1f0
+✗ kubectl get node -o wide
+NAME                                       STATUS   ROLES    AGE    VERSION               INTERNAL-IP   EXTERNAL-IP    OS-IMAGE         KERNEL-VERSION                  CONTAINER-RUNTIME
+ip-10-0-14-93.ap-east-1.compute.internal   Ready    <none>   163m   v1.25.7-eks-a59e1f0   10.0.14.93    18.167.17.26   Amazon Linux 2   5.10.173-154.642.amzn2.x86_64   containerd://1.6.6
 ✗ kubectl get pod
 No resources found in default namespace.
 ```
