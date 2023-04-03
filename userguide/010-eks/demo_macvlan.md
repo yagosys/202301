@@ -916,15 +916,26 @@ FOS Container # sysctl sh
 
 you can use `sysctl sh` command back to cFOS container linux shell
 
+```
+FOS Container # sysctl sh
+# exit
+```
+
 - ### create demo application deployment 
 
-*the replicas=4 mean it will create 4 POD on this work node*
-*annotations k8s.v1.cni.cncf.io/networks to tell CRD to attach the pod to network cfosdefaultcni5 with net1 interface*
-*the POD will get default-route 10.1.200.252 which is the ip of cfos on net1 interface*
-*the net1 interface use network cfosdefaultcni5 to communicate with cfos net1*
-*the POD need to install a route for 10.0.0.0/16 subnet with nexthop to 169.254.1.1, as these traffic do not want goes to cfos*
+the replicas=4 mean it will create 4 POD on this work node
 
-copy and paste below script on your client terminal to create application deployment
+annotations k8s.v1.cni.cncf.io/networks to tell CRD to attach the pod to network cfosdefaultcni5 with net1 interface
+
+the POD will get default-route 10.1.200.252 which is the ip of cfos on net1 interface
+
+the net1 interface use network cfosdefaultcni5 to communicate with cfos net1
+
+*the POD need to install a route for 10.0.0.0/16 subnet with nexthop to 169.254.1.1, as these traffic do not want goes to cfos, if remove this route, pod to pod communication will be send to cFOS as well*
+
+
+copy and paste below script on your client terminal to create application deployment, we label the pod will label app=multitool01
+
 ```
 cat << EOF | kubectl create -f -  
 apiVersion: apps/v1
@@ -960,17 +971,28 @@ EOF
 - ### check the deployment result 
 
 ```
-➜  ✗ kubectl rollout status deployment multitool01-deployment
+kubectl rollout status deployment multitool01-deployment
+```
+you shall see 
+```
 deployment "multitool01-deployment" successfully rolled out
-➜  ✗ kubectl get pod -l app=multitool01
+```
+check the pod status 
+```
+kubectl get pod -l app=multitool01
+```
+you shall see 
+```
 NAME                                     READY   STATUS    RESTARTS   AGE
 multitool01-deployment-88ff6b48c-d2drz   1/1     Running   0          33s
 multitool01-deployment-88ff6b48c-klx2z   1/1     Running   0          33s
 multitool01-deployment-88ff6b48c-pzssg   1/1     Running   0          33s
 multitool01-deployment-88ff6b48c-t97t6   1/1     Running   0          33s
 ```
+
 - ### create another deployment with different label
 we want demo to support multiple application based on the label. so we create one more deployment with different label.
+paste below script to create another deployment, we assign label to pod app=newtest 
 
 ```
 cat << EOF | kubectl create -f -
@@ -1005,17 +1027,22 @@ spec:
 EOF
 ```
 
+
 - ### create a pod to manage the networkpolicy and keep update pod ip address to cfos firewall policy 
 
-this pod will create firewall policy for two deployment which has annotations to use cfosdefaultcni5 netwok
+we create a pod with name clientpod to create firewall policy for cFOS and it will also keep POD IP address in sync between cFOS and kubernetes.
+as POD ip address is not fixed. the IP address will change due to scale , restart etc . we will keep the the POP ip address in sync with cFOS addressgroup.
+basically, this clientpod will  
 
-this pod will update application pod ip address to cfos addressgroup.
+create firewall policy for two deployment which has annotations to use cfosdefaultcni5 netwok
 
-this pod will also privode pod address update for the firewall policy that created by gatekeeper
+update application pod ip address to cfos addressgroup.
+
+privode pod address update for the firewall policy that created by gatekeeper, if the policy already created by gatekeeper then, it will only update the POD ip address to cFOS addreegroup.
 
 this pod use image which is build use docker build . you can use Dockerfile to build image and modify the script
 
-this pod also monitor the node number change, if work node increased or decreased ,it will restart cfos DaemonSet. 
+this pod also monitor the node number change, if work node increased or decreased ,it will restart cfos DaemonSet.
 
 
 copy and paste below script to your terminal window to create clientpod. this clientpod is mainly use kubectl client to obtain the POD ip address with label and namespace, then use curl to update the cFOS addressgroup to keep the ip address in cFOS to sync with application POD in kubernetes. I have already build the image for this clientpod and put it on dockerhub. so we can directly create POD with that image. 
@@ -1173,7 +1200,7 @@ end
 ```
 - ### verify whether cFOS is in health state 
 
-the cFOS might running to some SSL related issue, if that happen, use below script to fix it 
+the cFOS might running to into some SSL related issue which is tobefixed, if that happen, use below script to fix it 
 ```
 #!/bin/bash
 
@@ -1197,10 +1224,10 @@ for nodeName in $node_list; do
 done
 ```
 - ### demo cfos l7 security feature -Web Filter feature 
-use below script to access eicar to simulate access malicous website. 
+use below script to access eicar to simulate access malicous website from two deployment 
 ```
  kubectl get pod | grep multi | grep -v termin | awk '{print $1}'  | while read line; do kubectl exec -t po/$line --  curl -k -I  https://www.eicar.org/download/eicar.com.txt  ; done
-
+ kubectl get pod -l app=newtest | grep "Running" | awk '{print $1}' | while read line; do kubectl exec -t po/$line --  curl -k -I  https://www.eicar.org/download/eicar.com.txt  ; done
 ```
 you will see that cFOS will block it  with 403 Forrbidden
 
@@ -1223,10 +1250,10 @@ kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exe
 you shall see 
 ```
 ➜  ✗ kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/webf.0  ; done
-date=2023-04-03 time=01:03:20 eventtime=1680483800 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=2 srcip=10.1.200.20 srcport=38064 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
-date=2023-04-03 time=01:03:21 eventtime=1680483801 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=4 srcip=10.1.200.22 srcport=44070 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
-date=2023-04-03 time=01:03:22 eventtime=1680483802 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=27 srcip=10.1.200.253 srcport=54314 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
-date=2023-04-03 time=01:03:23 eventtime=1680483803 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=34 srcip=10.1.200.21 srcport=56950 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
+date=2023-04-03 time=03:05:52 eventtime=1680491152 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=53 srcip=10.1.200.253 srcport=38450 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
+date=2023-04-03 time=03:05:54 eventtime=1680491154 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=60 srcip=10.1.200.21 srcport=43926 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
+date=2023-04-03 time=03:07:42 eventtime=1680491262 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=102 sessionid=10 srcip=10.1.200.24 srcport=34526 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
+date=2023-04-03 time=03:07:43 eventtime=1680491263 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=102 sessionid=72 srcip=10.1.200.23 srcport=37876 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
 ```
 
 - ### scale the app deployment 
