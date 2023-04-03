@@ -310,15 +310,18 @@ serviceaccount/multus created
 configmap/multus-cni-config created
 daemonset.apps/kube-multus-ds created
 
+```
+
 - ## check the multus instalation 
 
 ```
 kubectl rollout status ds/kube-multus-ds -n kube-system
 ```
-```
+
 - ## chech the multus cni now become the default cni for EKS on work node
 
 you will see that cni name is "multus-cni-network" with delegate to "aws-cni" 
+
 ```
 ➜  010-eks git:(main) ✗ kubectl get node -o wide
 NAME                                       STATUS   ROLES    AGE    VERSION               INTERNAL-IP   EXTERNAL-IP    OS-IMAGE         KERNEL-VERSION                  CONTAINER-RUNTIME
@@ -396,14 +399,14 @@ https://aws.amazon.com/amazon-linux-2/
 [root@ip-10-0-14-93 ec2-user]#
 
 ```
-- ## install multus crd for EKS
+- ## Create  multus crd on EKS for application and cfos to attach 
 
 We need create additional network for application pod to communicate with cFOS. we use multus CRD to create this. 
 
 *the API for this CRD is k8s.cni.cncf.io/v1* 
 *this is a CRD which has kind "NetworkAttachmentDefinition*
 *the CRD has name cfosdefaultcni5*.
-*inside CRD, it include the json formatted cni configuration, it is the actual cni configuration*
+*inside CRD, it include the json formatted cni configuration, it is the actual cni configuration, the macvlan binary will parse this json*
 *the cni use macvlan*
 *the cni mode is bridge*
 *"master interface for this maclan is eth0, so EKS will not create additional ENI as we only use this network for communication between applicaton POD to cFOS POD*
@@ -454,12 +457,13 @@ spec:
 
 - ### install docker secret to pull cfos image from docker repository
 
-assume you have cfos image on your private docker hub repository. then you will need create secret to pull cfos image
-please follow <TODO> to create a docker secret 
+Assume you have build your cfos image and saved on your private repository for example like docker hub. then you will need create secret to pull cfos image
+please follow <TODO> to create a docker secret yaml manifest. 
 
 ```
 kubectl create -f dockersecret.yaml
 ```
+
 check the result 
 ```
 ➜  eks git:(main) ✗ kubectl create -f dockersecret.yaml
@@ -468,6 +472,7 @@ secret/dockerinterbeing created
 NAME               TYPE                             DATA   AGE
 dockerinterbeing   kubernetes.io/dockerconfigjson   1      8s
 ➜  eks git:(main) ✗
+
 
 ```
 - ###  create a configmap with cfos license
@@ -570,7 +575,8 @@ roleRef:
 EOF
 ```
 
-you will see 
+you shall see  output like below
+
 ```
 clusterrole.rbac.authorization.k8s.io/configmap-reader created
 rolebinding.rbac.authorization.k8s.io/read-configmaps created
@@ -657,26 +663,40 @@ EOF
 
 
 ```
-➜  ✗ kubectl get ds fos-deployment
+kubectl get ds fos-deployment
+```
+you shall see 
+```
 NAME             DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
 fos-deployment   1         1         1       1            1           <none>          60s
-➜  ✗ kubectl rollout status ds fos-deployment
+```
+
+```
+kubectl rollout status ds fos-deployment
+```
+you shall see 
 daemon set "fos-deployment" successfully rolled out
-➜  ✗ kubectl get pod
+```
+kubectl get pod
+```
+you shall see 1 cFOS pod is in ready and is Running 
+```
 NAME                   READY   STATUS    RESTARTS   AGE
 fos-deployment-x8vzj   1/1     Running   0          2m37s
 
 ```
-*check cfos container log*
 
-*below you will see that cfos container have sucessfully load the license from configmap and system is ready*
+- ### check cfos container log
+
+below you will see that cfos container have sucessfully load the license from configmap and system is ready
+
 copy and paste below command to check cFOS license 
 
 ```
-kubectl logs -f $(kubectl get pod -o jsonpath='{.items[0].metadata.name}')
+kubectl logs -f $(kubectl get pod -l app=fos -o jsonpath='{.items[0].metadata.name}')
 ```
 
-*below you will see that cfos container have sucessfully load the license from configmap and system is ready*
+below you will see that cfos container have sucessfully load the license from configmap and system is ready
 ```
 System is starting...
 
@@ -695,18 +715,23 @@ System is ready.
 ```
 
 - ### check the ip address and routing table of cfos container 
-*below you will see cfos container has eth0 and net1 interface*
-*net1 interface is created by macvlan cni*
-*eth0 interface is created by aws vpc cni*
+below you will see cfos container has eth0 and net1 interface
+
+net1 interface is created by macvlan cni
+
+eth0 interface is created by aws vpc cni
+
 *cfos container have default route point to 169.254.1.1 which has fixed mac address from veth pair interface on the host side (enixxx interface on host)*
 
+paste below command to check cfos ip address 
 
 ```
-
 cfospodname=$(kubectl get pod -o jsonpath='{.items[0].metadata.name}')
 kubectl exec -it po/$cfospodname -- ip a
 ```
-the output will be 
+
+the output shall like below. you will expect see different ip address on eth0. but the net1 ip address shall be 10.1.200.252. 
+
 ```
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
@@ -728,9 +753,13 @@ the output will be
        valid_lft forever preferred_lft forever
 
 ```
+paste below command to check ip routing table 
+
+```
 cfospodname=$(kubectl get pod -o jsonpath='{.items[0].metadata.name}')
 kubectl exec -it po/$cfospodname -- ip route
 ```
+
 the output will be 
 ```
 default via 169.254.1.1 dev eth0
