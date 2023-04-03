@@ -726,7 +726,7 @@ eth0 interface is created by aws vpc cni
 paste below command to check cfos ip address 
 
 ```
-cfospodname=$(kubectl get pod -o -l app=fos jsonpath='{.items[0].metadata.name}')
+cfospodname=$(kubectl get pod -l app=fos -o jsonpath='{.items[0].metadata.name}')
 kubectl exec -it po/$cfospodname -- ip a
 ```
 
@@ -756,7 +756,7 @@ the output shall like below. you will expect see different ip address on eth0. b
 paste below command to check ip routing table 
 
 ```
-cfospodname=$(kubectl get pod -o -l app=fos jsonpath='{.items[0].metadata.name}')
+cfospodname=$(kubectl get pod -l app=fos -o jsonpath='{.items[0].metadata.name}')
 kubectl exec -it po/$cfospodname -- ip route
 ```
 
