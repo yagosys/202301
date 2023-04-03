@@ -558,6 +558,7 @@ please follow <TODO> to create a docker secret yaml manifest.
 
 ```
 kubectl create -f dockersecret.yaml
+
 ```
 
 check the result 
@@ -594,14 +595,15 @@ data:
      paste your base64 encoded license here
      -----END FGT VM LICENSE-----
 EOF
-kubectl create -f fos_license.yaml
+kubectl create -f fos_license.yaml && kubectl get cm fos-license 
 ```
 you shall see output 
+
 ```
+➜  ✗ kubectl create -f fos_license.yaml && kubectl get cm fos-license
 configmap/fos-license created
-➜ ✗ kubectl get cm fos-license
 NAME          DATA   AGE
-fos-license   1      30s
+fos-license   1      0s
 ```
 
 - ### create role for cfos 
@@ -1071,6 +1073,11 @@ kubectl rollout status deployment multitool01-deployment
 ```
 you shall see 
 ```
+✗ kubectl rollout status deployment multitool01-deployment
+Waiting for deployment "multitool01-deployment" rollout to finish: 0 of 4 updated replicas are available...
+Waiting for deployment "multitool01-deployment" rollout to finish: 1 of 4 updated replicas are available...
+Waiting for deployment "multitool01-deployment" rollout to finish: 2 of 4 updated replicas are available...
+Waiting for deployment "multitool01-deployment" rollout to finish: 3 of 4 updated replicas are available...
 deployment "multitool01-deployment" successfully rolled out
 ```
 check the pod status 
@@ -1122,9 +1129,16 @@ spec:
             privileged: true
 EOF
 ```
+use `kubectl get pod -l app=newtest` to check the pod `
 
+```
+➜  ✗ kubernetes get pod -l app=newtest
+NAME                                   READY   STATUS    RESTARTS   AGE
+testtest-deployment-5768f678d7-76krs   1/1     Running   0          28s
+testtest-deployment-5768f678d7-ng92z   1/1     Running   0          28s
+```
 
-- ### create a pod to manage the networkpolicy and keep update pod ip address to cfos firewall policy 
+- ### create a clientpod to manage the networkpolicy and keep update pod ip address to cfos firewall policy 
 
 we create a pod with name clientpod to create firewall policy for cFOS and it will also keep POD IP address in sync between cFOS and kubernetes.
 as POD ip address is not fixed. the IP address will change due to scale , restart etc . we will keep the the POP ip address in sync with cFOS addressgroup.
@@ -1145,7 +1159,6 @@ copy and paste below script to your terminal window to create clientpod. this cl
 
 ```
 cat << EOF | kubectl create -f -
----
 apiVersion: v1
 kind: ServiceAccount
 metadata:
