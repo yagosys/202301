@@ -139,6 +139,11 @@ resource "aws_instance" "k8slab" {
     destination = "/home/ubuntu/.dockerinterbeing.yaml"
   }
 
+  provisioner "file" {
+   source = "multus-daemonset-stable.yml"
+   destination = "/home/ubuntu/multus-daemonset.yml"
+ }
+
   tags = {
     Name = "k8slab"
   }
