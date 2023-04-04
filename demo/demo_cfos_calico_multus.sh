@@ -73,6 +73,19 @@ else
 fi 
 }
 
+function install_multus_stable_393 {
+
+if kubectl get ds kube-multus-ds -n kube-system
+then
+        echo "multus already exist"
+else
+         sudo crictl pull ghcr.io/k8snetworkplumbingwg/multus-cni:stable
+         cd /home/ubuntu
+         sudo sed -i 's/multus-conf-file=auto/multus-conf-file=\/tmp\/multus-conf\/70-multus.conf/g' /home/ubuntu/multus-daemonset.yml
+         kubectl apply -f  /home/ubuntu/multus-daemonset.yml
+fi
+}
+
 function install_gatekeeperv3 {
     kubectl --kubeconfig /home/ubuntu/.kube/config apply -f https://raw.githubusercontent.com/open-policy-agent/gatekeeper/master/deploy/gatekeeper.yaml
 }
@@ -501,7 +514,8 @@ fi
 }
 
 install_calico
-install_multus
+#install_multus 
+install_multus_stable_393
 create_cfos_config
 read_node_cidr_to_list
 create_multus_conf_directory 
@@ -511,7 +525,7 @@ create_cni_net_calico
 create_net_attach_def_default_calico 
 create_cni_default_calico 
 create_net_attach_def_bridge_cfosdefaultcni5 
-install_gatekeeperv3
+#install_gatekeeperv3
 create_cfos_ds_deployment 
 create_multitool_app 
 restart_cfos_ds
