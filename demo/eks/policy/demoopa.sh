@@ -1,7 +1,6 @@
 kubectl apply -f gatekeeper.yaml &&
 kubectl rollout status deployment/gatekeeper-audit -n gatekeeper-system && 
-kubectl rollout status deployment/gatekeeper-controller-manager  -n gatekeeper-system
-
+kubectl rollout status deployment/gatekeeper-controller-manager  -n gatekeeper-system &&
 kubectl apply -f template_addrgrp.yaml &&
 kubectl get constrainttemplate k8segressnetworkpolicytocfosutmpolicy && 
 kubectl apply -f constraint_addrgrp.yaml &&  
