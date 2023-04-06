@@ -35,17 +35,17 @@ function install_gatekeeperv3 {
     kubectl apply -f https://raw.githubusercontent.com/open-policy-agent/gatekeeper/master/deploy/gatekeeper.yaml
 }
 
-kubectl create -f multus-daemonset.yml
-#kubectl create -f nad_bridge_cn_cfosdefaultcni5_10_1_200_no_snat.yaml
+eksctl create cluster -f EKSDemoConfig.yaml &&
+kubectl create -f multus-daemonset.yml &&
+#kubectl create -f nad_bridge_cn_cfosdefaultcni5_10_1_200.yaml
 kubectl create -f nad_bridge_cn_cfosdefaultcni5_10_1_200_no_snat_new.yaml
 kubectl rollout status ds/kube-multus-ds -n kube-system
 sleep 10
-kubectl create -f dockersecret.yaml
-kubectl create -f fos_license.yaml
+kubectl create -f dockerpullsecret.yaml
+kubectl create -f cfos_license.yaml
 #kubectl create -f cfos_firewallpolicy.yaml
 sleep 10
-#kubectl create -f app.yaml
-kubectl create -f app_with_custom_route.yaml
+kubectl create -f app.yaml
 kubectl rollout status deployment
 kubectl create -f cfos_account.yaml
 echo "sleep 10"
@@ -54,7 +54,7 @@ kubectl create -f cfos.yaml
 echo "sleep 10"
 sleep 10
 kubectl rollout status ds/fos-deployment
-#insert_snat_entry_if_not_exist 
+insert_snat_entry_if_not_exist 
 echo "sleep 10"
 sleep 10
 kubectl create -f ./policy/watchandupdatcfospodip.yaml

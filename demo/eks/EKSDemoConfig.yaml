@@ -13,7 +13,7 @@ kubernetesNetworkConfig:
   serviceIPv4CIDR: 10.96.0.0/12
 managedNodeGroups:
 - amiFamily: Ubuntu2004
-  desiredCapacity: 2
+  desiredCapacity: 1
   disableIMDSv1: false
   disablePodIMDS: false
   iam:
