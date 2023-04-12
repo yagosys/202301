@@ -36,6 +36,8 @@ spec:
       containers:
       - name: fos
         image: interbeing/fos:v7231x86
+        #image: 732600308177.dkr.ecr.ap-east-1.amazonaws.com/fos:v7231x86
+        imagePullPolicy: Always
         securityContext:
           capabilities:
               add: ["NET_ADMIN","SYS_ADMIN","NET_RAW"]
