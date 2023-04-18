@@ -79,7 +79,7 @@ if kubectl get ds kube-multus-ds -n kube-system
 then
         echo "multus already exist"
 else
-         sudo crictl pull ghcr.io/k8snetworkplumbingwg/multus-cni:stable
+         sudo crictl pull ghcr.io/k8snetworkplumbingwg/multus-cni:v3.9.3
          cd /home/ubuntu
          sudo sed -i 's/multus-conf-file=auto/multus-conf-file=\/tmp\/multus-conf\/70-multus.conf/g' /home/ubuntu/multus-daemonset.yml
          kubectl apply -f  /home/ubuntu/multus-daemonset.yml

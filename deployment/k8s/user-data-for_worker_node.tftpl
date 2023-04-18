@@ -23,7 +23,7 @@ function install_calico_cni_multus_auto {
         sleep 30
         kubectl --kubeconfig /home/ubuntu/.kube/config rollout status deployment calico-typha -n calico-system
         kubectl --kubeconfig /home/ubuntu/.kube/config rollout status ds calico-node -n calico-system
-        sudo crictl pull ghcr.io/k8snetworkplumbingwg/multus-cni:stable
+        sudo crictl pull ghcr.io/k8snetworkplumbingwg/multus-cni:v3.9.3
         cd /home/ubuntu
         git clone https://github.com/intel/multus-cni.git
         sudo chown ubuntu:ubuntu /home/ubuntu/multus-cni
@@ -59,7 +59,8 @@ function installcni() {
 }
 
 function install_kubeadm_kubele_kubectl {
-RELEASE="$(curl -sSL https://dl.k8s.io/release/stable.txt)"
+#RELEASE="$(curl -sSL https://dl.k8s.io/release/stable.txt)"
+RELEASE="v1.26.1"
 ARCH="amd64"
 DOWNLOAD_DIR="/usr/local/bin"
 sudo mkdir -p "$DOWNLOAD_DIR"
@@ -83,7 +84,7 @@ function install_crio_1_25_0 {
 
 	until contents=$(curl --insecure --retry 3 --retry-connrefused -C - -fLo containers-common_1-22_all.deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_22.04/all/containers-common_1-22_all.deb); do sleep 10; done
 
-	until contents=$( curl --insecure  --retry 3 --retry-connrefused -C - -fLo cri-o_1.25.2~0_amd64.deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/1.25/xUbuntu_22.04/amd64/cri-o_1.25.2~0_amd64.deb); do sleep 10; done
+	until contents=$( curl --insecure  --retry 3 --retry-connrefused -C - -fLo cri-o_1.25.3~0_amd64.deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/1.25/xUbuntu_22.04/amd64/cri-o_1.25.3~0_amd64.deb); do sleep 10; done
 
 	until contents=$(curl --insecure --retry 3 --retry-connrefused -C - -fLo cri-o-runc_1.0.1~2_amd64.deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_22.04/amd64/cri-o-runc_1.0.1~2_amd64.deb); do sleep 10; done
 
@@ -92,7 +93,7 @@ function install_crio_1_25_0 {
 
 sudo dpkg -i conmon_2.1.2~0_amd64.deb
 sudo dpkg -i containers-common_1-22_all.deb
-sudo dpkg -i cri-o_1.25.2~0_amd64.deb
+sudo dpkg -i cri-o_1.25.3~0_amd64.deb
 sudo dpkg -i cri-o-runc_1.0.1~2_amd64.deb
 sudo dpkg -i cri-tools_1.25.0~0_amd64.deb
 
@@ -164,7 +165,7 @@ sudo systemctl restart crio
 install_kubeadm_kubele_kubectl
 
 
-sudo kubeadm config images pull --cri-socket unix:///var/run/crio/crio.sock --v=5
+sudo kubeadm config images pull --cri-socket unix:///var/run/crio/crio.sock --kubernetes-version=v1.26.1 --v=5
 
 local_ip=$(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}')
 cat <<EOF | sudo tee /etc/default/kubelet
