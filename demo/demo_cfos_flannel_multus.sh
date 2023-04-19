@@ -11,10 +11,11 @@ if kubectl get ds kube-multus-ds -n kube-system
 then
         echo "multus already exist"
 else
-         sudo crictl pull ghcr.io/k8snetworkplumbingwg/multus-cni:stable
+         sudo crictl pull ghcr.io/k8snetworkplumbingwg/multus-cni:v3.9.3
          cd /home/ubuntu
-         git clone https://github.com/intel/multus-cni.git
-         kubectl apply -f  /home/ubuntu/multus-cni/deployments/multus-daemonset.yml
+         #git clone https://github.com/intel/multus-cni.git
+         #kubectl apply -f  /home/ubuntu/multus-cni/deployments/multus-daemonset.yml
+	 kubectl apply -f  /home/ubuntu/multus-daemonset.yml 
 	 sleep 5
 	 kubectl rollout status ds/kube-multus-ds -n kube-system
 fi
