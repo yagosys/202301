@@ -1,0 +1,9 @@
+name: gke-my-first-cluster-1-default-pool-426b2669-fwm8
+canIpForward: true <<-----------------------------------
+networkInterfaces:
+- accessConfigs:
+  - kind: compute#accessConfig
+    name: external-nat
+    natIP: 34.83.125.29
+    networkTier: PREMIUM
+    type: ONE_TO_ONE_NAT
