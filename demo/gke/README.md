@@ -1,10 +1,16 @@
 - preparation
 - create a project
 - config glcoud environement
+
 ```
-   gcloud config set project cfos-384323
-   gcloud config set compute/region us-west1
-   gcloud config set compute/zone us-west1-a
+
+project="cfos-384323"
+region="us-west1"
+zone="us-west1-a"
+gcloud config set project $project
+gcloud config set compute/region $region
+gcloud config set compute/zone $zone
+gcloud config list
 
    
 ```
@@ -15,13 +21,9 @@
 
 
 ```
-gkeClusterName="$1"
-gkeNetworkName="$2"
-gkeSubnetworkName="$3"
-
-[[ "$1" == "" ]] && gkeClusterName="my-first-cluster-1"
-[[ "$2" == "" ]] && gkeNetworkName=$(gcloud compute networks list --format="value(name)" --limit=1)
-[[ "$3" == "" ]] && gkeSubnetworkName=$(gcloud compute networks subnets  list --format="value(name)" --limit=1)
+gkeClusterName="my-first-cluster-1"
+gkeNetworkName=$(gcloud compute networks list --format="value(name)" --limit=1)
+gkeSubnetworkName=$(gcloud compute networks subnets  list --format="value(name)" --limit=1)
 
 projectName=$(gcloud config list --format="value(core.project)")
 region=$(gcloud compute networks subnets list --format="value(region)" --limit=1)
@@ -50,18 +52,52 @@ gcloud beta container clusters create $gkeClusterName  \
         --max-surge-upgrade 1 \
         --max-unavailable-upgrade 0 \
         --enable-shielded-nodes \
-        --services-ipv4-cidr 10.144.0.0/20 \  
+        --services-ipv4-cidr 10.144.0.0/20 \
         --cluster-ipv4-cidr  10.140.0.0/14
+
+echo done
+echo cluster has podIpv4CidrBlock $(gcloud container clusters describe my-first-cluster-1 --format="value(nodePools.networkConfig.podIpv4CidrBlock)")
+echo cluster has servicesIpv4Cidr $(gcloud container clusters describe my-first-cluster-1 --format="value(servicesIpv4Cidr)")
+
+
+clustersearchstring=$(gcloud container clusters list --format="value(name)" --limit=1)
+name=$(gcloud compute instances list --filter="name~'$clustersearchstring'"  --format="value(name)" --limit=1)
+echo cluster worker node vm has internal ip $(gcloud compute instances describe $name --format="value(networkInterfaces.aliasIpRanges)" --format="value(networkInterfaces.networkIP)")
+echo cluster worker node vm has alias ip $(gcloud compute instances describe $name  --format="value(networkInterfaces.aliasIpRanges)")
+
 
 ``` 
 
+you shall expected to see below output
+```
+Note: Modifications on the boot disks of node VMs do not persist across node recreations. Nodes are recreated during manual-upgrade, auto-upgrade, auto-repair, and auto-scaling. To preserve modifications across node recreation, use a DaemonSet.
+Default change: During creation of nodepools or autoscaling configuration changes for cluster versions greater than 1.24.1-gke.800 a default location policy is applied. For Spot and PVM it defaults to ANY, and for all other VM kinds a BALANCED policy is used. To change the default values use the `--location-policy` flag.
+Note: The Pod address range limits the maximum size of the cluster. Please refer to https://cloud.google.com/kubernetes-engine/docs/how-to/flexible-pod-cidr to learn how to optimize IP address allocation.
+Creating cluster my-first-cluster-1 in us-west1-a... Cluster is being health-checked (master is healthy)...done.     
+Created [https://container.googleapis.com/v1beta1/projects/cfos-384323/zones/us-west1-a/clusters/my-first-cluster-1].
+To inspect the contents of your cluster, go to: https://console.cloud.google.com/kubernetes/workload_/gcloud/us-west1-a/my-first-cluster-1?project=cfos-384323
+kubeconfig entry generated for my-first-cluster-1.
+NAME: my-first-cluster-1
+LOCATION: us-west1-a
+MASTER_VERSION: 1.26.3-gke.1000
+MASTER_IP: 34.82.14.152
+MACHINE_TYPE: g1-small
+NODE_VERSION: 1.26.3-gke.1000
+NUM_NODES: 1
+STATUS: RUNNING
+done
+cluster has podIpv4CidrBlock 10.140.0.0/14
+cluster has servicesIpv4Cidr 10.144.0.0/20
+cluster worker node vm has internal ip 10.0.0.13
+cluster worker node vm has alias ip [{'ipCidrRange': '10.140.0.0/24', 'subnetworkRangeName': 'gke-my-first-cluster-1-pods-e8d6aa00'}]
+```
 
 
 check the gke cluster 
-`kubectl get node`
+`kubectl get node -o wide`
 ```
-NAME                                                STATUS   ROLES    AGE     VERSION
-gke-my-first-cluster-1-default-pool-f1f19bf3-x57f   Ready    <none>   2m12s   v1.26.3-gke.1000
+NAME                                                STATUS   ROLES    AGE     VERSION            INTERNAL-IP   EXTERNAL-IP    OS-IMAGE             KERNEL-VERSION    CONTAINER-RUNTIME
+gke-my-first-cluster-1-default-pool-c0a2ad16-0bvz   Ready    <none>   3m54s   v1.26.3-gke.1000   10.0.0.13     34.127.7.195   Ubuntu 22.04.2 LTS   5.15.0-1028-gke   containerd://1.6.18
 ```
 
 - enable ip-forwarding for GKE worker node VM 
@@ -75,7 +111,7 @@ projectName=$(gcloud config list --format="value(core.project)")
 zone=$(gcloud config list --format="value(compute.zone)" --limit=1)
 gcloud compute instances export $name \
     --project $projectName \
-    --zone us-west1-a \
+    --zone $zone \
     --destination=./$name.txt
 grep -q "canIpForward: true" $name.txt || sed -i '/networkInterfaces/i canIpForward: true' $name.txt
 sed '/networkInterfaces/i canIpForward: true' $name.txt
@@ -87,78 +123,22 @@ gcloud compute instances update-from-file $name\
 echo "done"
 ```
 
--- create multus config file 
+
+- create multus config file 
 
 *we need install multus cni config file to the worker node. so we can create multus cni config, the cni config need config two static route for podIpv4CidrBlock and servicesIpv4Cidr with nexthop point to POD primary interface, as we are going to install a default route to each POD with nexthop point to cFOS*, we first get the podIpv4Cidrblock and serviceIpv4Cidr and then modify multus yaml file with cni config. 
 
-- get the cluster services-ipv4-cidr and cluster-ipv4-cidr
-
 ```
-gcloud container clusters describe my-first-cluster-1 --format="value(nodePools.networkConfig.podIpv4CidrBlock)"
-gcloud container clusters describe my-first-cluster-1 --format="value(servicesIpv4Cidr)"
-```
-you may see output like
-
-```
-wandy@cloudshell:~/github/cFOSonGKE (cfos-384323)$ gcloud container clusters describe my-first-cluster-1 --format="value(nodePools.networkConfig.podIpv4CidrBlock)"
-10.140.0.0/14
-wandy@cloudshell:~/github/cFOSonGKE (cfos-384323)$ gcloud container clusters describe my-first-cluster-1 --format="value(servicesIpv4Cidr)"
-10.144.0.0/20
-```
-- create multus cni config file with above service and pod ipv4 cidr
-
-```
-  cni-conf.json: |
-    {
-      "name": "multus-cni-network",
-      "type": "multus",
-      "capabilities": {
-        "portMappings": true
-      },
-      "delegates": [
-        {
-          "cniVersion": "0.3.1",
-          "name": "k8s-pod-network",
-          "plugins": [
-            {
-              "type": "ptp",
-              "mtu": 1460,
-              "ipam": {
-                "type": "host-local",
-                "subnet": "10.140.0.0/24",
-                "routes": [
-                  {
-                    "dst": "0.0.0.0/0",
-                    "dst": "10.140.0.0/14",
-                    "dst": "10.144.0.0/20"
-                  }
-                 ]
-            }
-          },
-              {
-                "type": "portmap",
-                "capabilities": {
-                  "portMappings": true
-                }
-              }
-          ]
-        }
-      ],
-      "kubeconfig": "/etc/cni/net.d/multus.d/multus.kubeconfig"
-    }
-
-```
-* we also need change the nae of cni config to 07-multus.conf instead of default 70-multus.conf, as the GKE cluster default cni with name start with "10-". so we change to any name that lower than "10". here we use 07. so this multus CNI will get priority *
-
-*the final multus config will like below*
-
--- install multus cni 
-
-
-
-```
-cat  << EOF  | kubect create -f - 
-
+file="multus.yml"
+cat << EOF > $file
+# Note:
+#   This deployment file is designed for 'quickstart' of multus, easy installation to test it,
+#   hence this deployment yaml does not care about following things intentionally.
+#     - various configuration options
+#     - minor deployment scenario
+#     - upgrade/update/uninstall scenario
+#   Multus team understand users deployment scenarios are diverse, hence we do not cover
+#   comprehensive deployment scenario. We expect that it is covered by each platform deployment.
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -290,7 +270,8 @@ data:
                 "routes": [
                   {
                     "dst": "0.0.0.0/0",
-                    "dst": "10.140.0.0/16"
+                    "dst": "10.140.0.0/14",
+                    "dst": "10.144.0.0/20"
                   }
                  ]
             }
@@ -390,18 +371,110 @@ spec:
             items:
             - key: cni-conf.json
               path: 07-multus.conf
+EOF
+kubectl create -f $file
+kubectl rollout status ds/kube-multus-ds -n kube-system
+```
+
+you shall see output 
 
 ```
+customresourcedefinition.apiextensions.k8s.io/network-attachment-definitions.k8s.cni.cncf.io created
+clusterrole.rbac.authorization.k8s.io/multus created
+clusterrolebinding.rbac.authorization.k8s.io/multus created
+serviceaccount/multus created
+configmap/multus-cni-config created
+daemonset.apps/kube-multus-ds created
+Waiting for daemon set "kube-multus-ds" rollout to finish: 0 of 1 updated pods are available...
+daemon set "kube-multus-ds" successfully rolled out
+```
+
+
 - check the installation of multus cni
 
-`kubectl logs ds/kube-multus-ds -n kube-system -c kube-multus` shall give below output which indicate that multus CNI is waiting to be called.
 ```
-2023-04-28T01:35:44+00:00 Entering sleep (success)...
+clustersearchstring=$(gcloud container clusters list --format="value(name)" --limit=1) && \
+name=$(gcloud compute instances list --filter="name~'$clustersearchstring'"  --format="value(name)" --limit=1) && \
+gcloud compute ssh $name --command='sudo cat /etc/cni/net.d/07-multus.conf' && \
+gcloud compute ssh $name --command='journalctl -n 10 -u kubelet'
+
 ```
 
--- create nad crd for POD's additional interface
+you shall see output 
 
 ```
+Warning: Permanently added 'compute.1543850315789202263' (ECDSA) to the list of known hosts.
+##############################################################################
+# WARNING: Any changes on the boot disk of the node must be made via
+#          DaemonSet in order to preserve them across node (re)creations.
+#          Node will be (re)created during manual-upgrade, auto-upgrade,
+#          auto-repair or auto-scaling.
+#          See https://cloud.google.com/kubernetes-engine/docs/concepts/node-images#modifications
+#          for more information.
+##############################################################################
+{
+  "name": "multus-cni-network",
+  "type": "multus",
+  "capabilities": {
+    "portMappings": true
+  },
+  "delegates": [
+    {
+      "cniVersion": "0.3.1",
+      "name": "k8s-pod-network",
+      "plugins": [
+        {
+          "type": "ptp",
+          "mtu": 1460,
+          "ipam": {
+            "type": "host-local",
+            "subnet": "10.140.0.0/24",
+            "routes": [
+              {
+                "dst": "0.0.0.0/0",
+                "dst": "10.140.0.0/14",
+                "dst": "10.144.0.0/20"
+              }
+             ]
+        }
+      },
+          {
+            "type": "portmap",
+            "capabilities": {
+              "portMappings": true
+            }
+          }
+      ]
+    }
+  ],
+  "kubeconfig": "/etc/cni/net.d/multus.d/multus.kubeconfig"
+}
+##############################################################################
+# WARNING: Any changes on the boot disk of the node must be made via
+#          DaemonSet in order to preserve them across node (re)creations.
+#          Node will be (re)created during manual-upgrade, auto-upgrade,
+#          auto-repair or auto-scaling.
+#          See https://cloud.google.com/kubernetes-engine/docs/concepts/node-images#modifications
+#          for more information.
+##############################################################################
+May 02 08:55:55 gke-my-first-cluster-1-default-pool-c0a2ad16-0bvz kubelet[2264]: I0502 08:55:55.750876    2264 provider.go:102] Refreshing cache for provider: *gcp.DockerConfigURLKeyProvider
+May 02 08:55:55 gke-my-first-cluster-1-default-pool-c0a2ad16-0bvz kubelet[2264]: I0502 08:55:55.751913    2264 credentialutil.go:63] "Failed to read URL" statusCode=404 URL="http://metadata.google.internal./computeMetadata/v1/instance/attributes/google-dockercfg-url"
+May 02 08:55:55 gke-my-first-cluster-1-default-pool-c0a2ad16-0bvz kubelet[2264]: E0502 08:55:55.752087    2264 gcpcredential.go:74] while reading 'google-dockercfg-url' metadata: http status code: 404 while fetching url http://metadata.google.internal./computeMetadata/v1/instance/attributes/google-dockercfg-url
+May 02 08:55:56 gke-my-first-cluster-1-default-pool-c0a2ad16-0bvz kubelet[2264]: I0502 08:55:56.177637    2264 kubelet.go:2231] "SyncLoop (PLEG): event for pod" pod="kube-system/kube-multus-ds-kk2r8" event=&{ID:7eaba53e-63d2-4906-9a16-ff315c3337fd Type:ContainerStarted Data:d08bfba7963c51291ff456fc9639ab91efe1ee5c716137335895e9744eb746ff}
+May 02 08:56:06 gke-my-first-cluster-1-default-pool-c0a2ad16-0bvz kubelet[2264]: I0502 08:56:06.223307    2264 kubelet.go:2231] "SyncLoop (PLEG): event for pod" pod="kube-system/kube-multus-ds-kk2r8" event=&{ID:7eaba53e-63d2-4906-9a16-ff315c3337fd Type:ContainerStarted Data:7baae34a275025ee9803614c912ba1916f452fcd6569e835e556566e79a52357}
+May 02 08:56:09 gke-my-first-cluster-1-default-pool-c0a2ad16-0bvz kubelet[2264]: I0502 08:56:09.232422    2264 generic.go:332] "Generic (PLEG): container finished" podID=7eaba53e-63d2-4906-9a16-ff315c3337fd containerID="7baae34a275025ee9803614c912ba1916f452fcd6569e835e556566e79a52357" exitCode=0
+May 02 08:56:09 gke-my-first-cluster-1-default-pool-c0a2ad16-0bvz kubelet[2264]: I0502 08:56:09.232489    2264 kubelet.go:2231] "SyncLoop (PLEG): event for pod" pod="kube-system/kube-multus-ds-kk2r8" event=&{ID:7eaba53e-63d2-4906-9a16-ff315c3337fd Type:ContainerDied Data:7baae34a275025ee9803614c912ba1916f452fcd6569e835e556566e79a52357}
+May 02 08:56:10 gke-my-first-cluster-1-default-pool-c0a2ad16-0bvz kubelet[2264]: I0502 08:56:10.240813    2264 kubelet.go:2231] "SyncLoop (PLEG): event for pod" pod="kube-system/kube-multus-ds-kk2r8" event=&{ID:7eaba53e-63d2-4906-9a16-ff315c3337fd Type:ContainerStarted Data:554141b1bc0a0747986f75b7f6f0207d9e525553c74bd98b11a4154f780bffa1}
+May 02 08:56:10 gke-my-first-cluster-1-default-pool-c0a2ad16-0bvz kubelet[2264]: I0502 08:56:10.265242    2264 pod_startup_latency_tracker.go:102] "Observed pod startup duration" pod="kube-system/kube-multus-ds-kk2r8" podStartSLOduration=-9.223372021589586e+09 pod.CreationTimestamp="2023-05-02 08:55:55 +0000 UTC" firstStartedPulling="2023-05-02 08:55:55.732815628 +0000 UTC m=+520.894080809" lastFinishedPulling="0001-01-01 00:00:00 +0000 UTC" observedRunningTime="2023-05-02 08:56:10.264334729 +0000 UTC m=+535.425599933" watchObservedRunningTime="2023-05-02 08:56:10.265190328 +0000 UTC m=+535.426455533"
+May 02 08:56:15 gke-my-first-cluster-1-default-pool-c0a2ad16-0bvz kubelet[2264]: I0502 08:56:15.430592    2264 kubelet_getters.go:182] "Pod status updated" pod="kube-system/kube-proxy-gke-my-first-cluster-1-default-pool-c0a2ad16-0bvz" status=Running
+
+```
+
+- create net-attach-def
+
+```
+file="nad.yml"
+cat << EOF > $file
 apiVersion: k8s.cni.cncf.io/v1
 kind: NetworkAttachmentDefinition
 metadata:
@@ -419,70 +492,351 @@ spec:
       "ipam": {
           "type": "host-local",
           "routes": [
-              { "dst": "1.2.3.4/32","gw": "10.1.200.1" }
+              { "dst": "1.2.3.4/32", "gw": "10.1.200.1" }
           ],
           "ranges": [
               [{ "subnet": "10.1.200.0/24" }]
           ]
       }
     }
+EOF
+kubectl create -f $file && kubectl get net-attach-def
+```
+you shall see output 
 
+```
+networkattachmentdefinition.k8s.cni.cncf.io/cfosdefaultcni5 created
+NAME              AGE
+cfosdefaultcni5   0s
 ```
 
 
--- create cfos image pull secret
--- create configmap for cfos license
+- create application deployment.
 
+```
+file="app.yml"
+cat << EOF > $file
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: multitool01-deployment
+  labels:
+      app: multitool01
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+        app: multitool01
+  template:
+    metadata:
+      labels:
+        app: multitool01
+      annotations:
+        k8s.v1.cni.cncf.io/networks: '[ { "name": "cfosdefaultcni5",  "default-route": ["10.1.200.252"]  } ]'
+    spec:
+      containers:
+        - name: multitool01
+          image: praqma/network-multitool
+            #image: nginx:latest
+          imagePullPolicy: Always
+            #command: ["/bin/sh","-c"]
+          args:
+            - /bin/sh
+            - -c
+            - /usr/sbin/nginx -g "daemon off;"
+          securityContext:
+            privileged: true
+EOF
 
-
--- create cfos account
--- create cfos
-
-
--- config cfos static route
+kubectl create -f $file && kubectl rollout status deployment multitool01-deployment
 ```
 
-config router static
-    edit "1"
-        set gateway 10.140.0.1
-        set device "eth0"
-    next
-end
+you shall see output 
+```
+deployment.apps/multitool01-deployment created
+Waiting for deployment "multitool01-deployment" rollout to finish: 0 of 1 updated replicas are available...
+deployment "multitool01-deployment" successfully rolled out
 ```
 
---- config firewall policy
+
+- apply docker pull secret and cfos license 
+
+
 ```
-config firewall policy
-    edit "3"
-        set utm-status enable
-        set name "pod_to_internet_HTTPS_HTTP"
-        set srcintf any
-        set dstintf eth0
-        set srcaddr all
-        set dstaddr all
-        set service ALL
-        set ssl-ssh-profile "deep-inspection"
-        set webfilter-profile "default"
-        set ips-sensor "default"
-        set nat enable
-    next
-end
+file="$HOME/license/dockerinterbeing.yaml"
+[ -e $file ] && kubectl create -f $file || echo "$file  does not exist"
+file="$HOME/license/fos_license.yaml"
+[ -e $file ] && kubectl create -f $file || echo "$file  does not exist"
 ```
+you shall see output
+```
+secret/dockerinterbeing created
+configmap/fos-license created
+```
+
+
+- create cfos account
+```
+file="cfos_account.yml"
+cat << EOF > $file
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  namespace: default
+  name: configmap-reader
+rules:
+- apiGroups: [""]
+  resources: ["configmaps"]
+  verbs: ["get", "watch", "list"]
 
 ---
 
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: read-configmaps
+  namespace: default
+subjects:
+- kind: ServiceAccount
+  name: default
+  apiGroup: ""
+roleRef:
+  kind: ClusterRole
+  name: configmap-reader
+  apiGroup: ""
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+   namespace: default
+   name: secrets-reader
+rules:
+- apiGroups: [""] # "" indicates the core API group
+  resources: ["secrets"]
+  verbs: ["get", "watch", "list"]
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: read-secrets
+  namespace: default
+subjects:
+- kind: ServiceAccount
+  name: default
+  apiGroup: ""
+roleRef:
+  kind: ClusterRole
+  name: secrets-reader
+  apiGroup: ""
+EOF
+
+kubectl create -f $file
 ```
-kubectl create -f cfosfirewallpolicy.yaml && \
-kubectl create -f cfosstaticroute.yaml && \
-sleep 5 && \
+
+you shall see output
+
+```
+clusterrole.rbac.authorization.k8s.io/configmap-reader created
+rolebinding.rbac.authorization.k8s.io/read-configmaps created
+clusterrole.rbac.authorization.k8s.io/secrets-reader created
+rolebinding.rbac.authorization.k8s.io/read-secrets created
+```
+
+- create cfos daemonSet
+
+```
+file="cfos_ds.yml"
+
+cat << EOF > $file
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: fos
+  name: fos-deployment
+  namespace: default
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: fos
+  type: ClusterIP
+---
+
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: fos-deployment
+  labels:
+      app: fos
+spec:
+  selector:
+    matchLabels:
+        app: fos
+  template:
+    metadata:
+      labels:
+        app: fos
+      annotations:
+        k8s.v1.cni.cncf.io/networks: '[ { "name": "cfosdefaultcni5",  "ips": [ "10.1.200.252/32" ], "mac": "CA:FE:C0:FF:00:02" } ]'
+    spec:
+      containers:
+      - name: fos
+        image: interbeing/fos:v7231x86
+        #image: 732600308177.dkr.ecr.ap-east-1.amazonaws.com/fos:v7231x86
+        imagePullPolicy: Always
+        securityContext:
+          privileged: true
+          capabilities:
+              add: ["NET_ADMIN","SYS_ADMIN","NET_RAW"]
+        ports:
+        - name: isakmp
+          containerPort: 500
+          protocol: UDP
+        - name: ipsec-nat-t
+          containerPort: 4500
+          protocol: UDP
+        volumeMounts:
+        - mountPath: /data
+          name: data-volume
+      imagePullSecrets:
+      - name: dockerinterbeing
+      volumes:
+      - name: data-volume
+        hostPath:
+          path: /home/kubernetes/cfosdata
+          type: DirectoryOrCreate
+EOF
+
+kubectl create -f $file  && \
+
+kubectl rollout status ds/fos-deployment && kubectl get pod -l app=fos
+```
+
+you shall see output
+
+```
+service/fos-deployment created
+daemonset.apps/fos-deployment created
+Waiting for daemon set "fos-deployment" rollout to finish: 0 of 1 updated pods are available...
+daemon set "fos-deployment" successfully rolled out
+NAME                   READY   STATUS    RESTARTS   AGE
+fos-deployment-nb69v   1/1     Running   0          9s
+```
+
+
+
+
+- config firewall policy
+```
+file="configmapfirewallpolicy.yml"
+cat << EOF > $file
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: foscfgfirewallpolicy
+  labels:
+      app: fos
+      category: config
+data:
+  type: partial
+  config: |-
+    config firewall policy
+           edit "3"
+               set utm-status enable
+               set name "pod_to_internet_HTTPS_HTTP"
+               set srcintf any
+               set dstintf eth0
+               set srcaddr all
+               set dstaddr all
+               set service HTTPS HTTP PING DNS
+               set ssl-ssh-profile "deep-inspection"
+               set ips-sensor "default"
+               set webfilter-profile "default"
+               set av-profile "default"
+               set nat enable
+               set logtraffic all
+           next
+       end
+EOF
+kubectl create -f $file
+```
+
+you shall see output
+
+```
+configmap/foscfgfirewallpolicy created
+```
+
+
+- config cfos static route
+```
+file="configmapstaticroute.yml"
+cat << EOF > $file
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: foscfgstaticroute
+  labels:
+      app: fos
+      category: config
+data:
+  type: partial
+  config: |-
+    config router static
+      edit "1"
+          set dst 0.0.0.0/0
+          set gateway 10.140.0.1
+          set device "eth0"
+      next
+    end
+EOF
+kubectl create -f $file
+```
+
+you shall see output 
+
+```
+configmap/foscfgstaticroute created
+```
+
+- restart cfos daemonSet 
+
+```
+kubectl rollout status ds/fos-deployment && \
 kubectl rollout restart ds/fos-deployment && \
-kubectl rollout status ds/fos-deployment
+kubectl rollout status ds/fos-deployment && \
+podname=$(kubectl get pod -l app=fos  | grep Running | grep fos | cut -d " " -f 1) && \
+echo 'check cfos iptables for snat entry' && \
+kubectl exec -it po/$podname -- iptables -L -t nat --verbose | grep MASQ && \
+echo 'done'
+```
+
+you shall see output
+
+```
+daemon set "fos-deployment" successfully rolled out
+daemonset.apps/fos-deployment restarted
+Waiting for daemon set "fos-deployment" rollout to finish: 0 out of 1 new pods have been updated...
+Waiting for daemon set "fos-deployment" rollout to finish: 0 out of 1 new pods have been updated...
+Waiting for daemon set "fos-deployment" rollout to finish: 0 out of 1 new pods have been updated...
+Waiting for daemon set "fos-deployment" rollout to finish: 0 of 1 updated pods are available...
+daemon set "fos-deployment" successfully rolled out
+check cfos iptables for snat entry
+   26  2188 MASQUERADE  all  --  any    eth0    anywhere             anywhere
+done
 ```
 
 
--- create application pod
-
--- check routing table on application pod 
+- check routing table on application pod 
 ```
 wandy@cloudshell:~/github/cFOSonGKE (cfos-384323)$ kubectl get pod | grep multi | awk '{print $1}' |  while read line;  do kubectl exec -t po/$line -- ip r show ; done
 default via 10.1.200.252 dev net1
@@ -493,7 +847,7 @@ default via 10.1.200.252 dev net1
 10.144.0.0/20 via 10.140.0.1 dev eth0
 ```
 
---- check routing table on cfos 
+- check routing table on cfos 
 
 
 ```
@@ -506,14 +860,37 @@ default via 10.140.0.1 dev eth0 metric 10
 10.144.0.0/20 via 10.140.0.1 dev eth0
 ```
 
---- send test traffic
+-  send ips attack traffic
 
 ```
-kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/webf.0  ; done
-wandy@cloudshell:~/github/cFOSonGKE (cfos-384323)$ ./webftest.sh
+kubectl get pod | grep multi | grep -v termin | awk '{print $1}'  | while read line; do kubectl exec -t po/$line --  curl --max-time 5  -k -H "User-Agent: () { :; }; /bin/ls" https://www.eicar.org  ; done
+kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/ips.0  ; done
+```
+ 
+you shall see output 
+
+```
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
-HTTP/1.1 403 Forbidden  0     0      0      0 --:--:-- --:--:-- --:--:--     0
+  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0
+curl: (28) Operation timed out after 5000 milliseconds with 0 bytes received
+command terminated with exit code 28
+date=2023-05-02 time=09:01:37 eventtime=1683018097 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.1 dstip=89.238.73.97 srcintf="net1" dstintf="eth0" sessionid=2 action="dropped" proto=6 service="HTTPS" policyid=3 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=59064 dstport=443 hostname="www.eicar.org" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=218103809 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+```
+
+ 
+- access malicous website
+
+```
+kubectl get pod | grep multi | grep -v termin | awk '{print $1}'  | while read line; do kubectl exec -t po/$line --  curl -k -I  https://www.eicar.org/download/eicar.com.txt  ; done
+kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/webf.0  ; done
+```
+
+you shall see output
+```
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0HTTP/1.1 403 Forbidden
   0  5211    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
 X-Frame-Options: SAMEORIGIN
 X-XSS-Protection: 1; mode=block
@@ -523,7 +900,18 @@ Content-Type: text/html; charset="utf-8"
 Content-Length: 5211
 Connection: Close
 
-date=2023-05-02 time=01:49:49 eventtime=1682992189 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=3 sessionid=10 srcip=10.1.200.1 srcport=41646 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
-date=2023-05-02 time=01:51:27 eventtime=1682992287 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=3 sessionid=12 srcip=10.1.200.1 srcport=58368 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
-date=2023-05-02 time=01:53:25 eventtime=1682992405 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=3 sessionid=16 srcip=10.1.200.1 srcport=37128 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
+date=2023-05-02 time=09:02:02 eventtime=1683018122 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=3 sessionid=4 srcip=10.1.200.1 srcport=46300 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
 ```
+
+- clean up 
+
+```
+name=$(gcloud container clusters list --format="value(name)" --limit=1) &&  \
+projectName=$(gcloud config list --format="value(core.project)") && \
+zone=$(gcloud config list --format="value(compute.zone)" --limit=1) && \
+gcloud container clusters delete $name
+```
+
+
+
+
