@@ -9,6 +9,8 @@ gkeSubnetworkName="$3"
 projectName=$(gcloud config list --format="value(core.project)")
 region=$(gcloud compute networks subnets list --format="value(region)" --limit=1)
 
+gcloud services enable container.googleapis.com  && \
+
 gcloud beta container clusters create $gkeClusterName  \
 	--no-enable-basic-auth \
 	--cluster-version "1.26.3-gke.1000" \
@@ -37,8 +39,8 @@ gcloud beta container clusters create $gkeClusterName  \
         --cluster-ipv4-cidr  10.140.0.0/14
 
 echo done
-echo cluster has podIpv4CidrBlock $(gcloud container clusters describe my-first-cluster-1 --format="value(nodePools.networkConfig.podIpv4CidrBlock)")
-echo cluster has servicesIpv4Cidr $(gcloud container clusters describe my-first-cluster-1 --format="value(servicesIpv4Cidr)")
+echo cluster has podIpv4CidrBlock $(gcloud container clusters describe $gkeClusterName --format="value(nodePools.networkConfig.podIpv4CidrBlock)")
+echo cluster has servicesIpv4Cidr $(gcloud container clusters describe $gkeClusterName --format="value(servicesIpv4Cidr)")
 
 
 clustersearchstring=$(gcloud container clusters list --format="value(name)" --limit=1)
