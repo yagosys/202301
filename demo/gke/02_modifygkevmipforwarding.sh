@@ -1,4 +1,6 @@
-clustersearchstring=$(gcloud container clusters list --format="value(name)" --limit=1)
+[[ $defaultClustername == "" ]] && defaultClustername="my-first-cluster-1"
+gkeClusterName=$defaultClustername
+clustersearchstring=$(gcloud container clusters list --filter=name=$gkeClusterName --format="value(name)" --limit=1)
 name=$(gcloud compute instances list --filter="name~'$clustersearchstring'"  --format="value(name)" --limit=1)
 projectName=$(gcloud config list --format="value(core.project)")
 zone=$(gcloud config list --format="value(compute.zone)" --limit=1)

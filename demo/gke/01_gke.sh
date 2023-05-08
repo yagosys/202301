@@ -1,13 +1,13 @@
-gkeClusterName="$1"
-gkeNetworkName="$2"
-gkeSubnetworkName="$3"
+[[ $defaultClustername == "" ]] && defaultClustername="my-first-cluster-1"
+[[ $networkName == "" ]] && networkName="gkenetwork"
+[[ $subnetName == "" ]] && subnetName="gkenode"
 
-[[ "$1" == "" ]] && gkeClusterName="my-first-cluster-1"
-[[ "$2" == "" ]] && gkeNetworkName=$(gcloud compute networks list --format="value(name)" --limit=1)
-[[ "$3" == "" ]] && gkeSubnetworkName=$(gcloud compute networks subnets  list --format="value(name)" --limit=1)
+gkeClusterName=$defaultClustername
+gkeNetworkName=$(gcloud compute networks list --format="value(name)" --filter="name="$networkName""  --limit=1)
+gkeSubnetworkName=$(gcloud compute networks subnets  list --format="value(name)" --filter="name="$subnetName"" --limit=1)
 
-projectName=$(gcloud config list --format="value(core.project)")
-region=$(gcloud compute networks subnets list --format="value(region)" --limit=1)
+projectName=$(gcloud config list --format="value(core.project)") && \
+region=$(gcloud compute networks subnets list --format="value(region)" --limit=1) && \
 
 gcloud services enable container.googleapis.com  && \
 
