@@ -1,5 +1,5 @@
-filename="00_eks.yml"
-eks-cluster-name="EKSDemo"
+filename="00_eks.yml" 
+[[ $eks_cluster_name=="" ]] && eks_cluster_name="EKSDemo" && 
 cat << EOF > $filename
 apiVersion: eksctl.io/v1alpha5
 availabilityZones:
@@ -38,7 +38,7 @@ managedNodeGroups:
   instanceTypes:
   - t3.large
   labels:
-    alpha.eksctl.io/cluster-name: $eks-cluster-name
+    alpha.eksctl.io/cluster-name: $eks_cluster_name
     alpha.eksctl.io/nodegroup-name: DemoNodeGroup
   maxSize: 2
   minSize: 1

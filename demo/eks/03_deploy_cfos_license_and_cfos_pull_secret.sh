@@ -1,5 +1,5 @@
-dockersecretfile="$HOME/license/dockerpullsecret.yaml"
-cfoslicensefile="$HOME/license/fos_license.yaml"
+[[ $dockersecretfile=="" ]] && dockersecretfile="$HOME/license/dockerpullsecret.yaml"
+[[ $cfoslicensefile=="" ]] && cfoslicensefile="$HOME/license/fos_license.yaml"
 
 if [[ -f "$dockersecretfile" ]] && [[ -f "$cfoslicensefile" ]]; then
 kubectl create -f $dockersecretfile 
