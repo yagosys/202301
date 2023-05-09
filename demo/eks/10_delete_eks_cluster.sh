@@ -1,1 +1,0 @@
-eksctl delete  cluster EKSDemo

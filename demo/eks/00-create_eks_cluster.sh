@@ -1,10 +1,12 @@
 filename="00_eks.yml" 
-[[ $eks_cluster_name=="" ]] && eks_cluster_name="EKSDemo" && 
+region="ap-east-1"
+[[ -z $eks_cluster_name ]] && eks_cluster_name="EKSDemo" && 
+echo "creating cluster $eks_cluster_name at $(date)"
 cat << EOF > $filename
 apiVersion: eksctl.io/v1alpha5
 availabilityZones:
-- ap-east-1b
-- ap-east-1a
+- "${region}b"
+- "${region}a"
 cloudWatch:
   clusterLogging: {}
 iam:
@@ -59,8 +61,8 @@ managedNodeGroups:
   volumeThroughput: 125
   volumeType: gp3
 metadata:
-  name: EKSDemo
-  region: ap-east-1
+  name: $eks_cluster_name
+  region: $region
   version: "1.25"
 privateCluster:
   enabled: false
@@ -76,4 +78,6 @@ vpc:
     gateway: Single
 EOF
 
-eksctl create cluster -f $filename && echo 'done'
+eksctl create cluster -f $filename && echo "done at $(date)" && 
+kubectl get node -o wide  && kubectl get pod 
+

@@ -62,3 +62,15 @@ spec:
           type: DirectoryOrCreate
 EOF
 kubectl create -f $filename && kubectl rollout status ds/fos-deployment 
+kubectl get pod -l app=fos && 
+kubectl logs  $(kubectl get pod -l app=fos -o jsonpath='{.items[0].metadata.name}') &&
+cfospodname=$(kubectl get pod -l app=fos -o jsonpath='{.items[0].metadata.name}') && 
+echo "check cfos ip address"
+kubectl exec -it po/$cfospodname -- ip a 
+echo "check cfos routing table"
+kubectl exec -it po/$cfospodname -- ip route
+echo "check cfos pod description"
+kubectl describe po/$cfospodname
+
+
+

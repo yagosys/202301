@@ -234,4 +234,9 @@ spec:
             - key: cni-conf.json
               path: 70-multus.conf
 EOF
-kubectl create -f  $filename
+kubectl create -f  $filename 
+kubectl rollout status ds/kube-multus-ds -n kube-system && 
+podname=$(kubectl get pod -l app=multus -n kube-system -o jsonpath='{.items[0].metadata.name}') && 
+kubectl logs  po/$podname  -n kube-system
+
+

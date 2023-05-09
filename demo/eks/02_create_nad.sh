@@ -20,4 +20,5 @@ spec:
     }'
 EOF
 kubectl create -f $filename && kubectl rollout status ds/kube-multus-ds -n kube-system  && echo "done"
+kubectl get net-attach-def cfosdefaultcni5 -o yaml
 

@@ -32,4 +32,5 @@ spec:
           securityContext:
             privileged: true
 EOF
-kubectl create -f $filename && kubectl rollout status deployment/testtest-deployment
+kubectl apply  -f $filename && kubectl rollout status deployment/testtest-deployment &&   kubectl get pod -l app=newtest
+
