@@ -2,7 +2,7 @@
 
 function do_demo_new {
 echo "start"
-./00-create_eks_cluster.sh ;  
+./00_create_eks_cluster.sh  ;  
 ./01_create_multus_ds_v393.sh &&  \
 ./02_create_nad.sh && \
 ./03_deploy_cfos_license_and_cfos_pull_secret.sh && \

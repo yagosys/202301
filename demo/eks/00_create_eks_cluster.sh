@@ -1,12 +1,13 @@
 filename="00_eks.yml" 
-region="ap-east-1"
-[[ -z $eks_cluster_name ]] && eks_cluster_name="EKSDemo" && 
+[[ -z $eks_cluster_name ]] && eks_cluster_name="EKSDemo"  
+[[ -z $eks_cluster_region ]] && eks_cluster_region="us-east-1"  
+
 echo "creating cluster $eks_cluster_name at $(date)"
 cat << EOF > $filename
 apiVersion: eksctl.io/v1alpha5
 availabilityZones:
-- "${region}b"
-- "${region}a"
+- "${eks_cluster_region}b"
+- "${eks_cluster_region}a"
 cloudWatch:
   clusterLogging: {}
 iam:
@@ -62,7 +63,7 @@ managedNodeGroups:
   volumeType: gp3
 metadata:
   name: $eks_cluster_name
-  region: $region
+  region: $eks_cluster_region
   version: "1.25"
 privateCluster:
   enabled: false
