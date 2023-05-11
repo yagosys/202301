@@ -19,6 +19,7 @@ ls -l  $HOME/license/*.yaml
 
 - RUN DEMO
 
+modify the region in variable.sh if you do not want use default region.
 ```
 source ./variable.sh
 ./demo_awslinux_macvlan.sh
