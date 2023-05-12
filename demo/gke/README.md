@@ -53,17 +53,27 @@ gcloud compute firewall-rules create $firewallruleName --network $networkName --
 [
   {
     "creationTimestamp": "2023-05-11T19:20:51.505-07:00",
-    "fingerprint": "nReRZj_3uIc=",
+    "fingerprint": "gASFNwEJwE0=",
     "gatewayAddress": "10.0.0.1",
     "id": "8178195609685073004",
     "ipCidrRange": "10.0.0.0/24",
     "kind": "compute#subnetwork",
     "name": "gkenode",
     "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/gkenetwork1",
-    "privateIpGoogleAccess": false,
+    "privateIpGoogleAccess": true,
     "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
     "purpose": "PRIVATE",
     "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-west1",
+    "secondaryIpRanges": [
+      {
+        "ipCidrRange": "10.144.0.0/20",
+        "rangeName": "gke-my-first-cluster-1-services-ff7b9e2c"
+      },
+      {
+        "ipCidrRange": "10.140.0.0/14",
+        "rangeName": "gke-my-first-cluster-1-pods-ff7b9e2c"
+      }
+    ],
     "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-west1/subnetworks/gkenode",
     "stackType": "IPV4_ONLY"
   }
@@ -72,6 +82,146 @@ gcloud compute firewall-rules create $firewallruleName --network $networkName --
 `gcloud compute firewall-rules list --format json`
 ```
 [
+  {
+    "allowed": [
+      {
+        "IPProtocol": "tcp"
+      },
+      {
+        "IPProtocol": "udp"
+      },
+      {
+        "IPProtocol": "icmp"
+      },
+      {
+        "IPProtocol": "esp"
+      },
+      {
+        "IPProtocol": "ah"
+      },
+      {
+        "IPProtocol": "sctp"
+      }
+    ],
+    "creationTimestamp": "2023-05-11T19:58:57.853-07:00",
+    "description": "",
+    "direction": "INGRESS",
+    "disabled": false,
+    "id": "8722293289491895710",
+    "kind": "compute#firewall",
+    "logConfig": {
+      "enable": false
+    },
+    "name": "gke-my-first-cluster-1-ff7b9e2c-all",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/gkenetwork1",
+    "priority": 1000,
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/firewalls/gke-my-first-cluster-1-ff7b9e2c-all",
+    "sourceRanges": [
+      "10.140.0.0/14"
+    ],
+    "targetTags": [
+      "gke-my-first-cluster-1-ff7b9e2c-node"
+    ]
+  },
+  {
+    "creationTimestamp": "2023-05-11T19:58:57.825-07:00",
+    "denied": [
+      {
+        "IPProtocol": "tcp",
+        "ports": [
+          "10255"
+        ]
+      }
+    ],
+    "description": "",
+    "direction": "INGRESS",
+    "disabled": false,
+    "id": "4430893633846121886",
+    "kind": "compute#firewall",
+    "logConfig": {
+      "enable": false
+    },
+    "name": "gke-my-first-cluster-1-ff7b9e2c-exkubelet",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/gkenetwork1",
+    "priority": 1000,
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/firewalls/gke-my-first-cluster-1-ff7b9e2c-exkubelet",
+    "sourceRanges": [
+      "0.0.0.0/0"
+    ],
+    "targetTags": [
+      "gke-my-first-cluster-1-ff7b9e2c-node"
+    ]
+  },
+  {
+    "allowed": [
+      {
+        "IPProtocol": "tcp",
+        "ports": [
+          "10255"
+        ]
+      }
+    ],
+    "creationTimestamp": "2023-05-11T19:58:57.852-07:00",
+    "description": "",
+    "direction": "INGRESS",
+    "disabled": false,
+    "id": "7025334475138536862",
+    "kind": "compute#firewall",
+    "logConfig": {
+      "enable": false
+    },
+    "name": "gke-my-first-cluster-1-ff7b9e2c-inkubelet",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/gkenetwork1",
+    "priority": 999,
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/firewalls/gke-my-first-cluster-1-ff7b9e2c-inkubelet",
+    "sourceRanges": [
+      "10.140.0.0/14"
+    ],
+    "sourceTags": [
+      "gke-my-first-cluster-1-ff7b9e2c-node"
+    ],
+    "targetTags": [
+      "gke-my-first-cluster-1-ff7b9e2c-node"
+    ]
+  },
+  {
+    "allowed": [
+      {
+        "IPProtocol": "icmp"
+      },
+      {
+        "IPProtocol": "tcp",
+        "ports": [
+          "1-65535"
+        ]
+      },
+      {
+        "IPProtocol": "udp",
+        "ports": [
+          "1-65535"
+        ]
+      }
+    ],
+    "creationTimestamp": "2023-05-11T19:58:58.228-07:00",
+    "description": "",
+    "direction": "INGRESS",
+    "disabled": false,
+    "id": "6170605312873076125",
+    "kind": "compute#firewall",
+    "logConfig": {
+      "enable": false
+    },
+    "name": "gke-my-first-cluster-1-ff7b9e2c-vms",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/gkenetwork1",
+    "priority": 1000,
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/firewalls/gke-my-first-cluster-1-ff7b9e2c-vms",
+    "sourceRanges": [
+      "10.0.0.0/24"
+    ],
+    "targetTags": [
+      "gke-my-first-cluster-1-ff7b9e2c-node"
+    ]
+  },
   {
     "allowed": [
       {
@@ -163,7 +313,7 @@ echo cluster worker node vm has alias ip $(gcloud compute instances describe $na
 `kubectl get node -o wide`
 ```
 NAME                                                STATUS   ROLES    AGE     VERSION            INTERNAL-IP   EXTERNAL-IP      OS-IMAGE             KERNEL-VERSION    CONTAINER-RUNTIME
-gke-my-first-cluster-1-default-pool-2acabfe3-s93d   Ready    <none>   9m19s   v1.26.3-gke.1000   10.0.0.3      34.168.107.182   Ubuntu 22.04.2 LTS   5.15.0-1028-gke   containerd://1.6.18
+gke-my-first-cluster-1-default-pool-2acabfe3-s93d   Ready    <none>   6h16m   v1.26.3-gke.1000   10.0.0.3      34.168.107.182   Ubuntu 22.04.2 LTS   5.15.0-1028-gke   containerd://1.6.18
 ```
 - enable worker node ipforwarding 
 
@@ -498,7 +648,7 @@ kubectl create -f $file && kubectl get net-attach-def
 `kubectl get net-attach-def`
 ```
 NAME              AGE
-cfosdefaultcni5   8m49s
+cfosdefaultcni5   3h26m
 ```
 - create demo application deployment
 
@@ -552,7 +702,7 @@ deployment "multitool01-deployment" successfully rolled out
 `kubectl get pod -l app=multitool01`
 ```
 NAME                                      READY   STATUS    RESTARTS   AGE
-multitool01-deployment-56455644f9-qbldh   1/1     Running   0          51m
+multitool01-deployment-56455644f9-qbldh   1/1     Running   0          3h13m
 ```
 `
 nodeName=$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}') && podName=$(kubectl get pods -l app=multitool01 --field-selector spec.nodeName="$nodeName" -o jsonpath='{.items[*].metadata.name}') && kubectl exec -it po/$podName -- ip route && kubectl exec -t po/$podName -- ip address
@@ -649,7 +799,7 @@ kubectl get rolebinding read-configmaps && kubectl get rolebinding read-secrets 
 `
 ```
 NAME              ROLE                           AGE
-read-configmaps   ClusterRole/configmap-reader   11m
+read-configmaps   ClusterRole/configmap-reader   137m
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
@@ -759,7 +909,7 @@ kubectl rollout status ds/fos-deployment && kubectl get pod -l app=fos
 ```
 daemon set "fos-deployment" successfully rolled out
 NAME                   READY   STATUS    RESTARTS   AGE
-fos-deployment-5lgtx   1/1     Running   0          10m
+fos-deployment-d5x9t   1/1     Running   0          99m
 ```
 check routing table and ip address
 `
@@ -768,18 +918,18 @@ nodeName=$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}') && podName
 ```
 1.2.3.4 via 10.1.200.1 dev net1 
 10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.252 
-10.140.0.0/24 via 10.140.0.1 dev eth0 src 10.140.0.11 
-10.140.0.1 dev eth0 scope link src 10.140.0.11 
+10.140.0.0/24 via 10.140.0.1 dev eth0 src 10.140.0.12 
+10.140.0.1 dev eth0 scope link src 10.140.0.12 
 10.144.0.0/20 via 10.140.0.1 dev eth0 
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
-2: eth0@if15: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether 4a:96:0b:dd:05:63 brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet 10.140.0.11/24 brd 10.140.0.255 scope global eth0
+2: eth0@if17: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
+    link/ether d2:ba:59:33:ad:e7 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.140.0.12/24 brd 10.140.0.255 scope global eth0
        valid_lft forever preferred_lft forever
-3: net1@if16: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
+3: net1@if18: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
     link/ether ca:fe:c0:ff:00:02 brd ff:ff:ff:ff:ff:ff link-netnsid 0
     inet 10.1.200.252/24 brd 10.1.200.255 scope global net1
        valid_lft forever preferred_lft forever
@@ -794,16 +944,37 @@ System is starting...
 
 Firmware version is 7.2.0.0231
 Preparing environment...
-INFO: 2023/05/12 07:17:44 importing license...
-INFO: 2023/05/12 07:17:44 license is imported successfuly!
-WARNING: System is running in restricted mode due to lack of valid license!
 Starting services...
 System is ready.
 
-2023-05-12_07:17:45.60177 ok: run: /run/fcn_service/certd: (pid 270) 1s, normally down
-2023-05-12_07:17:50.72870 INFO: 2023/05/12 07:17:50 received a new fos configmap
-2023-05-12_07:17:50.72877 INFO: 2023/05/12 07:17:50 configmap name: fos-license, labels: map[app:fos category:license]
-2023-05-12_07:17:50.72880 INFO: 2023/05/12 07:17:50 got a fos license
+2023-05-12_07:41:16.42688 ok: run: /run/fcn_service/certd: (pid 258) 1s, normally down
+2023-05-12_07:41:21.58935 INFO: 2023/05/12 07:41:21 received a new fos configmap
+2023-05-12_07:41:21.59472 INFO: 2023/05/12 07:41:21 configmap name: foscfgstaticroute, labels: map[app:fos category:config]
+2023-05-12_07:41:21.59473 INFO: 2023/05/12 07:41:21 got a fos config
+2023-05-12_07:41:21.59473 INFO: 2023/05/12 07:41:21 received a new fos configmap
+2023-05-12_07:41:21.59473 INFO: 2023/05/12 07:41:21 configmap name: fos-license, labels: map[app:fos category:license]
+2023-05-12_07:41:21.59474 INFO: 2023/05/12 07:41:21 got a fos license
+2023-05-12_07:41:21.59474 INFO: 2023/05/12 07:41:21 received a new fos configmap
+2023-05-12_07:41:21.59474 INFO: 2023/05/12 07:41:21 configmap name: foscfgfirewallpolicy, labels: map[app:fos category:config]
+2023-05-12_07:41:21.59474 INFO: 2023/05/12 07:41:21 got a fos config
+2023-05-12_08:21:59.25477 INFO: 2023/05/12 08:21:59 received a new fos configmap
+2023-05-12_08:21:59.25486 INFO: 2023/05/12 08:21:59 configmap name: fos-license, labels: map[app:fos category:license]
+2023-05-12_08:21:59.25489 INFO: 2023/05/12 08:21:59 got a fos license
+2023-05-12_08:21:59.25495 INFO: 2023/05/12 08:21:59 received a new fos configmap
+2023-05-12_08:21:59.25497 INFO: 2023/05/12 08:21:59 configmap name: foscfgfirewallpolicy, labels: map[app:fos category:config]
+2023-05-12_08:21:59.25501 INFO: 2023/05/12 08:21:59 got a fos config
+2023-05-12_08:21:59.25512 INFO: 2023/05/12 08:21:59 received a new fos configmap
+2023-05-12_08:21:59.25515 INFO: 2023/05/12 08:21:59 configmap name: foscfgstaticroute, labels: map[app:fos category:config]
+2023-05-12_08:21:59.25519 INFO: 2023/05/12 08:21:59 got a fos config
+2023-05-12_09:20:21.27268 INFO: 2023/05/12 09:20:21 received a new fos configmap
+2023-05-12_09:20:21.27279 INFO: 2023/05/12 09:20:21 configmap name: fos-license, labels: map[app:fos category:license]
+2023-05-12_09:20:21.27281 INFO: 2023/05/12 09:20:21 got a fos license
+2023-05-12_09:20:21.27330 INFO: 2023/05/12 09:20:21 received a new fos configmap
+2023-05-12_09:20:21.27334 INFO: 2023/05/12 09:20:21 configmap name: foscfgfirewallpolicy, labels: map[app:fos category:config]
+2023-05-12_09:20:21.27338 INFO: 2023/05/12 09:20:21 got a fos config
+2023-05-12_09:20:21.27363 INFO: 2023/05/12 09:20:21 received a new fos configmap
+2023-05-12_09:20:21.27366 INFO: 2023/05/12 09:20:21 configmap name: foscfgstaticroute, labels: map[app:fos category:config]
+2023-05-12_09:20:21.27369 INFO: 2023/05/12 09:20:21 got a fos config
 ```
 - create configmap for cfos to get configuration 
 cfos can be configured use cFOS shell, kubernetes configmap and restApi. here we use configmap to config cFOS
@@ -889,21 +1060,37 @@ System is starting...
 
 Firmware version is 7.2.0.0231
 Preparing environment...
-INFO: 2023/05/12 07:17:44 importing license...
-INFO: 2023/05/12 07:17:44 license is imported successfuly!
-WARNING: System is running in restricted mode due to lack of valid license!
 Starting services...
 System is ready.
 
-2023-05-12_07:17:45.60177 ok: run: /run/fcn_service/certd: (pid 270) 1s, normally down
-2023-05-12_07:17:50.72870 INFO: 2023/05/12 07:17:50 received a new fos configmap
-2023-05-12_07:17:50.72877 INFO: 2023/05/12 07:17:50 configmap name: fos-license, labels: map[app:fos category:license]
-2023-05-12_07:17:50.72880 INFO: 2023/05/12 07:17:50 got a fos license
-2023-05-12_07:31:42.48221 INFO: 2023/05/12 07:31:42 received a new fos configmap
-2023-05-12_07:31:42.48223 INFO: 2023/05/12 07:31:42 configmap name: foscfgfirewallpolicy, labels: map[app:fos category:config]
-2023-05-12_07:31:42.48223 INFO: 2023/05/12 07:31:42 got a fos config
-2023-05-12_07:31:42.48223 INFO: 2023/05/12 07:31:42 applying a partial fos config...
-2023-05-12_07:31:42.88791 INFO: 2023/05/12 07:31:42 fos config is applied successfully.
+2023-05-12_07:41:16.42688 ok: run: /run/fcn_service/certd: (pid 258) 1s, normally down
+2023-05-12_07:41:21.58935 INFO: 2023/05/12 07:41:21 received a new fos configmap
+2023-05-12_07:41:21.59472 INFO: 2023/05/12 07:41:21 configmap name: foscfgstaticroute, labels: map[app:fos category:config]
+2023-05-12_07:41:21.59473 INFO: 2023/05/12 07:41:21 got a fos config
+2023-05-12_07:41:21.59473 INFO: 2023/05/12 07:41:21 received a new fos configmap
+2023-05-12_07:41:21.59473 INFO: 2023/05/12 07:41:21 configmap name: fos-license, labels: map[app:fos category:license]
+2023-05-12_07:41:21.59474 INFO: 2023/05/12 07:41:21 got a fos license
+2023-05-12_07:41:21.59474 INFO: 2023/05/12 07:41:21 received a new fos configmap
+2023-05-12_07:41:21.59474 INFO: 2023/05/12 07:41:21 configmap name: foscfgfirewallpolicy, labels: map[app:fos category:config]
+2023-05-12_07:41:21.59474 INFO: 2023/05/12 07:41:21 got a fos config
+2023-05-12_08:21:59.25477 INFO: 2023/05/12 08:21:59 received a new fos configmap
+2023-05-12_08:21:59.25486 INFO: 2023/05/12 08:21:59 configmap name: fos-license, labels: map[app:fos category:license]
+2023-05-12_08:21:59.25489 INFO: 2023/05/12 08:21:59 got a fos license
+2023-05-12_08:21:59.25495 INFO: 2023/05/12 08:21:59 received a new fos configmap
+2023-05-12_08:21:59.25497 INFO: 2023/05/12 08:21:59 configmap name: foscfgfirewallpolicy, labels: map[app:fos category:config]
+2023-05-12_08:21:59.25501 INFO: 2023/05/12 08:21:59 got a fos config
+2023-05-12_08:21:59.25512 INFO: 2023/05/12 08:21:59 received a new fos configmap
+2023-05-12_08:21:59.25515 INFO: 2023/05/12 08:21:59 configmap name: foscfgstaticroute, labels: map[app:fos category:config]
+2023-05-12_08:21:59.25519 INFO: 2023/05/12 08:21:59 got a fos config
+2023-05-12_09:20:21.27268 INFO: 2023/05/12 09:20:21 received a new fos configmap
+2023-05-12_09:20:21.27279 INFO: 2023/05/12 09:20:21 configmap name: fos-license, labels: map[app:fos category:license]
+2023-05-12_09:20:21.27281 INFO: 2023/05/12 09:20:21 got a fos license
+2023-05-12_09:20:21.27330 INFO: 2023/05/12 09:20:21 received a new fos configmap
+2023-05-12_09:20:21.27334 INFO: 2023/05/12 09:20:21 configmap name: foscfgfirewallpolicy, labels: map[app:fos category:config]
+2023-05-12_09:20:21.27338 INFO: 2023/05/12 09:20:21 got a fos config
+2023-05-12_09:20:21.27363 INFO: 2023/05/12 09:20:21 received a new fos configmap
+2023-05-12_09:20:21.27366 INFO: 2023/05/12 09:20:21 configmap name: foscfgstaticroute, labels: map[app:fos category:config]
+2023-05-12_09:20:21.27369 INFO: 2023/05/12 09:20:21 got a fos config
 ```
 - create configmap for cfos to config static route 
 cfos can be configured use cFOS shell, kubernetes configmap and restApi. here we use configmap to config cFOS for static route
@@ -971,26 +1158,37 @@ System is starting...
 
 Firmware version is 7.2.0.0231
 Preparing environment...
-INFO: 2023/05/12 07:17:44 importing license...
-INFO: 2023/05/12 07:17:44 license is imported successfuly!
-WARNING: System is running in restricted mode due to lack of valid license!
 Starting services...
 System is ready.
 
-2023-05-12_07:17:45.60177 ok: run: /run/fcn_service/certd: (pid 270) 1s, normally down
-2023-05-12_07:17:50.72870 INFO: 2023/05/12 07:17:50 received a new fos configmap
-2023-05-12_07:17:50.72877 INFO: 2023/05/12 07:17:50 configmap name: fos-license, labels: map[app:fos category:license]
-2023-05-12_07:17:50.72880 INFO: 2023/05/12 07:17:50 got a fos license
-2023-05-12_07:31:42.48221 INFO: 2023/05/12 07:31:42 received a new fos configmap
-2023-05-12_07:31:42.48223 INFO: 2023/05/12 07:31:42 configmap name: foscfgfirewallpolicy, labels: map[app:fos category:config]
-2023-05-12_07:31:42.48223 INFO: 2023/05/12 07:31:42 got a fos config
-2023-05-12_07:31:42.48223 INFO: 2023/05/12 07:31:42 applying a partial fos config...
-2023-05-12_07:31:42.88791 INFO: 2023/05/12 07:31:42 fos config is applied successfully.
-2023-05-12_07:34:30.44053 INFO: 2023/05/12 07:34:30 received a new fos configmap
-2023-05-12_07:34:30.44054 INFO: 2023/05/12 07:34:30 configmap name: foscfgstaticroute, labels: map[app:fos category:config]
-2023-05-12_07:34:30.44054 INFO: 2023/05/12 07:34:30 got a fos config
-2023-05-12_07:34:30.44054 INFO: 2023/05/12 07:34:30 applying a partial fos config...
-2023-05-12_07:34:30.67583 INFO: 2023/05/12 07:34:30 fos config is applied successfully.
+2023-05-12_07:41:16.42688 ok: run: /run/fcn_service/certd: (pid 258) 1s, normally down
+2023-05-12_07:41:21.58935 INFO: 2023/05/12 07:41:21 received a new fos configmap
+2023-05-12_07:41:21.59472 INFO: 2023/05/12 07:41:21 configmap name: foscfgstaticroute, labels: map[app:fos category:config]
+2023-05-12_07:41:21.59473 INFO: 2023/05/12 07:41:21 got a fos config
+2023-05-12_07:41:21.59473 INFO: 2023/05/12 07:41:21 received a new fos configmap
+2023-05-12_07:41:21.59473 INFO: 2023/05/12 07:41:21 configmap name: fos-license, labels: map[app:fos category:license]
+2023-05-12_07:41:21.59474 INFO: 2023/05/12 07:41:21 got a fos license
+2023-05-12_07:41:21.59474 INFO: 2023/05/12 07:41:21 received a new fos configmap
+2023-05-12_07:41:21.59474 INFO: 2023/05/12 07:41:21 configmap name: foscfgfirewallpolicy, labels: map[app:fos category:config]
+2023-05-12_07:41:21.59474 INFO: 2023/05/12 07:41:21 got a fos config
+2023-05-12_08:21:59.25477 INFO: 2023/05/12 08:21:59 received a new fos configmap
+2023-05-12_08:21:59.25486 INFO: 2023/05/12 08:21:59 configmap name: fos-license, labels: map[app:fos category:license]
+2023-05-12_08:21:59.25489 INFO: 2023/05/12 08:21:59 got a fos license
+2023-05-12_08:21:59.25495 INFO: 2023/05/12 08:21:59 received a new fos configmap
+2023-05-12_08:21:59.25497 INFO: 2023/05/12 08:21:59 configmap name: foscfgfirewallpolicy, labels: map[app:fos category:config]
+2023-05-12_08:21:59.25501 INFO: 2023/05/12 08:21:59 got a fos config
+2023-05-12_08:21:59.25512 INFO: 2023/05/12 08:21:59 received a new fos configmap
+2023-05-12_08:21:59.25515 INFO: 2023/05/12 08:21:59 configmap name: foscfgstaticroute, labels: map[app:fos category:config]
+2023-05-12_08:21:59.25519 INFO: 2023/05/12 08:21:59 got a fos config
+2023-05-12_09:20:21.27268 INFO: 2023/05/12 09:20:21 received a new fos configmap
+2023-05-12_09:20:21.27279 INFO: 2023/05/12 09:20:21 configmap name: fos-license, labels: map[app:fos category:license]
+2023-05-12_09:20:21.27281 INFO: 2023/05/12 09:20:21 got a fos license
+2023-05-12_09:20:21.27330 INFO: 2023/05/12 09:20:21 received a new fos configmap
+2023-05-12_09:20:21.27334 INFO: 2023/05/12 09:20:21 configmap name: foscfgfirewallpolicy, labels: map[app:fos category:config]
+2023-05-12_09:20:21.27338 INFO: 2023/05/12 09:20:21 got a fos config
+2023-05-12_09:20:21.27363 INFO: 2023/05/12 09:20:21 received a new fos configmap
+2023-05-12_09:20:21.27366 INFO: 2023/05/12 09:20:21 configmap name: foscfgstaticroute, labels: map[app:fos category:config]
+2023-05-12_09:20:21.27369 INFO: 2023/05/12 09:20:21 got a fos config
 ```
 check cfos static routing table
 check routing table and ip address
@@ -1001,8 +1199,8 @@ nodeName=$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}') && podName
 default via 10.140.0.1 dev eth0 metric 10 
 1.2.3.4 via 10.1.200.1 dev net1 
 10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.252 
-10.140.0.0/24 via 10.140.0.1 dev eth0 src 10.140.0.11 
-10.140.0.1 dev eth0 scope link src 10.140.0.11 
+10.140.0.0/24 via 10.140.0.1 dev eth0 src 10.140.0.12 
+10.140.0.1 dev eth0 scope link src 10.140.0.12 
 10.144.0.0/20 via 10.140.0.1 dev eth0 
 ```
 - restart cfos DaemonSet  to workaround policy not work issue 
@@ -1033,7 +1231,7 @@ check routing table and ip address
 nodeName=$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}') && podName=$(kubectl get pods -l app=fos --field-selector spec.nodeName="$nodeName" -o jsonpath='{.items[*].metadata.name}') && kubectl exec -it po/$podName -- iptables -L -t nat --verbose | grep MASQ 
 `
 ```
-   95  7730 MASQUERADE  all  --  any    eth0    anywhere             anywhere            
+  190 15592 MASQUERADE  all  --  any    eth0    anywhere             anywhere            
 ```
 - do a ips test on a target website
 it is very common that a malicous POD can geneate some malicous traffic targeting external network or VM or physical machine in custmer network. those traffic are often encrypted , when these traffic reach cFOS, cFOS can decrpyt the traffic and look into the domain name of target website. it the target website belong to category that suppose to be blocked, cFOS will block it. the database of maclious website will always updated to the latest from fortiguard service. 
@@ -1058,7 +1256,7 @@ it is very common that a malicous POD can geneate some malicous traffic targetin
 
 we will generate some malicous traffic from application POD targeting a testing website. cFOS will block the traffic and log it.
 
-- paste below command to restart cFOS DaemonSet 
+- paste below command to send malicous traffic from application pod 
 ```
 url="www.hackthebox.eu"
 kubectl get pod | grep multi | grep -v termin | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- dig $url ; done && \
