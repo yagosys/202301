@@ -1,6 +1,10 @@
 #!/bin/bash -xe
 echo ' - how to run demo ' > README.md
-echo '` ./demo.sh`' to run demo  >> README.md
+echo ' ``` ' >> README.md
+echo 'source ./variable.sh' >> README.md
+echo './demo.sh' >> README.md
+echo ' ``` ' >> README.md
+
 echo 'or do it step by step according below procedure ' >> README.md
 echo "generate document"
 ./00_doc.sh
