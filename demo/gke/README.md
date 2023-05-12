@@ -1,3 +1,5 @@
+` ./demo.sh` to run demo
+or do it step by step according below procedure 
 - create network for gke cluster 
 
 create network for GKE VM instances.
