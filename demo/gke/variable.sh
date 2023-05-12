@@ -1,4 +1,5 @@
-export networkName="gkenetwork" 
+#/bin/bash
+export networkName="gkenetwork1" 
 export subnetName="gkenode" 
 export ipcidrRange="10.0.0.0/24" 
 export firewallruleName="$networkName-allow-custom" 
