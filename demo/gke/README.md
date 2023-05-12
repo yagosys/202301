@@ -1,3 +1,4 @@
+ - how to run demo 
 ` ./demo.sh` to run demo
 or do it step by step according below procedure 
 - create network for gke cluster 
