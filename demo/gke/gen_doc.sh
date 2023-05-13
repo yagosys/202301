@@ -20,19 +20,21 @@ echo "generate document"
 ./11_doc.sh
 ./12_doc.sh
 ./13_doc.sh
-
+./18_doc.sh
 echo 'merge document' 
 
 cat  \
 00_create_network.sh.md  \
 01_gke.sh.md  \
 02_modifygkevmipforwarding.sh.md  \
-03_install_multus.sh.md  \
+03_install_multus.sh.md \
 04_create_nad.sh.md  \
 05_create_app_deployment.sh.md  \
 07_create_cfos_account.sh.md  \
 08_create_cfos_ds.sh.md  \
 09_config_cfos_firewallpolicy.sh.md  \
 10_config_cfos_staticroute.sh.md  \
-11_cfos_ds_restart.sh.md  13_webftest.sh.md  \
-12_ipstest.sh.md >> README.md
+11_cfos_ds_restart.sh.md \
+12_ipstest.sh.md \
+13_webftest.sh.md  \
+18_create_policy_manager.sh.md >> README.md

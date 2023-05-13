@@ -1,8 +1,12 @@
+#!/bin/bash -xe
 [[ $defaultClustername == "" ]] && defaultClustername="my-first-cluster-1"
 [[ $networkName == "" ]] && networkName="gkenetwork"
 [[ $subnetName == "" ]] && subnetName="gkenode"
+[[ $machineType == "" ]] && machineType="g1-small"
+[[ $num_nodes == "" ]] && num_nodes="1"
 
 gkeClusterName=$defaultClustername
+machineType=$machineType
 gkeNetworkName=$(gcloud compute networks list --format="value(name)" --filter="name="$networkName""  --limit=1)
 gkeSubnetworkName=$(gcloud compute networks subnets  list --format="value(name)" --filter="name="$subnetName"" --limit=1)
 
@@ -15,14 +19,14 @@ gcloud beta container clusters create $gkeClusterName  \
 	--no-enable-basic-auth \
 	--cluster-version "1.26.3-gke.1000" \
 	--release-channel "rapid" \
-	--machine-type "g1-small" \
+	--machine-type $machineType \
 	--image-type "UBUNTU_CONTAINERD" \
 	--disk-type "pd-balanced" \
 	--disk-size "32" \
 	--metadata disable-legacy-endpoints=true \
 	--scopes "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" \
 	--max-pods-per-node "110" \
-	--num-nodes "1" \
+	--num-nodes $num_nodes \
 	--enable-ip-alias \
 	--network "projects/$projectName/global/networks/$gkeNetworkName" \
 	--subnetwork "projects/$projectName/regions/$region/subnetworks/$gkeSubnetworkName" \

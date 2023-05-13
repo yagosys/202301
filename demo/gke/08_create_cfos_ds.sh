@@ -14,6 +14,7 @@ spec:
   - port: 80
     protocol: TCP
     targetPort: 80
+  sessionAffinity: ClientIP
   selector:
     app: fos
   type: ClusterIP

@@ -11,7 +11,7 @@ data:
   type: partial
   config: |-
     config firewall policy
-           edit "3"
+           edit "300"
                set utm-status enable
                set name "pod_to_internet_HTTPS_HTTP"
                set srcintf any

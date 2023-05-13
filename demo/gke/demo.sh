@@ -8,7 +8,7 @@ startdate=$(date)
 ./01_gke.sh && \
 ./02_modifygkevmipforwarding.sh && \
 ./03_install_multus.sh && \
-./04_create_nad.sh && \
+./04_create_nad_macvlan.sh && \
 ./05_create_app_deployment.sh && \
 ./06_apply_license.sh && \
 ./07_create_cfos_account.sh && \

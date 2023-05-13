@@ -7,7 +7,7 @@
 [[ $firewallallowProtocol == "" ]] && firewallallowProtocol="tcp:22"
 
 echo $networkName
-gcloud compute firewall-rules delete $firewallruleName 
-gcloud compute networks subnets delete $subnetName && \
-gcloud compute networks delete $networkName  
+gcloud compute firewall-rules delete $firewallruleName  -q
+gcloud compute networks subnets delete $subnetName -q && \
+gcloud compute networks delete $networkName -q  
 

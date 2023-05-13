@@ -7,7 +7,7 @@ metadata:
   labels:
       app: multitool01
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
         app: multitool01
