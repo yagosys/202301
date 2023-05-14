@@ -1,7 +1,7 @@
  - how to run demo 
  ``` 
 source ./variable.sh
-./demo.sh
+./demo_multiple_nodes.sh
  ``` 
 or do it step by step according below procedure 
 - create network for gke cluster 
@@ -32,8 +32,8 @@ gcloud compute firewall-rules create $firewallruleName --network $networkName --
 [
   {
     "autoCreateSubnetworks": false,
-    "creationTimestamp": "2023-05-13T21:25:47.840-07:00",
-    "id": "3033224547450870820",
+    "creationTimestamp": "2023-05-14T00:10:17.642-07:00",
+    "id": "604148811866912694",
     "kind": "compute#network",
     "name": "gkenetwork1",
     "networkFirewallPolicyEnforcementOrder": "AFTER_CLASSIC_FIREWALL",
@@ -41,7 +41,7 @@ gcloud compute firewall-rules create $firewallruleName --network $networkName --
       "routingMode": "REGIONAL"
     },
     "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/gkenetwork1",
-    "selfLinkWithId": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/3033224547450870820",
+    "selfLinkWithId": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/604148811866912694",
     "subnetworks": [
       "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-east1/subnetworks/gkenode"
     ],
@@ -54,10 +54,10 @@ gcloud compute firewall-rules create $firewallruleName --network $networkName --
 ```
 [
   {
-    "creationTimestamp": "2023-05-13T21:26:02.479-07:00",
-    "fingerprint": "dSyYmdFr_MA=",
+    "creationTimestamp": "2023-05-14T00:10:34.666-07:00",
+    "fingerprint": "objUOaKvFlQ=",
     "gatewayAddress": "10.0.0.1",
-    "id": "9022505756813810741",
+    "id": "642979946197497733",
     "ipCidrRange": "10.0.0.0/24",
     "kind": "compute#subnetwork",
     "name": "gkenode",
@@ -68,12 +68,12 @@ gcloud compute firewall-rules create $firewallruleName --network $networkName --
     "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-east1",
     "secondaryIpRanges": [
       {
-        "ipCidrRange": "10.140.0.0/14",
-        "rangeName": "gke-my-first-cluster-1-pods-2b4cb7f5"
+        "ipCidrRange": "10.144.0.0/20",
+        "rangeName": "gke-my-first-cluster-1-services-a54a0ca9"
       },
       {
-        "ipCidrRange": "10.144.0.0/20",
-        "rangeName": "gke-my-first-cluster-1-services-2b4cb7f5"
+        "ipCidrRange": "10.140.0.0/14",
+        "rangeName": "gke-my-first-cluster-1-pods-a54a0ca9"
       }
     ],
     "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-east1/subnetworks/gkenode",
@@ -87,6 +87,12 @@ gcloud compute firewall-rules create $firewallruleName --network $networkName --
   {
     "allowed": [
       {
+        "IPProtocol": "sctp"
+      },
+      {
+        "IPProtocol": "tcp"
+      },
+      {
         "IPProtocol": "udp"
       },
       {
@@ -97,36 +103,30 @@ gcloud compute firewall-rules create $firewallruleName --network $networkName --
       },
       {
         "IPProtocol": "ah"
-      },
-      {
-        "IPProtocol": "sctp"
-      },
-      {
-        "IPProtocol": "tcp"
       }
     ],
-    "creationTimestamp": "2023-05-13T21:27:28.754-07:00",
+    "creationTimestamp": "2023-05-14T00:11:59.962-07:00",
     "description": "",
     "direction": "INGRESS",
     "disabled": false,
-    "id": "5989699602441166303",
+    "id": "1425736151050565456",
     "kind": "compute#firewall",
     "logConfig": {
       "enable": false
     },
-    "name": "gke-my-first-cluster-1-2b4cb7f5-all",
+    "name": "gke-my-first-cluster-1-a54a0ca9-all",
     "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/gkenetwork1",
     "priority": 1000,
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/firewalls/gke-my-first-cluster-1-2b4cb7f5-all",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/firewalls/gke-my-first-cluster-1-a54a0ca9-all",
     "sourceRanges": [
       "10.140.0.0/14"
     ],
     "targetTags": [
-      "gke-my-first-cluster-1-2b4cb7f5-node"
+      "gke-my-first-cluster-1-a54a0ca9-node"
     ]
   },
   {
-    "creationTimestamp": "2023-05-13T21:27:28.762-07:00",
+    "creationTimestamp": "2023-05-14T00:11:59.833-07:00",
     "denied": [
       {
         "IPProtocol": "tcp",
@@ -138,20 +138,20 @@ gcloud compute firewall-rules create $firewallruleName --network $networkName --
     "description": "",
     "direction": "INGRESS",
     "disabled": false,
-    "id": "3682551228112166367",
+    "id": "5031458657440446288",
     "kind": "compute#firewall",
     "logConfig": {
       "enable": false
     },
-    "name": "gke-my-first-cluster-1-2b4cb7f5-exkubelet",
+    "name": "gke-my-first-cluster-1-a54a0ca9-exkubelet",
     "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/gkenetwork1",
     "priority": 1000,
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/firewalls/gke-my-first-cluster-1-2b4cb7f5-exkubelet",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/firewalls/gke-my-first-cluster-1-a54a0ca9-exkubelet",
     "sourceRanges": [
       "0.0.0.0/0"
     ],
     "targetTags": [
-      "gke-my-first-cluster-1-2b4cb7f5-node"
+      "gke-my-first-cluster-1-a54a0ca9-node"
     ]
   },
   {
@@ -163,27 +163,27 @@ gcloud compute firewall-rules create $firewallruleName --network $networkName --
         ]
       }
     ],
-    "creationTimestamp": "2023-05-13T21:27:28.752-07:00",
+    "creationTimestamp": "2023-05-14T00:11:59.868-07:00",
     "description": "",
     "direction": "INGRESS",
     "disabled": false,
-    "id": "6690895198681947615",
+    "id": "8762143031149016912",
     "kind": "compute#firewall",
     "logConfig": {
       "enable": false
     },
-    "name": "gke-my-first-cluster-1-2b4cb7f5-inkubelet",
+    "name": "gke-my-first-cluster-1-a54a0ca9-inkubelet",
     "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/gkenetwork1",
     "priority": 999,
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/firewalls/gke-my-first-cluster-1-2b4cb7f5-inkubelet",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/firewalls/gke-my-first-cluster-1-a54a0ca9-inkubelet",
     "sourceRanges": [
       "10.140.0.0/14"
     ],
     "sourceTags": [
-      "gke-my-first-cluster-1-2b4cb7f5-node"
+      "gke-my-first-cluster-1-a54a0ca9-node"
     ],
     "targetTags": [
-      "gke-my-first-cluster-1-2b4cb7f5-node"
+      "gke-my-first-cluster-1-a54a0ca9-node"
     ]
   },
   {
@@ -204,24 +204,24 @@ gcloud compute firewall-rules create $firewallruleName --network $networkName --
         ]
       }
     ],
-    "creationTimestamp": "2023-05-13T21:27:29.130-07:00",
+    "creationTimestamp": "2023-05-14T00:12:00.171-07:00",
     "description": "",
     "direction": "INGRESS",
     "disabled": false,
-    "id": "6588009841221819870",
+    "id": "1661551424926725935",
     "kind": "compute#firewall",
     "logConfig": {
       "enable": false
     },
-    "name": "gke-my-first-cluster-1-2b4cb7f5-vms",
+    "name": "gke-my-first-cluster-1-a54a0ca9-vms",
     "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/gkenetwork1",
     "priority": 1000,
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/firewalls/gke-my-first-cluster-1-2b4cb7f5-vms",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/firewalls/gke-my-first-cluster-1-a54a0ca9-vms",
     "sourceRanges": [
       "10.0.0.0/24"
     ],
     "targetTags": [
-      "gke-my-first-cluster-1-2b4cb7f5-node"
+      "gke-my-first-cluster-1-a54a0ca9-node"
     ]
   },
   {
@@ -230,11 +230,11 @@ gcloud compute firewall-rules create $firewallruleName --network $networkName --
         "IPProtocol": "all"
       }
     ],
-    "creationTimestamp": "2023-05-13T21:26:20.950-07:00",
+    "creationTimestamp": "2023-05-14T00:10:48.631-07:00",
     "description": "",
     "direction": "INGRESS",
     "disabled": false,
-    "id": "2474531284577016835",
+    "id": "3161964250823210903",
     "kind": "compute#firewall",
     "logConfig": {
       "enable": false
@@ -315,9 +315,9 @@ echo cluster worker node vm has alias ip $(gcloud compute instances describe $na
 - check the result
 `kubectl get node -o wide`
 ```
-NAME                                                STATUS   ROLES    AGE    VERSION            INTERNAL-IP   EXTERNAL-IP      OS-IMAGE             KERNEL-VERSION    CONTAINER-RUNTIME
-gke-my-first-cluster-1-default-pool-53a6062f-hxn7   Ready    <none>   130m   v1.26.3-gke.1000   10.0.0.3      34.80.212.63     Ubuntu 22.04.2 LTS   5.15.0-1028-gke   containerd://1.6.18
-gke-my-first-cluster-1-default-pool-53a6062f-ksh1   Ready    <none>   130m   v1.26.3-gke.1000   10.0.0.4      35.189.160.192   Ubuntu 22.04.2 LTS   5.15.0-1028-gke   containerd://1.6.18
+NAME                                                STATUS   ROLES    AGE     VERSION            INTERNAL-IP   EXTERNAL-IP      OS-IMAGE             KERNEL-VERSION    CONTAINER-RUNTIME
+gke-my-first-cluster-1-default-pool-36976bd3-06rh   Ready    <none>   4m16s   v1.26.3-gke.1000   10.0.0.4      34.80.212.63     Ubuntu 22.04.2 LTS   5.15.0-1028-gke   containerd://1.6.18
+gke-my-first-cluster-1-default-pool-36976bd3-t3b0   Ready    <none>   4m17s   v1.26.3-gke.1000   10.0.0.3      35.189.160.192   Ubuntu 22.04.2 LTS   5.15.0-1028-gke   containerd://1.6.18
 ```
 - enable worker node ipforwarding 
 
@@ -610,13 +610,13 @@ kubectl rollout status ds/kube-multus-ds -n kube-system
  you shall see output 
 ```
 daemon set "kube-multus-ds" successfully rolled out
-2023-05-14T04:33:58+00:00 Generating Multus configuration file using files in /host/etc/cni/net.d...
-2023-05-14T04:33:58+00:00 Using MASTER_PLUGIN: 10-containerd-net.conflist
-2023-05-14T04:33:59+00:00 Nested capabilities string: "capabilities": {"portMappings": true},
-2023-05-14T04:33:59+00:00 Using /host/etc/cni/net.d/10-containerd-net.conflist as a source to generate the Multus configuration
-2023-05-14T04:33:59+00:00 Config file created @ /host/etc/cni/net.d/00-multus.conf
+2023-05-14T07:18:01+00:00 Generating Multus configuration file using files in /host/etc/cni/net.d...
+2023-05-14T07:18:02+00:00 Using MASTER_PLUGIN: 10-containerd-net.conflist
+2023-05-14T07:18:03+00:00 Nested capabilities string: "capabilities": {"portMappings": true},
+2023-05-14T07:18:03+00:00 Using /host/etc/cni/net.d/10-containerd-net.conflist as a source to generate the Multus configuration
+2023-05-14T07:18:03+00:00 Config file created @ /host/etc/cni/net.d/00-multus.conf
 { "cniVersion": "0.3.1", "name": "multus-cni-network", "type": "multus", "capabilities": {"portMappings": true}, "kubeconfig": "/etc/cni/net.d/multus.d/multus.kubeconfig", "delegates": [ { "name": "k8s-pod-network", "cniVersion": "0.3.1", "plugins": [ { "type": "ptp", "mtu": 1460, "ipam": { "type": "host-local", "subnet": "10.140.1.0/24", "routes": [ { "dst": "0.0.0.0/0" } ] } }, { "type": "portmap", "capabilities": { "portMappings": true } } ] } ] }
-2023-05-14T04:33:59+00:00 Entering sleep (success)...
+2023-05-14T07:18:03+00:00 Entering sleep (success)...
 ```
 - create net-attach-def for cfos  
 We will create net-attach-def with mac-vlan CNI ,multus CNI will use this net-attach-def to create  network and attach POD to the network.
@@ -659,12 +659,12 @@ kubectl get net-attach-def cfosdefaultcni5 -o yaml
 apiVersion: k8s.cni.cncf.io/v1
 kind: NetworkAttachmentDefinition
 metadata:
-  creationTimestamp: "2023-05-14T04:34:02Z"
+  creationTimestamp: "2023-05-14T07:18:06Z"
   generation: 1
   name: cfosdefaultcni5
   namespace: default
-  resourceVersion: "2021"
-  uid: c7f9c6e1-3000-4e00-94ef-8168d297f9ef
+  resourceVersion: "2045"
+  uid: 113fc602-cada-4583-b28c-3c1acfdcb485
 spec:
   config: '{ "cniVersion": "0.3.1", "type": "macvlan", "master": "ens4", "mode": "bridge",
     "ipam": { "type": "host-local", "subnet": "10.1.200.0/24", "rangeStart": "10.1.200.250",
@@ -720,12 +720,12 @@ kubectl get net-attach-def $app_nad_annotation -o yaml
 apiVersion: k8s.cni.cncf.io/v1
 kind: NetworkAttachmentDefinition
 metadata:
-  creationTimestamp: "2023-05-14T04:34:04Z"
+  creationTimestamp: "2023-05-14T07:18:07Z"
   generation: 1
   name: cfosapp
   namespace: default
-  resourceVersion: "2040"
-  uid: 60a0c1f4-4a40-42f1-94e5-8feb4b5b30d5
+  resourceVersion: "2059"
+  uid: bf795a48-90c1-4ba2-bb84-dc08dc22d4b6
 spec:
   config: '{ "cniVersion": "0.3.1", "type": "macvlan", "master": "ens4", "mode": "bridge",
     "ipam": { "type": "host-local", "subnet": "10.1.200.0/24", "routes": [ { "dst":
@@ -786,39 +786,20 @@ deployment "multitool01-deployment" successfully rolled out
 `kubectl get pod -l app=multitool01`
 ```
 NAME                                      READY   STATUS    RESTARTS   AGE
-multitool01-deployment-7f5bf4b7cd-85h8r   1/1     Running   0          128m
-multitool01-deployment-7f5bf4b7cd-9nd5t   1/1     Running   0          128m
-multitool01-deployment-7f5bf4b7cd-g64wh   1/1     Running   0          128m
-multitool01-deployment-7f5bf4b7cd-jrcdn   1/1     Running   0          128m
+multitool01-deployment-7f5bf4b7cd-2sv9h   1/1     Running   0          2m57s
+multitool01-deployment-7f5bf4b7cd-rf76h   1/1     Running   0          2m57s
+multitool01-deployment-7f5bf4b7cd-vqxsr   1/1     Running   0          2m57s
+multitool01-deployment-7f5bf4b7cd-ztzkv   1/1     Running   0          2m57s
 ```
 `
 nodeName=$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}') && for node in $nodeName; do podName=$(kubectl get pods -l app=multitool01 --field-selector spec.nodeName="$node" -o jsonpath='{.items[*].metadata.name}') ; kubectl exec -it po/$podName -- ip route && kubectl exec -t po/$podName -- ip address ; done
 `
 ```
-default via 10.140.0.1 dev eth0 
-1.1.1.1 via 10.1.200.252 dev net1 
-10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.21 
-10.140.0.0/24 via 10.140.0.1 dev eth0 src 10.140.0.9 
-10.140.0.1 dev eth0 scope link src 10.140.0.9 
-89.238.73.0/24 via 10.1.200.252 dev net1 
-104.18.0.0/16 via 10.1.200.252 dev net1 
-1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
-    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-    inet 127.0.0.1/8 scope host lo
-       valid_lft forever preferred_lft forever
-2: eth0@if11: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether a6:ad:1e:bd:16:6f brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet 10.140.0.9/24 brd 10.140.0.255 scope global eth0
-       valid_lft forever preferred_lft forever
-3: net1@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether 2a:b0:70:5f:92:9f brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet 10.1.200.21/24 brd 10.1.200.255 scope global net1
-       valid_lft forever preferred_lft forever
 default via 10.140.1.1 dev eth0 
 1.1.1.1 via 10.1.200.252 dev net1 
 10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.21 
-10.140.1.0/24 via 10.140.1.1 dev eth0 src 10.140.1.6 
-10.140.1.1 dev eth0 scope link src 10.140.1.6 
+10.140.1.0/24 via 10.140.1.1 dev eth0 src 10.140.1.5 
+10.140.1.1 dev eth0 scope link src 10.140.1.5 
 89.238.73.0/24 via 10.1.200.252 dev net1 
 104.18.0.0/16 via 10.1.200.252 dev net1 
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
@@ -826,11 +807,30 @@ default via 10.140.1.1 dev eth0
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
 2: eth0@if8: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether 26:78:ac:f3:39:ec brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet 10.140.1.6/24 brd 10.140.1.255 scope global eth0
+    link/ether ca:c8:80:b7:27:3c brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.140.1.5/24 brd 10.140.1.255 scope global eth0
        valid_lft forever preferred_lft forever
 3: net1@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether 86:52:1e:58:b7:a3 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    link/ether 66:20:c9:1c:31:b5 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.1.200.21/24 brd 10.1.200.255 scope global net1
+       valid_lft forever preferred_lft forever
+default via 10.140.0.1 dev eth0 
+1.1.1.1 via 10.1.200.252 dev net1 
+10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.21 
+10.140.0.0/24 via 10.140.0.1 dev eth0 src 10.140.0.10 
+10.140.0.1 dev eth0 scope link src 10.140.0.10 
+89.238.73.0/24 via 10.1.200.252 dev net1 
+104.18.0.0/16 via 10.1.200.252 dev net1 
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+2: eth0@if12: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
+    link/ether 4e:83:1c:71:65:fa brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.140.0.10/24 brd 10.140.0.255 scope global eth0
+       valid_lft forever preferred_lft forever
+3: net1@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
+    link/ether 22:0e:b9:fb:20:8f brd ff:ff:ff:ff:ff:ff link-netnsid 0
     inet 10.1.200.21/24 brd 10.1.200.255 scope global net1
        valid_lft forever preferred_lft forever
 ```
@@ -906,15 +906,15 @@ kubectl get rolebinding read-configmaps && kubectl get rolebinding read-secrets 
 `
 ```
 NAME              ROLE                           AGE
-read-configmaps   ClusterRole/configmap-reader   128m
+read-configmaps   ClusterRole/configmap-reader   2m46s
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  creationTimestamp: "2023-05-14T04:34:15Z"
+  creationTimestamp: "2023-05-14T07:18:20Z"
   name: read-secrets
   namespace: default
-  resourceVersion: "2200"
-  uid: f642101c-3ff5-4be0-880b-61a5d3587b0f
+  resourceVersion: "2271"
+  uid: b5864450-69d7-4736-aada-5d8826b6ce09
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -1018,30 +1018,14 @@ kubectl rollout status ds/fos-deployment && kubectl get pod -l app=fos
 ```
 daemon set "fos-deployment" successfully rolled out
 NAME                   READY   STATUS    RESTARTS   AGE
-fos-deployment-hpcmb   1/1     Running   0          127m
-fos-deployment-r7wcr   1/1     Running   0          127m
+fos-deployment-9pkv6   1/1     Running   0          2m3s
+fos-deployment-flwr8   1/1     Running   0          89s
 ```
 check routing table and ip address
 `
 nodeName=$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}') && for node in $nodeName; do podName=$(kubectl get pods -l app=fos --field-selector spec.nodeName="$node" -o jsonpath='{.items[*].metadata.name}') ; kubectl exec -it po/$podName -- ip route && kubectl exec -t po/$podName -- ip address ; done
 `
 ```
-default via 10.140.0.1 dev eth0 
-10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.252 
-10.140.0.0/24 via 10.140.0.1 dev eth0 src 10.140.0.12 
-10.140.0.1 dev eth0 scope link src 10.140.0.12 
-1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
-    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-    inet 127.0.0.1/8 scope host lo
-       valid_lft forever preferred_lft forever
-2: eth0@if14: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether 9e:ba:7b:f7:8a:8d brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet 10.140.0.12/24 brd 10.140.0.255 scope global eth0
-       valid_lft forever preferred_lft forever
-3: net1@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether ca:fe:c0:ff:00:02 brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet 10.1.200.252/24 brd 10.1.200.255 scope global net1
-       valid_lft forever preferred_lft forever
 default via 10.140.1.1 dev eth0 
 10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.252 
 10.140.1.0/24 via 10.140.1.1 dev eth0 src 10.140.1.8 
@@ -1051,8 +1035,24 @@ default via 10.140.1.1 dev eth0
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
 2: eth0@if10: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether 4e:df:eb:62:9c:0a brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    link/ether ae:da:fc:17:c7:3d brd ff:ff:ff:ff:ff:ff link-netnsid 0
     inet 10.140.1.8/24 brd 10.140.1.255 scope global eth0
+       valid_lft forever preferred_lft forever
+3: net1@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
+    link/ether ca:fe:c0:ff:00:02 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.1.200.252/24 brd 10.1.200.255 scope global net1
+       valid_lft forever preferred_lft forever
+default via 10.140.0.1 dev eth0 
+10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.252 
+10.140.0.0/24 via 10.140.0.1 dev eth0 src 10.140.0.12 
+10.140.0.1 dev eth0 scope link src 10.140.0.12 
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+2: eth0@if14: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
+    link/ether 0a:f9:75:b1:4c:ac brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.140.0.12/24 brd 10.140.0.255 scope global eth0
        valid_lft forever preferred_lft forever
 3: net1@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
     link/ether ca:fe:c0:ff:00:02 brd ff:ff:ff:ff:ff:ff link-netnsid 0
@@ -1072,31 +1072,13 @@ Preparing environment...
 Starting services...
 System is ready.
 
-2023-05-14_04:35:05.09222 ok: run: /run/fcn_service/certd: (pid 257) 1s, normally down
-2023-05-14_04:35:10.20913 INFO: 2023/05/14 04:35:10 received a new fos configmap
-2023-05-14_04:35:10.20921 INFO: 2023/05/14 04:35:10 configmap name: foscfgfirewallpolicy, labels: map[app:fos category:config]
-2023-05-14_04:35:10.20923 INFO: 2023/05/14 04:35:10 got a fos config
-2023-05-14_04:35:10.20925 INFO: 2023/05/14 04:35:10 received a new fos configmap
-2023-05-14_04:35:10.20928 INFO: 2023/05/14 04:35:10 configmap name: fos-license, labels: map[app:fos category:license]
-2023-05-14_04:35:10.20929 INFO: 2023/05/14 04:35:10 got a fos license
-2023-05-14_05:17:32.47414 INFO: 2023/05/14 05:17:32 received a new fos configmap
-2023-05-14_05:17:32.47427 INFO: 2023/05/14 05:17:32 configmap name: fos-license, labels: map[app:fos category:license]
-2023-05-14_05:17:32.47430 INFO: 2023/05/14 05:17:32 got a fos license
-2023-05-14_05:17:32.47435 INFO: 2023/05/14 05:17:32 received a new fos configmap
-2023-05-14_05:17:32.47437 INFO: 2023/05/14 05:17:32 configmap name: foscfgfirewallpolicy, labels: map[app:fos category:config]
-2023-05-14_05:17:32.47440 INFO: 2023/05/14 05:17:32 got a fos config
-2023-05-14_06:01:28.21596 INFO: 2023/05/14 06:01:28 received a new fos configmap
-2023-05-14_06:01:28.21598 INFO: 2023/05/14 06:01:28 configmap name: foscfgfirewallpolicy, labels: map[app:fos category:config]
-2023-05-14_06:01:28.21598 INFO: 2023/05/14 06:01:28 got a fos config
-2023-05-14_06:01:28.21808 INFO: 2023/05/14 06:01:28 received a new fos configmap
-2023-05-14_06:01:28.21814 INFO: 2023/05/14 06:01:28 configmap name: fos-license, labels: map[app:fos category:license]
-2023-05-14_06:01:28.21816 INFO: 2023/05/14 06:01:28 got a fos license
-2023-05-14_06:32:11.75153 INFO: 2023/05/14 06:32:11 received a new fos configmap
-2023-05-14_06:32:11.75163 INFO: 2023/05/14 06:32:11 configmap name: fos-license, labels: map[app:fos category:license]
-2023-05-14_06:32:11.75166 INFO: 2023/05/14 06:32:11 got a fos license
-2023-05-14_06:32:11.75183 INFO: 2023/05/14 06:32:11 received a new fos configmap
-2023-05-14_06:32:11.75188 INFO: 2023/05/14 06:32:11 configmap name: foscfgfirewallpolicy, labels: map[app:fos category:config]
-2023-05-14_06:32:11.75190 INFO: 2023/05/14 06:32:11 got a fos config
+2023-05-14_07:19:09.23981 ok: run: /run/fcn_service/certd: (pid 258) 1s, normally down
+2023-05-14_07:19:14.35289 INFO: 2023/05/14 07:19:14 received a new fos configmap
+2023-05-14_07:19:14.35297 INFO: 2023/05/14 07:19:14 configmap name: foscfgfirewallpolicy, labels: map[app:fos category:config]
+2023-05-14_07:19:14.35299 INFO: 2023/05/14 07:19:14 got a fos config
+2023-05-14_07:19:14.35302 INFO: 2023/05/14 07:19:14 received a new fos configmap
+2023-05-14_07:19:14.35304 INFO: 2023/05/14 07:19:14 configmap name: fos-license, labels: map[app:fos category:license]
+2023-05-14_07:19:14.35305 INFO: 2023/05/14 07:19:14 got a fos license
 
 System is starting...
 
@@ -1105,25 +1087,13 @@ Preparing environment...
 Starting services...
 System is ready.
 
-2023-05-14_04:35:39.48332 ok: run: /run/fcn_service/certd: (pid 267) 1s, normally down
-2023-05-14_04:35:44.62865 INFO: 2023/05/14 04:35:44 received a new fos configmap
-2023-05-14_04:35:44.62880 INFO: 2023/05/14 04:35:44 configmap name: fos-license, labels: map[app:fos category:license]
-2023-05-14_04:35:44.62883 INFO: 2023/05/14 04:35:44 got a fos license
-2023-05-14_04:35:44.62889 INFO: 2023/05/14 04:35:44 received a new fos configmap
-2023-05-14_04:35:44.62891 INFO: 2023/05/14 04:35:44 configmap name: foscfgfirewallpolicy, labels: map[app:fos category:config]
-2023-05-14_04:35:44.62893 INFO: 2023/05/14 04:35:44 got a fos config
-2023-05-14_05:23:59.70033 INFO: 2023/05/14 05:23:59 received a new fos configmap
-2023-05-14_05:23:59.70043 INFO: 2023/05/14 05:23:59 configmap name: fos-license, labels: map[app:fos category:license]
-2023-05-14_05:23:59.70045 INFO: 2023/05/14 05:23:59 got a fos license
-2023-05-14_05:23:59.70066 INFO: 2023/05/14 05:23:59 received a new fos configmap
-2023-05-14_05:23:59.70069 INFO: 2023/05/14 05:23:59 configmap name: foscfgfirewallpolicy, labels: map[app:fos category:config]
-2023-05-14_05:23:59.70071 INFO: 2023/05/14 05:23:59 got a fos config
-2023-05-14_06:04:47.73114 INFO: 2023/05/14 06:04:47 received a new fos configmap
-2023-05-14_06:04:47.73115 INFO: 2023/05/14 06:04:47 configmap name: foscfgfirewallpolicy, labels: map[app:fos category:config]
-2023-05-14_06:04:47.73115 INFO: 2023/05/14 06:04:47 got a fos config
-2023-05-14_06:04:47.73172 INFO: 2023/05/14 06:04:47 received a new fos configmap
-2023-05-14_06:04:47.73179 INFO: 2023/05/14 06:04:47 configmap name: fos-license, labels: map[app:fos category:license]
-2023-05-14_06:04:47.73182 INFO: 2023/05/14 06:04:47 got a fos license
+2023-05-14_07:19:43.32669 ok: run: /run/fcn_service/certd: (pid 255) 1s, normally down
+2023-05-14_07:19:48.43819 INFO: 2023/05/14 07:19:48 received a new fos configmap
+2023-05-14_07:19:48.43850 INFO: 2023/05/14 07:19:48 configmap name: foscfgfirewallpolicy, labels: map[app:fos category:config]
+2023-05-14_07:19:48.43907 INFO: 2023/05/14 07:19:48 got a fos config
+2023-05-14_07:19:48.43907 INFO: 2023/05/14 07:19:48 received a new fos configmap
+2023-05-14_07:19:48.43908 INFO: 2023/05/14 07:19:48 configmap name: fos-license, labels: map[app:fos category:license]
+2023-05-14_07:19:48.43908 INFO: 2023/05/14 07:19:48 got a fos license
 ```
 - create configmap for cfos to get firewall policy configuration 
 cfos can be configured use cFOS shell, kubernetes configmap and restApi. here we use configmap to config cFOS
@@ -1193,14 +1163,14 @@ data:
   type: partial
 kind: ConfigMap
 metadata:
-  creationTimestamp: "2023-05-14T04:34:29Z"
+  creationTimestamp: "2023-05-14T07:18:33Z"
   labels:
     app: fos
     category: config
   name: foscfgfirewallpolicy
   namespace: default
-  resourceVersion: "2398"
-  uid: 3edb8703-b2ed-4085-b697-a22343b7d895
+  resourceVersion: "2442"
+  uid: a5003f03-096d-431d-b0e0-b7e74c04b75b
 ```
 check cfos log for retrive config from configmap
 `
@@ -1215,31 +1185,13 @@ Preparing environment...
 Starting services...
 System is ready.
 
-2023-05-14_04:35:05.09222 ok: run: /run/fcn_service/certd: (pid 257) 1s, normally down
-2023-05-14_04:35:10.20913 INFO: 2023/05/14 04:35:10 received a new fos configmap
-2023-05-14_04:35:10.20921 INFO: 2023/05/14 04:35:10 configmap name: foscfgfirewallpolicy, labels: map[app:fos category:config]
-2023-05-14_04:35:10.20923 INFO: 2023/05/14 04:35:10 got a fos config
-2023-05-14_04:35:10.20925 INFO: 2023/05/14 04:35:10 received a new fos configmap
-2023-05-14_04:35:10.20928 INFO: 2023/05/14 04:35:10 configmap name: fos-license, labels: map[app:fos category:license]
-2023-05-14_04:35:10.20929 INFO: 2023/05/14 04:35:10 got a fos license
-2023-05-14_05:17:32.47414 INFO: 2023/05/14 05:17:32 received a new fos configmap
-2023-05-14_05:17:32.47427 INFO: 2023/05/14 05:17:32 configmap name: fos-license, labels: map[app:fos category:license]
-2023-05-14_05:17:32.47430 INFO: 2023/05/14 05:17:32 got a fos license
-2023-05-14_05:17:32.47435 INFO: 2023/05/14 05:17:32 received a new fos configmap
-2023-05-14_05:17:32.47437 INFO: 2023/05/14 05:17:32 configmap name: foscfgfirewallpolicy, labels: map[app:fos category:config]
-2023-05-14_05:17:32.47440 INFO: 2023/05/14 05:17:32 got a fos config
-2023-05-14_06:01:28.21596 INFO: 2023/05/14 06:01:28 received a new fos configmap
-2023-05-14_06:01:28.21598 INFO: 2023/05/14 06:01:28 configmap name: foscfgfirewallpolicy, labels: map[app:fos category:config]
-2023-05-14_06:01:28.21598 INFO: 2023/05/14 06:01:28 got a fos config
-2023-05-14_06:01:28.21808 INFO: 2023/05/14 06:01:28 received a new fos configmap
-2023-05-14_06:01:28.21814 INFO: 2023/05/14 06:01:28 configmap name: fos-license, labels: map[app:fos category:license]
-2023-05-14_06:01:28.21816 INFO: 2023/05/14 06:01:28 got a fos license
-2023-05-14_06:32:11.75153 INFO: 2023/05/14 06:32:11 received a new fos configmap
-2023-05-14_06:32:11.75163 INFO: 2023/05/14 06:32:11 configmap name: fos-license, labels: map[app:fos category:license]
-2023-05-14_06:32:11.75166 INFO: 2023/05/14 06:32:11 got a fos license
-2023-05-14_06:32:11.75183 INFO: 2023/05/14 06:32:11 received a new fos configmap
-2023-05-14_06:32:11.75188 INFO: 2023/05/14 06:32:11 configmap name: foscfgfirewallpolicy, labels: map[app:fos category:config]
-2023-05-14_06:32:11.75190 INFO: 2023/05/14 06:32:11 got a fos config
+2023-05-14_07:19:09.23981 ok: run: /run/fcn_service/certd: (pid 258) 1s, normally down
+2023-05-14_07:19:14.35289 INFO: 2023/05/14 07:19:14 received a new fos configmap
+2023-05-14_07:19:14.35297 INFO: 2023/05/14 07:19:14 configmap name: foscfgfirewallpolicy, labels: map[app:fos category:config]
+2023-05-14_07:19:14.35299 INFO: 2023/05/14 07:19:14 got a fos config
+2023-05-14_07:19:14.35302 INFO: 2023/05/14 07:19:14 received a new fos configmap
+2023-05-14_07:19:14.35304 INFO: 2023/05/14 07:19:14 configmap name: fos-license, labels: map[app:fos category:license]
+2023-05-14_07:19:14.35305 INFO: 2023/05/14 07:19:14 got a fos license
 
 System is starting...
 
@@ -1248,25 +1200,13 @@ Preparing environment...
 Starting services...
 System is ready.
 
-2023-05-14_04:35:39.48332 ok: run: /run/fcn_service/certd: (pid 267) 1s, normally down
-2023-05-14_04:35:44.62865 INFO: 2023/05/14 04:35:44 received a new fos configmap
-2023-05-14_04:35:44.62880 INFO: 2023/05/14 04:35:44 configmap name: fos-license, labels: map[app:fos category:license]
-2023-05-14_04:35:44.62883 INFO: 2023/05/14 04:35:44 got a fos license
-2023-05-14_04:35:44.62889 INFO: 2023/05/14 04:35:44 received a new fos configmap
-2023-05-14_04:35:44.62891 INFO: 2023/05/14 04:35:44 configmap name: foscfgfirewallpolicy, labels: map[app:fos category:config]
-2023-05-14_04:35:44.62893 INFO: 2023/05/14 04:35:44 got a fos config
-2023-05-14_05:23:59.70033 INFO: 2023/05/14 05:23:59 received a new fos configmap
-2023-05-14_05:23:59.70043 INFO: 2023/05/14 05:23:59 configmap name: fos-license, labels: map[app:fos category:license]
-2023-05-14_05:23:59.70045 INFO: 2023/05/14 05:23:59 got a fos license
-2023-05-14_05:23:59.70066 INFO: 2023/05/14 05:23:59 received a new fos configmap
-2023-05-14_05:23:59.70069 INFO: 2023/05/14 05:23:59 configmap name: foscfgfirewallpolicy, labels: map[app:fos category:config]
-2023-05-14_05:23:59.70071 INFO: 2023/05/14 05:23:59 got a fos config
-2023-05-14_06:04:47.73114 INFO: 2023/05/14 06:04:47 received a new fos configmap
-2023-05-14_06:04:47.73115 INFO: 2023/05/14 06:04:47 configmap name: foscfgfirewallpolicy, labels: map[app:fos category:config]
-2023-05-14_06:04:47.73115 INFO: 2023/05/14 06:04:47 got a fos config
-2023-05-14_06:04:47.73172 INFO: 2023/05/14 06:04:47 received a new fos configmap
-2023-05-14_06:04:47.73179 INFO: 2023/05/14 06:04:47 configmap name: fos-license, labels: map[app:fos category:license]
-2023-05-14_06:04:47.73182 INFO: 2023/05/14 06:04:47 got a fos license
+2023-05-14_07:19:43.32669 ok: run: /run/fcn_service/certd: (pid 255) 1s, normally down
+2023-05-14_07:19:48.43819 INFO: 2023/05/14 07:19:48 received a new fos configmap
+2023-05-14_07:19:48.43850 INFO: 2023/05/14 07:19:48 configmap name: foscfgfirewallpolicy, labels: map[app:fos category:config]
+2023-05-14_07:19:48.43907 INFO: 2023/05/14 07:19:48 got a fos config
+2023-05-14_07:19:48.43907 INFO: 2023/05/14 07:19:48 received a new fos configmap
+2023-05-14_07:19:48.43908 INFO: 2023/05/14 07:19:48 configmap name: fos-license, labels: map[app:fos category:license]
+2023-05-14_07:19:48.43908 INFO: 2023/05/14 07:19:48 got a fos license
 ```
 - restart cfos DaemonSet  to workaround policy not work issue 
 when use configmap to apply firewallpolicy to cFOS, if it's the first time to config cFOS using firewall policy, then a restart cFOS is required
@@ -1296,8 +1236,9 @@ check routing table and ip address
 nodeName=$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}') && for node in $nodeName; do podName=$(kubectl get pods -l app=fos --field-selector spec.nodeName="$node" -o jsonpath='{.items[*].metadata.name}') ;  kubectl exec -it po/$podName -- iptables -L -t nat --verbose | grep MASQ ; done
 `
 ```
-   14  1080 MASQUERADE  all  --  any    eth0    anywhere             anywhere             match-set fcn_fw_addr_defaultappmultitool src
-   67  5372 MASQUERADE  all  --  any    eth0    anywhere             anywhere            
+    0     0 MASQUERADE  all  --  any    eth0    anywhere             anywhere            
+    0     0 MASQUERADE  all  --  any    eth0    anywhere             anywhere             match-set fcn_fw_addr_defaultappmultitool src
+    0     0 MASQUERADE  all  --  any    eth0    anywhere             anywhere            
     0     0 MASQUERADE  all  --  any    eth0    anywhere             anywhere             match-set fcn_fw_addr_defaultappmultitool src
 ```
 - do a ips test on a target website
@@ -1319,14 +1260,10 @@ kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exe
 kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/ips.0  ; done
 `
 ```
-date=2023-05-14 time=04:37:59 eventtime=1684039079 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.21 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=5 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=59774 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=52428801 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
-date=2023-05-14 time=04:37:59 eventtime=1684039079 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.20 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=7 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=36326 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=52428802 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
-date=2023-05-14 time=04:38:42 eventtime=1684039122 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.21 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=15 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=45870 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=52428803 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
-date=2023-05-14 time=04:38:48 eventtime=1684039128 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.20 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=5 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=46502 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=52428804 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
-date=2023-05-14 time=04:38:05 eventtime=1684039085 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.21 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=3 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=49090 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=180355073 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
-date=2023-05-14 time=04:38:10 eventtime=1684039090 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.20 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=5 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=36002 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=180355074 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
-date=2023-05-14 time=04:38:53 eventtime=1684039133 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.21 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=8 action="dropped" proto=6 service="HTTPS" policyid=101 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=36662 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=180355075 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
-date=2023-05-14 time=04:38:58 eventtime=1684039138 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.20 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=10 action="dropped" proto=6 service="HTTPS" policyid=101 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=36746 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=180355076 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-05-14 time=07:20:00 eventtime=1684048800 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.21 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=3 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=38334 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=171966465 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-05-14 time=07:20:11 eventtime=1684048811 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.20 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=5 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=59436 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=171966466 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-05-14 time=07:20:05 eventtime=1684048805 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.21 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=5 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=37120 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=61865985 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-05-14 time=07:20:06 eventtime=1684048806 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.20 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=7 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=38050 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=61865986 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
 ```
 - do a web filter  test on a target website
 it is very common that a malicous POD can geneate some malicous traffic targeting external network or VM or physical machine in custmer network. those traffic are often encrypted , when these traffic reach cFOS, cFOS can decrpyt the traffic and look into the domain name of target website. it the target website belong to category that suppose to be blocked, cFOS will block it. the database of maclious website will always updated to the latest from fortiguard service. 
@@ -1344,14 +1281,10 @@ kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exe
 kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/webf.0  ; done
 `
 ```
-date=2023-05-14 time=04:38:18 eventtime=1684039098 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=300 sessionid=9 srcip=10.1.200.21 srcport=47364 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
-date=2023-05-14 time=04:38:19 eventtime=1684039099 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=300 sessionid=11 srcip=10.1.200.20 srcport=51676 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
-date=2023-05-14 time=04:39:05 eventtime=1684039145 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=300 sessionid=17 srcip=10.1.200.21 srcport=50232 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
-date=2023-05-14 time=04:39:06 eventtime=1684039146 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=300 sessionid=19 srcip=10.1.200.20 srcport=48976 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
-date=2023-05-14 time=04:38:20 eventtime=1684039100 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=300 sessionid=5 srcip=10.1.200.21 srcport=41798 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
-date=2023-05-14 time=04:38:21 eventtime=1684039101 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=300 sessionid=7 srcip=10.1.200.20 srcport=51178 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
-date=2023-05-14 time=04:39:07 eventtime=1684039147 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=10 srcip=10.1.200.21 srcport=54150 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
-date=2023-05-14 time=04:39:08 eventtime=1684039148 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=12 srcip=10.1.200.20 srcport=38836 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
+date=2023-05-14 time=07:20:19 eventtime=1684048819 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=300 sessionid=7 srcip=10.1.200.21 srcport=47362 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
+date=2023-05-14 time=07:20:22 eventtime=1684048822 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=300 sessionid=9 srcip=10.1.200.20 srcport=43192 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
+date=2023-05-14 time=07:20:21 eventtime=1684048821 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=300 sessionid=2 srcip=10.1.200.21 srcport=34310 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
+date=2023-05-14 time=07:20:22 eventtime=1684048822 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=300 sessionid=9 srcip=10.1.200.20 srcport=49536 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
 ```
 - use cfos restful API to delete firewall policy 
 we can use cFOS shell to change firewall policy, we can also use cFOS restAPI to do the same. 
@@ -1366,34 +1299,34 @@ kubectl exec -it po/policymanager -- curl -X DELETE "http://fos-deployment.defau
 kubectl get pod | grep multi | grep -v termin  | awk '{print $1}'  | while read line; do echo pod $line; kubectl exec -t po/$line -- ping -c1 1.1.1.1 ; done
 `
 ```
-pod multitool01-deployment-7f5bf4b7cd-85h8r
+pod multitool01-deployment-7f5bf4b7cd-2sv9h
 PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
-64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=4.62 ms
+64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=4.81 ms
 
 --- 1.1.1.1 ping statistics ---
 1 packets transmitted, 1 received, 0% packet loss, time 0ms
-rtt min/avg/max/mdev = 4.617/4.617/4.617/0.000 ms
-pod multitool01-deployment-7f5bf4b7cd-9nd5t
+rtt min/avg/max/mdev = 4.810/4.810/4.810/0.000 ms
+pod multitool01-deployment-7f5bf4b7cd-rf76h
 PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
-64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=3.95 ms
+64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=5.12 ms
 
 --- 1.1.1.1 ping statistics ---
 1 packets transmitted, 1 received, 0% packet loss, time 0ms
-rtt min/avg/max/mdev = 3.953/3.953/3.953/0.000 ms
-pod multitool01-deployment-7f5bf4b7cd-g64wh
+rtt min/avg/max/mdev = 5.118/5.118/5.118/0.000 ms
+pod multitool01-deployment-7f5bf4b7cd-vqxsr
 PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
-64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=4.90 ms
+64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=4.46 ms
 
 --- 1.1.1.1 ping statistics ---
 1 packets transmitted, 1 received, 0% packet loss, time 0ms
-rtt min/avg/max/mdev = 4.897/4.897/4.897/0.000 ms
-pod multitool01-deployment-7f5bf4b7cd-jrcdn
+rtt min/avg/max/mdev = 4.458/4.458/4.458/0.000 ms
+pod multitool01-deployment-7f5bf4b7cd-ztzkv
 PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
-64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=5.92 ms
+64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=4.09 ms
 
 --- 1.1.1.1 ping statistics ---
 1 packets transmitted, 1 received, 0% packet loss, time 0ms
-rtt min/avg/max/mdev = 5.920/5.920/5.920/0.000 ms
+rtt min/avg/max/mdev = 4.092/4.092/4.092/0.000 ms
 ```
 - create an POD to update POD source IP to cFOS 
 POD IPs are keep changing due to scale in/out or reborn , deleting etc for various reason, we need to keep update the POD ip address to cFOS address group. 
@@ -1490,7 +1423,7 @@ kubectl get pod policymanager && kubectl exec -it po/policymanager -- curl -X GE
 `
 ```
 NAME            READY   STATUS    RESTARTS   AGE
-policymanager   1/1     Running   0          124m
+policymanager   1/1     Running   0          49s
 {
   "status": "success",
   "http_status": 200,
@@ -1503,12 +1436,6 @@ policymanager   1/1     Running   0          124m
       "type": "default",
       "category": "default",
       "member": [
-        {
-          "name": "10.1.200.21"
-        },
-        {
-          "name": "10.1.200.20"
-        },
         {
           "name": "10.1.200.21"
         },
