@@ -25,5 +25,6 @@ echo "$command" >> "${filename}.md"
 echo '`' >> "${filename}.md"
 echo '```' >> "${filename}.md"
 eval "$command"  >> "${filename}.md"
+echo '\n' >> "${filename}.md"
 echo '```' >> "${filename}.md"
 
