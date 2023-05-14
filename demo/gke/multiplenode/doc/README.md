@@ -1253,7 +1253,7 @@ kubectl get pod policymanager && kubectl exec -it po/policymanager -- curl -X GE
 `
 ```
 NAME            READY   STATUS    RESTARTS   AGE
-policymanager   1/1     Running   0          11s
+policymanager   1/1     Running   0          21m
 {
   "status": "success",
   "http_status": 200,
@@ -1288,7 +1288,8 @@ policymanager   1/1     Running   0          11s
   "serial": "FGVMULTM23000044",
   "version": "v7.2.0",
   "build": "231"
-}```
+}\n
+```
 - do a ips test on a target website
 we do ips test again, this time, the policy created by policymanager will take the action. we can chech the ips log to prove it. the traffic shall match different policy ID which is 101
 - paste below command to send malicous traffic from application pod 
