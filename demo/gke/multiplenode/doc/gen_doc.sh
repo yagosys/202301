@@ -6,22 +6,6 @@ echo './demo_multiple_nodes.sh' >> README.md
 echo ' ``` ' >> README.md
 
 echo 'or do it step by step according below procedure ' >> README.md
-echo "generate document"
-./00_doc.sh
-./01_doc.sh
-./02_doc.sh
-./03_doc.sh
-./04_doc.sh
-./05_doc.sh
-./06_doc.sh
-./08_doc.sh 
-./09_doc.sh
-./10_doc.sh
-./11_doc.sh
-./12_doc.sh
-./13_doc.sh
-./17_doc.sh
-./18_doc.sh
 echo 'merge document' 
 
 cat  \
@@ -39,4 +23,7 @@ cat  \
 ./../12_ipstest.sh.md \
 ./../13_webftest.sh.md \
 ./../17_delete_policy_300.sh.md \
-./../18_create_policy_manager.sh.md >> README.md
+./../18_create_policy_manager.sh.md \
+./../22_ipstest.sh.md \
+./../23_webftest.sh.md  > README.md
+

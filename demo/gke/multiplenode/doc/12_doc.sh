@@ -21,7 +21,7 @@ echo '```' >> "${filename}.md"
 echo '- check the result' >> "${filename}.md"
 
 
-command="kubectl get pod | grep fos | awk '{print \$1}'  | while read line; do kubectl exec -t po/\$line -- tail  /data/var/log/log/ips.0  ; done"
+command="kubectl get pod | grep fos | awk '{print \$1}'  | while read line; do kubectl exec -t po/\$line -- tail  /data/var/log/log/ips.0 | grep 300 ; done"
 
 echo '`' >> "${filename}.md"
 echo "$command" >> "${filename}.md"

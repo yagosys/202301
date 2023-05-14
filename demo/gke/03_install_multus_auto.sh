@@ -1,4 +1,4 @@
-file="multus.yml"
+file="multus_auto.yml"
 cat << EOF > $file
 # Note:
 #   This deployment file is designed for 'quickstart' of multus, easy installation to test it,
@@ -138,9 +138,7 @@ data:
                 "subnet": "10.140.0.0/24",
                 "routes": [
                   {
-                    "dst": "0.0.0.0/0",
-                    "dst": "10.140.0.0/14",
-                    "dst": "10.144.0.0/20"
+                    "dst": "0.0.0.0/0"
                   }
                  ]
             }
@@ -191,7 +189,8 @@ spec:
         image: ghcr.io/k8snetworkplumbingwg/multus-cni:v3.9.3
         command: ["/entrypoint.sh"]
         args:
-        - "--multus-conf-file=/tmp/multus-conf/07-multus.conf"
+        #- "--multus-conf-file=/tmp/multus-conf/07-multus.conf" 
+        - "--multus-conf-file=auto"
         - "--cni-version=0.3.1"
         resources:
           requests:

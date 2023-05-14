@@ -1,4 +1,6 @@
 file="multus_auto.yml"
+#multusconfig="/tmp/multus-conf/07-multus.conf" 
+multusconfig="auto"
 cat << EOF > $file
 # Note:
 #   This deployment file is designed for 'quickstart' of multus, easy installation to test it,
@@ -136,7 +138,14 @@ data:
               "ipam": {
                 "type": "host-local",
                 "subnet": "10.140.0.0/24",
+                "gateway": "10.140.0.1",
                 "routes": [
+                  {
+                    "dst": "10.144.0.0/20"
+                  },
+                  {
+                    "dst": "10.140.0.0/14"
+                  },
                   {
                     "dst": "0.0.0.0/0"
                   }
@@ -189,8 +198,8 @@ spec:
         image: ghcr.io/k8snetworkplumbingwg/multus-cni:v3.9.3
         command: ["/entrypoint.sh"]
         args:
-        #- "--multus-conf-file=/tmp/multus-conf/07-multus.conf" 
-        - "--multus-conf-file=auto"
+        - "--multus-conf-file=$multusconfig"
+        #- "--multus-conf-file=auto"
         - "--cni-version=0.3.1"
         resources:
           requests:
