@@ -120,6 +120,27 @@ cd doc
 ./27_doc.sh
 cd ./../
 
+./38_delete_policy_101.sh 
+
+./46_install_gatekeeperv3.sh
+
+./47_create_gatekeeper_constraint_template.sh
+
+
+./48_deploy_constraint_fos_cfos.sh
+
+./49_deploy_network_firewall_policy_egress.sh
+
+./50_restart_app.sh
+
+./51_verifycfos.sh
+
+./52_ipstest.sh 
+
+./53_webftest.sh 
+
+
+
 echo "-----------" 
 echo deploy start from $startdate to $(date)
 echo 'done'
