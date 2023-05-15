@@ -100,6 +100,26 @@ cd doc
 cd ./../
 
 
+./24_ssh_into_worker_node_add_custom_route_to_10_conf_cni_file.sh 
+cd doc 
+./24_doc.sh
+cd ./../
+
+./25_delete_app.sh
+cd doc 
+./25_doc.sh
+cd ./../
+
+./26_create_app_deployment_multtool_with_defaultroute.sh.
+cd doc 
+./26_doc.sh
+cd ./../
+
+./27_webftest.sh
+cd doc 
+./27_doc.sh
+cd ./../
+
 echo "-----------" 
 echo deploy start from $startdate to $(date)
 echo 'done'

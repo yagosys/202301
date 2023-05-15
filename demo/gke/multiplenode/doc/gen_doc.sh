@@ -25,5 +25,8 @@ cat  \
 ./../17_delete_policy_300.sh.md \
 ./../18_create_policy_manager.sh.md \
 ./../22_ipstest.sh.md \
-./../23_webftest.sh.md  > README.md
-
+./../23_webftest.sh.md \
+./../24_ssh_into_worker_node_add_custom_route_to_10_conf_cni_file.sh.md \
+./../25_delete_app.sh.md \
+./../26_create_app_deployment_multtool_with_defaultroute.sh.md \
+./../27_webftest.sh.md  > README.md
