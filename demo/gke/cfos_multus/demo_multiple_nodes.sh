@@ -133,8 +133,6 @@ cd ./../
 
 ./50_restart_app.sh
 
-./51_verifycfos.sh
-
 ./52_ipstest.sh 
 
 ./53_webftest.sh 
