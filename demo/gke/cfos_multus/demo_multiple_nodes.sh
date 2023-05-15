@@ -1,4 +1,4 @@
-file="$HOME/license/dockerinterbeing.yaml"
+file="$HOME/license/dockerpullsecret.yaml"
 [ -e $file ] && echo found dockerpullsecret $file || echo "$file  does not exist, exit" && 
 file="$HOME/license/fos_license.yaml"
 [ -e $file ] && echo found cfos license file $file || echo "$file  does not exist,exit" &&
@@ -110,7 +110,7 @@ cd doc
 ./25_doc.sh
 cd ./../
 
-./26_create_app_deployment_multtool_with_defaultroute.sh.
+./26_create_app_deployment_multtool_with_defaultroute.sh
 cd doc 
 ./26_doc.sh
 cd ./../
