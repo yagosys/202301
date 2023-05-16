@@ -27,8 +27,8 @@ gcloud compute firewall-rules create $firewallruleName --network $networkName --
 [
   {
     "autoCreateSubnetworks": false,
-    "creationTimestamp": "2023-05-15T19:29:51.132-07:00",
-    "id": "2853168068019836016",
+    "creationTimestamp": "2023-05-16T04:27:23.818-07:00",
+    "id": "1781655009923880564",
     "kind": "compute#network",
     "name": "gkenetwork1",
     "networkFirewallPolicyEnforcementOrder": "AFTER_CLASSIC_FIREWALL",
@@ -36,7 +36,7 @@ gcloud compute firewall-rules create $firewallruleName --network $networkName --
       "routingMode": "REGIONAL"
     },
     "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/gkenetwork1",
-    "selfLinkWithId": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/2853168068019836016",
+    "selfLinkWithId": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/1781655009923880564",
     "subnetworks": [
       "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-east1/subnetworks/gkenode"
     ],
@@ -49,28 +49,18 @@ gcloud compute firewall-rules create $firewallruleName --network $networkName --
 ```
 [
   {
-    "creationTimestamp": "2023-05-15T19:30:04.959-07:00",
-    "fingerprint": "wZDnvad88r0=",
+    "creationTimestamp": "2023-05-16T04:27:41.104-07:00",
+    "fingerprint": "vYXNVKjNYTA=",
     "gatewayAddress": "10.0.0.1",
-    "id": "4940901015761146947",
+    "id": "7141182559291889218",
     "ipCidrRange": "10.0.0.0/24",
     "kind": "compute#subnetwork",
     "name": "gkenode",
     "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/gkenetwork1",
-    "privateIpGoogleAccess": true,
+    "privateIpGoogleAccess": false,
     "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
     "purpose": "PRIVATE",
     "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-east1",
-    "secondaryIpRanges": [
-      {
-        "ipCidrRange": "10.144.0.0/20",
-        "rangeName": "gke-my-first-cluster-1-services-ece0bc06"
-      },
-      {
-        "ipCidrRange": "10.140.0.0/14",
-        "rangeName": "gke-my-first-cluster-1-pods-ece0bc06"
-      }
-    ],
     "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-east1/subnetworks/gkenode",
     "stackType": "IPV4_ONLY"
   }
@@ -82,154 +72,14 @@ gcloud compute firewall-rules create $firewallruleName --network $networkName --
   {
     "allowed": [
       {
-        "IPProtocol": "sctp"
-      },
-      {
-        "IPProtocol": "tcp"
-      },
-      {
-        "IPProtocol": "udp"
-      },
-      {
-        "IPProtocol": "icmp"
-      },
-      {
-        "IPProtocol": "esp"
-      },
-      {
-        "IPProtocol": "ah"
-      }
-    ],
-    "creationTimestamp": "2023-05-15T19:31:35.771-07:00",
-    "description": "",
-    "direction": "INGRESS",
-    "disabled": false,
-    "id": "3395271920928642536",
-    "kind": "compute#firewall",
-    "logConfig": {
-      "enable": false
-    },
-    "name": "gke-my-first-cluster-1-ece0bc06-all",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/gkenetwork1",
-    "priority": 1000,
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/firewalls/gke-my-first-cluster-1-ece0bc06-all",
-    "sourceRanges": [
-      "10.140.0.0/14"
-    ],
-    "targetTags": [
-      "gke-my-first-cluster-1-ece0bc06-node"
-    ]
-  },
-  {
-    "creationTimestamp": "2023-05-15T19:31:35.727-07:00",
-    "denied": [
-      {
-        "IPProtocol": "tcp",
-        "ports": [
-          "10255"
-        ]
-      }
-    ],
-    "description": "",
-    "direction": "INGRESS",
-    "disabled": false,
-    "id": "7385047447989343720",
-    "kind": "compute#firewall",
-    "logConfig": {
-      "enable": false
-    },
-    "name": "gke-my-first-cluster-1-ece0bc06-exkubelet",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/gkenetwork1",
-    "priority": 1000,
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/firewalls/gke-my-first-cluster-1-ece0bc06-exkubelet",
-    "sourceRanges": [
-      "0.0.0.0/0"
-    ],
-    "targetTags": [
-      "gke-my-first-cluster-1-ece0bc06-node"
-    ]
-  },
-  {
-    "allowed": [
-      {
-        "IPProtocol": "tcp",
-        "ports": [
-          "10255"
-        ]
-      }
-    ],
-    "creationTimestamp": "2023-05-15T19:31:35.830-07:00",
-    "description": "",
-    "direction": "INGRESS",
-    "disabled": false,
-    "id": "8256475236943222248",
-    "kind": "compute#firewall",
-    "logConfig": {
-      "enable": false
-    },
-    "name": "gke-my-first-cluster-1-ece0bc06-inkubelet",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/gkenetwork1",
-    "priority": 999,
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/firewalls/gke-my-first-cluster-1-ece0bc06-inkubelet",
-    "sourceRanges": [
-      "10.140.0.0/14"
-    ],
-    "sourceTags": [
-      "gke-my-first-cluster-1-ece0bc06-node"
-    ],
-    "targetTags": [
-      "gke-my-first-cluster-1-ece0bc06-node"
-    ]
-  },
-  {
-    "allowed": [
-      {
-        "IPProtocol": "icmp"
-      },
-      {
-        "IPProtocol": "tcp",
-        "ports": [
-          "1-65535"
-        ]
-      },
-      {
-        "IPProtocol": "udp",
-        "ports": [
-          "1-65535"
-        ]
-      }
-    ],
-    "creationTimestamp": "2023-05-15T19:31:36.151-07:00",
-    "description": "",
-    "direction": "INGRESS",
-    "disabled": false,
-    "id": "359073794659145191",
-    "kind": "compute#firewall",
-    "logConfig": {
-      "enable": false
-    },
-    "name": "gke-my-first-cluster-1-ece0bc06-vms",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/gkenetwork1",
-    "priority": 1000,
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/firewalls/gke-my-first-cluster-1-ece0bc06-vms",
-    "sourceRanges": [
-      "10.0.0.0/24"
-    ],
-    "targetTags": [
-      "gke-my-first-cluster-1-ece0bc06-node"
-    ]
-  },
-  {
-    "allowed": [
-      {
         "IPProtocol": "all"
       }
     ],
-    "creationTimestamp": "2023-05-15T19:30:28.366-07:00",
+    "creationTimestamp": "2023-05-16T04:28:04.307-07:00",
     "description": "",
     "direction": "INGRESS",
     "disabled": false,
-    "id": "6172856038942790699",
+    "id": "5445787576890742315",
     "kind": "compute#firewall",
     "logConfig": {
       "enable": false
@@ -247,10 +97,10 @@ gcloud compute firewall-rules create $firewallruleName --network $networkName --
 - create gke cluster
  
 
-create gke cluster\n 
 *enable-ip-alias* to enable use alias ip on VM for pod ip address
 *service-ipv4-cidr* is the cidr for clusterVIP address
 *cluster-ipv4-cidr* is for POD ip address scope
+*kubectl get node -o wide" shall show the node in ready state. 
 
 - paste below command to create gke cluster
  
@@ -314,15 +164,18 @@ echo cluster worker node vm has alias ip $(gcloud compute instances describe $na
 `kubectl get node -o wide`
 ```
 NAME                                                STATUS   ROLES    AGE   VERSION            INTERNAL-IP   EXTERNAL-IP      OS-IMAGE             KERNEL-VERSION    CONTAINER-RUNTIME
-gke-my-first-cluster-1-default-pool-904c27c6-83jk   Ready    <none>   44m   v1.26.3-gke.1000   10.0.0.4      35.189.160.192   Ubuntu 22.04.2 LTS   5.15.0-1028-gke   containerd://1.6.18
-gke-my-first-cluster-1-default-pool-904c27c6-br1b   Ready    <none>   44m   v1.26.3-gke.1000   10.0.0.3      35.189.185.168   Ubuntu 22.04.2 LTS   5.15.0-1028-gke   containerd://1.6.18
+gke-my-first-cluster-1-default-pool-e9a8b359-2p4f   Ready    <none>   33s   v1.26.3-gke.1000   10.0.0.3      35.189.160.192   Ubuntu 22.04.2 LTS   5.15.0-1028-gke   containerd://1.6.18
+gke-my-first-cluster-1-default-pool-e9a8b359-hzbj   Ready    <none>   31s   v1.26.3-gke.1000   10.0.0.4      34.80.212.63     Ubuntu 22.04.2 LTS   5.15.0-1028-gke   containerd://1.6.18
 ```
-- enable worker node ipforwarding 
+- enable worker node ipforwarding
+ 
 
-by default, the GKE come with ipforwarding disabled. for cFOS to work. we have to enable ip forwarding on worker node.
+by default, the GKE come with ipforwarding disabled. for cFOS to work. we have to enable ip forwarding on worker node. for more detail, check https://github.com/GoogleCloudPlatform/guest-configs/blob/master/src/etc/sysctl.d/60-gce-network-security.conf for ipv4 forwarding config 
+
 to enable ipforwarding, we need to config *canIpForward: true* for instance profile, for more detail , check  https://cloud.google.com/vpc/docs/using-routes#canipforward.
 
-- paste below command to enable ipforwarding 
+- paste below command to enable ipforwarding
+ 
 ```
 [[ $defaultClustername == "" ]] && defaultClustername="my-first-cluster-1"
 gkeClusterName=$defaultClustername
@@ -350,16 +203,19 @@ done
 ```
 - install multus cni 
 
+
+
 We need to install multus CNI for route traffic from application POD to cFOS POD
 by default, GKE come with default cni which is use ptp binary with host-local ipam. the default cni config has name "10-containerd-net.conflist". when we install multus, 
 the default multus config will use *"--multus-conf-file=auto"*, with this option. multus will automatically create 00-multus.conf file with delegate to default 10-containerd-net.conflist. in this demo. we use default behavior. 
 we  need to change default multus config *path: /home/kubernetes/bin* . this is because GKE only grant this directory with writ permission.
 each worker node will have one multus POD installed. 
-- paste below command to install multus CNI with manual config 
+- paste below command to install multus CNI  
 ```
 file="multus_auto.yml"
 #multusconfig="/tmp/multus-conf/07-multus.conf" 
 multusconfig="auto"
+multus_bin_hostpath="/home/kubernetes/bin"
 cat << EOF > $file
 # Note:
 #   This deployment file is designed for 'quickstart' of multus, easy installation to test it,
@@ -600,7 +456,7 @@ spec:
             path: /etc/cni/net.d
         - name: cnibin
           hostPath:
-            path: /home/kubernetes/bin
+            path: $multus_bin_hostpath
         - name: multus-cfg
           configMap:
             name: multus-cni-config
@@ -612,29 +468,34 @@ kubectl create -f $file
 kubectl rollout status ds/kube-multus-ds -n kube-system
 ```
 - check the result
+
 `kubectl rollout status ds/kube-multus-ds -n kube-system`
 `kubectl logs ds/kube-multus-ds -c kube-multus -n kube-system)`
  you shall see output 
 ```
 daemon set "kube-multus-ds" successfully rolled out
-2023-05-16T00:41:17+00:00 Generating Multus configuration file using files in /host/etc/cni/net.d...
-2023-05-16T00:41:17+00:00 Using MASTER_PLUGIN: 10-containerd-net.conflist
+2023-05-16T11:36:26+00:00 Generating Multus configuration file using files in /host/etc/cni/net.d...
+2023-05-16T11:36:26+00:00 Using MASTER_PLUGIN: 10-containerd-net.conflist
 ```
 - create net-attach-def for cfos  
+
 We will create net-attach-def with mac-vlan CNI ,multus CNI will use this net-attach-def to create  network and attach POD to the network.
 We use host-local as IPAM CNI. this net-attach-def is for cfos to attach. 
-the cni config of macvlan use bridge mode and associated with "ens4" interface on worker node. if the master interface on worker node is other than ens4. you need change that.
+the cni config of macvlan use bridge mode and associated with ens4   interface on worker node. if the master interface on worker node is other than ens4. you need change that to match the actual one on the host node 
 you can ssh into worker node to check master interface name. 
-the net-attach-def has name "cfosdefaultcni5". 
+the net-attach-def has name cfosdefaultcni5
 - paste below command to create net-attach-def
+
 ```
+#!/bin/bash -xe
+[[ $master_interface_on_worker_node == "" ]] && master_interface_on_worker_node="ens4"
+[[ $net_attach_def_name_for_cfos == "" ]]    &&  net_attach_def_name_for_cfos="cfosdefaultcni5"
 filename="04_nad_macvlan_cfos.yml"
-master_interface_on_worker_node="ens4"
 cat << EOF > $filename
 apiVersion: "k8s.cni.cncf.io/v1"
 kind: NetworkAttachmentDefinition
 metadata:
-  name: cfosdefaultcni5
+  name: $net_attach_def_name_for_cfos
 spec:
   config: '{
       "cniVersion": "0.3.1",
@@ -656,17 +517,18 @@ kubectl get net-attach-def cfosdefaultcni5 -o yaml
 
 ```
 - check the result
+
 `kubectl get net-attach-def cfosdefaultcni5 -o yaml `
 ```
 apiVersion: k8s.cni.cncf.io/v1
 kind: NetworkAttachmentDefinition
 metadata:
-  creationTimestamp: "2023-05-16T00:41:20Z"
+  creationTimestamp: "2023-05-16T11:36:29Z"
   generation: 1
   name: cfosdefaultcni5
   namespace: default
-  resourceVersion: "2557"
-  uid: a38a6faa-a593-43f5-b7e1-43f58ac7fd84
+  resourceVersion: "2607"
+  uid: 8ec411e2-acb5-4af5-a6c4-7ac2d698be01
 spec:
   config: '{ "cniVersion": "0.3.1", "type": "macvlan", "master": "ens4", "mode": "bridge",
     "ipam": { "type": "host-local", "subnet": "10.1.200.0/24", "rangeStart": "10.1.200.250",
@@ -675,18 +537,20 @@ spec:
 - create net-attach-def for application deployment  
 We will create net-attach-def with mac-vlan CNI ,multus CNI will use this net-attach-def to create  network and attach POD to the network.
 We use host-local as IPAM CNI. this net-attach-def is for application to attach. 
-the cni config of macvlan use bridge mode and associated with "ens4" interface on worker node. if the master interface on worker node is other than ens4. you need change that.
+the cni config of macvlan use bridge mode and associated with *"ens4"* interface on worker node. if the master interface on worker node is other than ens4. you need change that.
 you can ssh into worker node to check master interface name. 
-the net-attach-def has name "cfosapp".  we also use "cfosapp" as label in policy manager demo. if you change this name to something  else, you will also need to change the image for policy manager where cfosapp is hard coded in the image script. 
+the net-attach-def has name *"cfosapp"*.  we also use *"cfosapp"* as label in policy manager demo. if you change this name to something  else, you will also need to change the image for policy manager where *cfosapp* is hard coded in the image script. 
+in the nad config, we inserted specific custom route *{ "dst": "1.1.1.1/32", "gw": "10.1.200.252" },,{ "dst": "104.18.0.0/16", "gw": "10.1.200.252"},,{ "dst": "89.238.73.0/24", "gw": "10.1.200.252"}*, for traffic destinated to these subnets, the nexthop is cFOS interface ip.
 - paste below command to create net-attach-def
-```
-filename="04_nad_macvlan_for_app.yml"
-master_interface_on_worker_node="ens4"
-dst1='{ "dst": "1.1.1.1/32", "gw": "10.1.200.252" },'
-dst2='{ "dst": "104.18.0.0/16", "gw": "10.1.200.252"},'
-lastdst='{ "dst": "89.238.73.0/24", "gw": "10.1.200.252"}'
 
-app_nad_annotation="cfosapp"
+```
+#!/bin/bash -xe
+filename="04_nad_macvlan_for_app.yml"
+[[ custom_dst1 == "" ]] && custom_dst1='{ "dst": "1.1.1.1/32", "gw": "10.1.200.252" },'
+[[ custom_dst2 == "" ]] && custom_dst2='{ "dst": "104.18.0.0/16", "gw": "10.1.200.252"},'
+[[ custom_lastdst == "" ]] && custom_lastdst='{ "dst": "89.238.73.0/24", "gw": "10.1.200.252"}'
+[[ app_nad_annotation == "" ]] && app_nad_annotation="cfosapp"
+
 cat << EOF > $filename
 apiVersion: "k8s.cni.cncf.io/v1"
 kind: NetworkAttachmentDefinition
@@ -702,9 +566,9 @@ spec:
         "type": "host-local",
         "subnet": "10.1.200.0/24",
         "routes": [
-          $dst1
-          $dst2
-          $lastdst
+          $custom_dst1
+          $custom_dst2
+          $custom_lastdst
         ],
         "rangeStart": "10.1.200.20",
         "rangeEnd": "10.1.200.251",
@@ -717,17 +581,18 @@ kubectl get net-attach-def $app_nad_annotation -o yaml
 
 ```
 - check the result
+
 `kubectl get net-attach-def cfosapp -o yaml `
 ```
 apiVersion: k8s.cni.cncf.io/v1
 kind: NetworkAttachmentDefinition
 metadata:
-  creationTimestamp: "2023-05-16T00:41:20Z"
+  creationTimestamp: "2023-05-16T11:36:29Z"
   generation: 1
   name: cfosapp
   namespace: default
-  resourceVersion: "2561"
-  uid: 307e15f8-210a-4706-ab18-2bc1bc94a365
+  resourceVersion: "2615"
+  uid: 69942afb-9020-4608-90b0-dd4781aa4915
 spec:
   config: '{ "cniVersion": "0.3.1", "type": "macvlan", "master": "ens4", "mode": "bridge",
     "ipam": { "type": "host-local", "subnet": "10.1.200.0/24", "routes": [ { "dst":
@@ -737,14 +602,16 @@ spec:
 ```
 - create demo application deployment
 
+
 we use annotation *k8s.v1.cni.cncf.io/networks: '[ { "name": "cfosapp" } ]'* to config to POD for secondary interface and custom route entry.
 we did not touch pod default route, instead we only insert custom route that we are interested. so for destination, the next hop will be cFOS. cFOS will inspect traffic for those traffic.
-we configured ip address 1.1.1.1/32 , 89.238.73.0/24 , 104.18.0.0/16 route point to cFOS for inspection in this demo. 
+when POD attach to *cfosapp*, it will obtain *{ "dst": "1.1.1.1/32", "gw": "10.1.200.252" },, { "dst": "104.18.0.0/16", "gw": "10.1.200.252"},, { "dst": "89.238.73.0/24", "gw": "10.1.200.252"}*  route point to cFOS for inspection in this demo. 
 
 - paste below command to create application deployment
+
 ```
 file="app_with_annotations_cfosapp.yml"
-annotations="k8s.v1.cni.cncf.io/networks: '[ { \"name\": \"cfosapp\" } ]'"
+annotations="k8s.v1.cni.cncf.io/networks: '[ { \"name\": \"$app_nad_annotation\" } ]'"
 cat << EOF > $file 
 apiVersion: apps/v1
 kind: Deployment
@@ -781,6 +648,7 @@ EOF
 kubectl create -f $file && kubectl rollout status deployment multitool01-deployment
 ```
 - check the result
+
 `kubectl rollout status deployment multitool01-deployment`
 ```
 deployment "multitool01-deployment" successfully rolled out
@@ -788,20 +656,20 @@ deployment "multitool01-deployment" successfully rolled out
 `kubectl get pod -l app=multitool01`
 ```
 NAME                                      READY   STATUS    RESTARTS   AGE
-multitool01-deployment-7f5bf4b7cd-74mm4   1/1     Running   0          7s
-multitool01-deployment-7f5bf4b7cd-fgs4s   1/1     Running   0          7s
-multitool01-deployment-7f5bf4b7cd-gpgxq   1/1     Running   0          7s
-multitool01-deployment-7f5bf4b7cd-wj8xd   1/1     Running   0          7s
+multitool01-deployment-7f5bf4b7cd-c6f8r   1/1     Running   0          8s
+multitool01-deployment-7f5bf4b7cd-klf9r   1/1     Running   0          8s
+multitool01-deployment-7f5bf4b7cd-mtd4d   1/1     Running   0          8s
+multitool01-deployment-7f5bf4b7cd-ppqqq   1/1     Running   0          8s
 ```
 `
 nodeName=$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}') && for node in $nodeName; do podName=$(kubectl get pods -l app=multitool01 --field-selector spec.nodeName="$node" -o jsonpath='{.items[*].metadata.name}') ; kubectl exec -it po/$podName -- ip route && kubectl exec -t po/$podName -- ip address ; done
 `
 ```
-default via 10.140.1.1 dev eth0 
+default via 10.140.0.1 dev eth0 
 1.1.1.1 via 10.1.200.252 dev net1 
 10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.20 
-10.140.1.0/24 via 10.140.1.1 dev eth0 src 10.140.1.9 
-10.140.1.1 dev eth0 scope link src 10.140.1.9 
+10.140.0.0/24 via 10.140.0.1 dev eth0 src 10.140.0.9 
+10.140.0.1 dev eth0 scope link src 10.140.0.9 
 89.238.73.0/24 via 10.1.200.252 dev net1 
 104.18.0.0/16 via 10.1.200.252 dev net1 
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
@@ -809,18 +677,18 @@ default via 10.140.1.1 dev eth0
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
 2: eth0@if11: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether 5e:fc:0e:ca:74:c9 brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet 10.140.1.9/24 brd 10.140.1.255 scope global eth0
+    link/ether ce:75:f0:38:6b:7c brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.140.0.9/24 brd 10.140.0.255 scope global eth0
        valid_lft forever preferred_lft forever
 3: net1@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether a2:1a:4b:36:eb:ce brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    link/ether 16:dc:af:ae:50:5d brd ff:ff:ff:ff:ff:ff link-netnsid 0
     inet 10.1.200.20/24 brd 10.1.200.255 scope global net1
        valid_lft forever preferred_lft forever
-default via 10.140.0.1 dev eth0 
+default via 10.140.1.1 dev eth0 
 1.1.1.1 via 10.1.200.252 dev net1 
 10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.20 
-10.140.0.0/24 via 10.140.0.1 dev eth0 src 10.140.0.5 
-10.140.0.1 dev eth0 scope link src 10.140.0.5 
+10.140.1.0/24 via 10.140.1.1 dev eth0 src 10.140.1.5 
+10.140.1.1 dev eth0 scope link src 10.140.1.5 
 89.238.73.0/24 via 10.1.200.252 dev net1 
 104.18.0.0/16 via 10.1.200.252 dev net1 
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
@@ -828,15 +696,16 @@ default via 10.140.0.1 dev eth0
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
 2: eth0@if7: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether 46:38:f5:26:7c:9e brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet 10.140.0.5/24 brd 10.140.0.255 scope global eth0
+    link/ether 7e:85:0e:3a:92:8f brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.140.1.5/24 brd 10.140.1.255 scope global eth0
        valid_lft forever preferred_lft forever
 3: net1@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether 3e:c0:e9:3a:92:8f brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    link/ether 42:dd:65:d7:de:1f brd ff:ff:ff:ff:ff:ff link-netnsid 0
     inet 10.1.200.20/24 brd 10.1.200.255 scope global net1
        valid_lft forever preferred_lft forever
 ```
 - create cfos role and service account
+
 
 cfos will require to read configmap permission to get license and also cfos will require read-secrets permission to get secret to pull cfos image
 
@@ -903,6 +772,7 @@ EOF
 kubectl create -f $file  
 ```
 - check the result
+
 `
 kubectl get rolebinding read-configmaps && kubectl get rolebinding read-secrets -o yaml
 `
@@ -912,11 +782,11 @@ read-configmaps   ClusterRole/configmap-reader   0s
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  creationTimestamp: "2023-05-16T00:41:31Z"
+  creationTimestamp: "2023-05-16T11:36:41Z"
   name: read-secrets
   namespace: default
-  resourceVersion: "2711"
-  uid: c31edb43-2fbd-4487-92b9-46b52f67b38a
+  resourceVersion: "2790"
+  uid: f5c21b8b-987c-44e0-9292-6f689dc48d6b
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -940,7 +810,10 @@ cFOS image will be pulled from Docker Hub with pull secret.
 
 - paste below command to create cfos DaemonSet
 ```
+#!/bin/bash -xe 
 file="cfos_ds.yml" 
+[[ $cfosIp == "" ]] && cfosIp="10.1.200.252/32"
+annotations="k8s.v1.cni.cncf.io/networks: '[ { \"name\": \"$net_attach_def_name_for_cfos\",  \"ips\": [ \"$cfosIp\" ], \"mac\": \"CA:FE:C0:FF:00:02\" } ]'"
 
 cat << EOF > $file
 ---
@@ -977,7 +850,8 @@ spec:
       labels:
         app: fos
       annotations:
-        k8s.v1.cni.cncf.io/networks: '[ { "name": "cfosdefaultcni5",  "ips": [ "10.1.200.252/32" ], "mac": "CA:FE:C0:FF:00:02" } ]'
+        $annotations
+        #k8s.v1.cni.cncf.io/networks: '[ { "name": "cfosdefaultcni5",  "ips": [ "10.1.200.252/32" ], "mac": "CA:FE:C0:FF:00:02" } ]'
     spec:
       containers:
       - name: fos
@@ -1013,48 +887,48 @@ kubectl create -f $file  && \
 
 kubectl rollout status ds/fos-deployment && kubectl get pod -l app=fos
 ```
-- check the result
+- check the result\n
 `
 kubectl rollout status ds/fos-deployment && kubectl get pod -l app=fos
 `
 ```
 daemon set "fos-deployment" successfully rolled out
 NAME                   READY   STATUS    RESTARTS   AGE
-fos-deployment-d9dz5   1/1     Running   0          8s
-fos-deployment-r9t9r   1/1     Running   0          8s
+fos-deployment-2s97r   1/1     Running   0          9s
+fos-deployment-5kq6d   1/1     Running   0          9s
 ```
 check routing table and ip address
 `
 nodeName=$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}') && for node in $nodeName; do podName=$(kubectl get pods -l app=fos --field-selector spec.nodeName="$node" -o jsonpath='{.items[*].metadata.name}') ; kubectl exec -it po/$podName -- ip route && kubectl exec -t po/$podName -- ip address ; done
 `
 ```
-default via 10.140.1.1 dev eth0 
+default via 10.140.0.1 dev eth0 
 10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.252 
-10.140.1.0/24 via 10.140.1.1 dev eth0 src 10.140.1.11 
-10.140.1.1 dev eth0 scope link src 10.140.1.11 
+10.140.0.0/24 via 10.140.0.1 dev eth0 src 10.140.0.11 
+10.140.0.1 dev eth0 scope link src 10.140.0.11 
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
 2: eth0@if13: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether e2:93:2f:c4:24:24 brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet 10.140.1.11/24 brd 10.140.1.255 scope global eth0
+    link/ether 3a:8d:22:53:40:2a brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.140.0.11/24 brd 10.140.0.255 scope global eth0
        valid_lft forever preferred_lft forever
 3: net1@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
     link/ether ca:fe:c0:ff:00:02 brd ff:ff:ff:ff:ff:ff link-netnsid 0
     inet 10.1.200.252/24 brd 10.1.200.255 scope global net1
        valid_lft forever preferred_lft forever
-default via 10.140.0.1 dev eth0 
+default via 10.140.1.1 dev eth0 
 10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.252 
-10.140.0.0/24 via 10.140.0.1 dev eth0 src 10.140.0.7 
-10.140.0.1 dev eth0 scope link src 10.140.0.7 
+10.140.1.0/24 via 10.140.1.1 dev eth0 src 10.140.1.7 
+10.140.1.1 dev eth0 scope link src 10.140.1.7 
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
 2: eth0@if9: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether 06:28:ee:82:51:43 brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet 10.140.0.7/24 brd 10.140.0.255 scope global eth0
+    link/ether 72:4b:5a:6f:8c:2e brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.140.1.7/24 brd 10.140.1.255 scope global eth0
        valid_lft forever preferred_lft forever
 3: net1@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
     link/ether ca:fe:c0:ff:00:02 brd ff:ff:ff:ff:ff:ff link-netnsid 0
@@ -1071,8 +945,8 @@ System is starting...
 
 Firmware version is 7.2.0.0231
 Preparing environment...
-INFO: 2023/05/16 00:41:40 importing license...
-INFO: 2023/05/16 00:41:41 license is imported successfuly!
+INFO: 2023/05/16 11:36:51 importing license...
+INFO: 2023/05/16 11:36:51 license is imported successfuly!
 WARNING: System is running in restricted mode due to lack of valid license!
 Starting services...
 
@@ -1080,17 +954,18 @@ System is starting...
 
 Firmware version is 7.2.0.0231
 Preparing environment...
-INFO: 2023/05/16 00:41:40 importing license...
-INFO: 2023/05/16 00:41:40 license is imported successfuly!
+INFO: 2023/05/16 11:36:51 importing license...
+INFO: 2023/05/16 11:36:51 license is imported successfuly!
 WARNING: System is running in restricted mode due to lack of valid license!
 Starting services...
 ```
-- create configmap for cfos to get firewall policy configuration 
+- create configmap for cfos to get firewall policy configuration/n 
 cfos can be configured use cFOS shell, kubernetes configmap and restApi. here we use configmap to config cFOS
 there is an issue in this version, the configuration applied via configmap will not take effect until you restart cFOS DS.
-the firewall policy has policy id set to 300 and source address set to any
+the firewall policy has policy id set to 300 and source address set to any. once configmap created, cFOS will read the configmap and apply the policy. you can chech the log on cFOS to verify this.
+delete configmap will not delete the policy on cFOS. you can also edit the policy in configmap use *kubectl edit cm foscfgfirewallpolicy* to update the policy.
 
-- paste below command to create configmap that include firewall policy configuration
+- paste below command to create configmap that include firewall policy configuration/n
 ```
 policy_id="300"
 file="configmapfirewallpolicy.yml"
@@ -1126,6 +1001,7 @@ EOF
 kubectl create -f $file 
 ```
 - check the result
+
 `
 kubectl get configmap foscfgfirewallpolicy -o yaml
 `
@@ -1153,14 +1029,14 @@ data:
   type: partial
 kind: ConfigMap
 metadata:
-  creationTimestamp: "2023-05-16T00:41:43Z"
+  creationTimestamp: "2023-05-16T11:36:53Z"
   labels:
     app: fos
     category: config
   name: foscfgfirewallpolicy
   namespace: default
-  resourceVersion: "2853"
-  uid: b2f862f9-e9f6-433c-99bd-718246e125ab
+  resourceVersion: "2947"
+  uid: 35e63e1a-e1ef-4043-8680-35ffacd0c3ea
 ```
 check cfos log for retrive config from configmap
 `
@@ -1172,39 +1048,48 @@ System is starting...
 
 Firmware version is 7.2.0.0231
 Preparing environment...
-INFO: 2023/05/16 00:41:40 importing license...
-INFO: 2023/05/16 00:41:41 license is imported successfuly!
+INFO: 2023/05/16 11:36:51 importing license...
+INFO: 2023/05/16 11:36:51 license is imported successfuly!
 WARNING: System is running in restricted mode due to lack of valid license!
 Starting services...
+System is ready.
+
+2023-05-16_11:36:52.19638 ok: run: /run/fcn_service/certd: (pid 276) 1s, normally down
 
 System is starting...
 
 Firmware version is 7.2.0.0231
 Preparing environment...
-INFO: 2023/05/16 00:41:40 importing license...
-INFO: 2023/05/16 00:41:40 license is imported successfuly!
+INFO: 2023/05/16 11:36:51 importing license...
+INFO: 2023/05/16 11:36:51 license is imported successfuly!
 WARNING: System is running in restricted mode due to lack of valid license!
 Starting services...
 System is ready.
 
-2023-05-16_00:41:41.78935 ok: run: /run/fcn_service/certd: (pid 276) 0s, normally down
+2023-05-16_11:36:52.52545 ok: run: /run/fcn_service/certd: (pid 274) 1s, normally down
 ```
-- restart cfos DaemonSet  to workaround policy not work issue 
-when use configmap to apply firewallpolicy to cFOS, if it's the first time to config cFOS using firewall policy, then a restart cFOS is required
+- restart cfos DaemonSet  to workaround policy not work issue
+ 
+when use configmap to apply firewallpolicy to cFOS, if it's the first time to config cFOS using firewall policy, then a restart cFOS is required. alternatively, you can shell into cFOS then run *fcnsh* to enter cFOS shell and remove config and added back as a workaroud. 
 
-
-- paste below command to restart cFOS DaemonSet 
+- paste below command to restart cFOS DaemonSet
+ 
 ```
 kubectl rollout status ds/fos-deployment && \
 kubectl rollout restart ds/fos-deployment && \
 kubectl rollout status ds/fos-deployment && \
 podname=$(kubectl get pod -l app=fos  | grep Running | grep fos | cut -d " " -f 1) && \
-echo 'check cfos iptables for snat entry' && \
+echo   'check cfos iptables for snat entry' && \
 kubectl exec -it po/$podname -- iptables -L -t nat --verbose | grep MASQ && \
+echo "check whether application pod can reach 1.1.1.1"
+echo "check deployment multi"
+kubectl get pod | grep multi | grep -v termin  | awk '{print $1}'  | while read line; do echo pod $line; kubectl exec -t po/$line -- ping -c1 1.1.1.1 ; done
 echo 'done'
 ```
 - check the result
+
 - check deployment status of cFOS
+
 `
 kubectl rollout status ds/fos-deployment
 `
@@ -1212,62 +1097,116 @@ kubectl rollout status ds/fos-deployment
 daemon set "fos-deployment" successfully rolled out
 ```
 check cfos iptables entry
+
 check routing table and ip address
 `
-nodeName=$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}') && for node in $nodeName; do podName=$(kubectl get pods -l app=fos --field-selector spec.nodeName="$node" -o jsonpath='{.items[*].metadata.name}') ;  kubectl exec -it po/$podName -- iptables -L -t nat --verbose | grep MASQ ; done
+nodeName=$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}') && for node in $nodeName; do podName=$(kubectl get pods -l app=fos --field-selector spec.nodeName="$node" -o jsonpath='{.items[*].metadata.name}') ; echo $podName
+;  kubectl exec -it po/$podName -- iptables -L -t nat --verbose | grep MASQ ; done
 `
 ```
-   27  2248 MASQUERADE  all  --  any    eth0    anywhere             anywhere            
+fos-deployment-q2fjfn
+   29  2416 MASQUERADE  all  --  any    eth0    anywhere             anywhere            
+fos-deployment-kkgctn
+   28  2332 MASQUERADE  all  --  any    eth0    anywhere             anywhere            
+```
+check ping result
+
+`
+kubectl get pod | grep multi | grep -v termin  | awk '{print $1}'  | while read line; do echo pod $line; kubectl exec -t po/$line -- ping -c1 1.1.1.1 ; done
+`
+```
+pod multitool01-deployment-7f5bf4b7cd-c6f8r
+PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
+64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=7.01 ms
+
+--- 1.1.1.1 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 7.007/7.007/7.007/0.000 ms
+pod multitool01-deployment-7f5bf4b7cd-klf9r
+PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
+64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=4.50 ms
+
+--- 1.1.1.1 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 4.498/4.498/4.498/0.000 ms
+pod multitool01-deployment-7f5bf4b7cd-mtd4d
+PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
+64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=4.44 ms
+
+--- 1.1.1.1 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 4.438/4.438/4.438/0.000 ms
+pod multitool01-deployment-7f5bf4b7cd-ppqqq
+PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
+64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=4.21 ms
+
+--- 1.1.1.1 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 4.207/4.207/4.207/0.000 ms
 ```
 - do a ips test on a target website
+
 it is very common that a malicous POD can geneate some malicous traffic targeting external network or VM or physical machine in custmer network. those traffic are often encrypted , when these traffic reach cFOS, cFOS can decrpyt the traffic and look into the IPS signature. if match the signature. cFOS can either block it or pass it with alert depends on the policy configured.
 
-we will generate some malicous traffic from application POD targeting a testing website. cFOS will block the traffic and log it.
+we will generate some malicous traffic from application POD targeting a testing website. cFOS will block the traffic and log it. 
 you will exepct to see ips traffic log with matched firewall policy id to indicate which policy is in action.
 
-- paste below command to send malicous traffic from application pod 
+- paste below command to send malicous traffic from application pod
+ 
 ```
-url="www.hackthebox.eu"
-kubectl get pod | grep multi | grep -v termin | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- dig $url ; done && \
-kubectl get pod | grep multi | grep -v termin | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- ping -c 2  $url ; done && \
-kubectl get pod | grep multi | grep -v termin | awk '{print $1}'  | while read line; do kubectl exec -t po/$line --  curl --max-time 5  -k -H "User-Agent: () { :; }; /bin/ls" https://$url ; done
-kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/ips.0 | grep 300  ; done
+#!/bin/bash
+[[ $ips_target_url == "" ]] && ips_target_url="www.hackthebox.eu"
+policy_id="300"
+echo -e 'generate traffic to $ips_target_url' 
+kubectl get pod | grep multi | grep -v termin | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- dig $ips_target_url ; done && \
+kubectl get pod | grep multi | grep -v termin | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- ping -c 2  $ips_target_url ; done && \
+kubectl get pod | grep multi | grep -v termin | awk '{print $1}'  | while read line; do kubectl exec -t po/$line --  curl --max-time 5  -k -H "User-Agent: () { :; }; /bin/ls" https://$ips_target_url ; done
+kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/ips.0 | grep $policy_id ; done
 ```
 - check the result
+
 `
 kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/ips.0 | grep 300 ; done
 `
 ```
-date=2023-05-16 time=00:43:20 eventtime=1684197800 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.20 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=3 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=46940 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=188743681 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
-date=2023-05-16 time=00:43:25 eventtime=1684197805 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.21 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=5 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=55104 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=188743682 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
-date=2023-05-16 time=00:43:10 eventtime=1684197790 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.20 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=4 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=52758 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=139460609 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
-date=2023-05-16 time=00:43:15 eventtime=1684197795 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.21 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=6 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=50658 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=139460610 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-05-16 time=11:38:35 eventtime=1684237115 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.20 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=2 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=40930 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=98566145 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-05-16 time=11:38:40 eventtime=1684237120 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.21 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=9 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=39834 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=98566146 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-05-16 time=11:38:24 eventtime=1684237104 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.20 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=6 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=48412 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=224395265 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-05-16 time=11:38:29 eventtime=1684237109 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.21 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=6 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=50704 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=224395266 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
 ```
-- do a web filter  test on a target website
+- do a web filter  test on a target website 
+
 it is very common that a malicous POD can geneate some malicous traffic targeting external network or VM or physical machine in custmer network. those traffic are often encrypted , when these traffic reach cFOS, cFOS can decrpyt the traffic and look into the domain name of target website. it the target website belong to category that suppose to be blocked, cFOS will block it. the database of maclious website will always updated to the latest from fortiguard service. 
 
 we will generate some malicous traffic from application POD targeting a testing website. cFOS will block the traffic and log it.
 you will expect to see web filter log with matched policy id to indicate which firewall policy is in action
 - paste below command initial access to the target website 
+
 ```
-url="https://www.eicar.org/download/eicar.com.txt"
-kubectl get pod | grep multi | grep -v termin | awk '{print $1}'  | while read line; do kubectl exec -t po/$line --  curl -k -I  $url  ; done
+#!/bin/bash
+[[ $webf_target_url == "" ]] && webf_target_url="https://www.eicar.org/download/eicar.com.txt"
+echo -e 'generate traffic to $webf_target_url' 
+
+kubectl get pod | grep multi | grep -v termin | awk '{print $1}'  | while read line; do kubectl exec -t po/$line --  curl -k -I  $webf_target_url  ; done
 kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/webf.0 | grep 300 ; done
 ```
 - check the result
+
 `
 kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/webf.0 | grep 300 ; done
 `
 ```
-date=2023-05-16 time=00:43:36 eventtime=1684197816 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=300 sessionid=4 srcip=10.1.200.20 srcport=52148 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
-date=2023-05-16 time=00:43:36 eventtime=1684197816 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=300 sessionid=7 srcip=10.1.200.21 srcport=51020 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
-date=2023-05-16 time=00:43:33 eventtime=1684197813 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=300 sessionid=4 srcip=10.1.200.20 srcport=54018 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
-date=2023-05-16 time=00:43:34 eventtime=1684197814 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=300 sessionid=8 srcip=10.1.200.21 srcport=54880 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
+date=2023-05-16 time=11:38:51 eventtime=1684237131 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=300 sessionid=11 srcip=10.1.200.20 srcport=56554 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
+date=2023-05-16 time=11:38:51 eventtime=1684237131 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=300 sessionid=4 srcip=10.1.200.21 srcport=54494 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
+date=2023-05-16 time=11:38:48 eventtime=1684237128 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=300 sessionid=8 srcip=10.1.200.20 srcport=53852 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
+date=2023-05-16 time=11:38:49 eventtime=1684237129 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=300 sessionid=8 srcip=10.1.200.21 srcport=41772 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
 ```
 - use cfos restful API to delete firewall policy 
+
 we can use cFOS shell to change firewall policy, we can also use cFOS restAPI to do the same. 
 after delete firewall policy, ping to 1.1.1.1 from application pod will no longer reachable
 - paste below command delete firewall policy 
+
 ```
 policy_id="300"
 #url="http://fos-deployment.default.svc.cluster.local"
@@ -1280,49 +1219,52 @@ kubectl exec -it po/policymanager -- curl -X DELETE "$i/api/v2/cmdb/firewall/pol
 done
 ```
 - check the result
+
 `
-kubectl get pod | grep multi | grep -v termin  | awk '{print $1}'  | while read line; do echo pod $line; kubectl exec -t po/$line -- ping -c1 1.1.1.1 ; done
+kubectl get pod | grep multi | grep -v termin  | awk '{print $1}'  | while read line; do echo -e pod $line; kubectl exec -t po/$line -- ping -c1 1.1.1.1 ; done
 `
 ```
-pod multitool01-deployment-7f5bf4b7cd-74mm4
+pod multitool01-deployment-7f5bf4b7cd-c6f8r
 PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
-64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=4.53 ms
+64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=4.97 ms
 
 --- 1.1.1.1 ping statistics ---
 1 packets transmitted, 1 received, 0% packet loss, time 0ms
-rtt min/avg/max/mdev = 4.533/4.533/4.533/0.000 ms
-pod multitool01-deployment-7f5bf4b7cd-fgs4s
+rtt min/avg/max/mdev = 4.968/4.968/4.968/0.000 ms
+pod multitool01-deployment-7f5bf4b7cd-klf9r
 PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
-64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=3.55 ms
+64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=4.15 ms
 
 --- 1.1.1.1 ping statistics ---
 1 packets transmitted, 1 received, 0% packet loss, time 0ms
-rtt min/avg/max/mdev = 3.548/3.548/3.548/0.000 ms
-pod multitool01-deployment-7f5bf4b7cd-gpgxq
+rtt min/avg/max/mdev = 4.147/4.147/4.147/0.000 ms
+pod multitool01-deployment-7f5bf4b7cd-mtd4d
 PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
-64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=5.41 ms
+64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=4.75 ms
 
 --- 1.1.1.1 ping statistics ---
 1 packets transmitted, 1 received, 0% packet loss, time 0ms
-rtt min/avg/max/mdev = 5.412/5.412/5.412/0.000 ms
-pod multitool01-deployment-7f5bf4b7cd-wj8xd
+rtt min/avg/max/mdev = 4.751/4.751/4.751/0.000 ms
+pod multitool01-deployment-7f5bf4b7cd-ppqqq
 PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
-64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=4.48 ms
+64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=3.70 ms
 
 --- 1.1.1.1 ping statistics ---
 1 packets transmitted, 1 received, 0% packet loss, time 0ms
-rtt min/avg/max/mdev = 4.480/4.480/4.480/0.000 ms
+rtt min/avg/max/mdev = 3.700/3.700/3.700/0.000 ms
 ```
-- create an POD to update POD source IP to cFOS 
+- create an POD to update POD source IP to cFOS
+ 
 POD IPs are keep changing due to scale in/out or reborn , deleting etc for various reason, we need to keep update the POD ip address to cFOS address group. 
-we create a POD dedicated for this. this POD keep running a background proces which update the application POD's IP  that has annoation to net-attach-def "cfosapp" to cFOS via cFOS restful API. 
+we create a POD dedicated for this. this POD keep running a background proces which update the application POD's IP  that has annoation to net-attach-def *cfosapp"* to cFOS via cFOS restful API. 
 the API call to cFOS can use either cFOS dns name or cFOS node IPs. if cFOS use shared storage for configuration, then use dns name is proper way, otherwise, we will need to update each cFOS POD directly via CFOS POD ip address. the policy_manager by default using cFOS POD ip address. 
-
+the policy_manager also create  firewallpolicy for target application unless the policy has already createdby gatekeeper. this is only for demo purpose.  the firewall policy created on cFOS has fixed policyID=200
 the policy_manager pod use image from *interbeing/kubectl-cfos:gke_demo_v1*
 the source code of this image is under policymanager/
 build.sh  Dockerfile  script.sh
 you can build by yourself. 
 - paste below command to create policy_manager 
+
 ```
 filename="18_cfospolicymanager.yml"
 policymanagerimage="interbeing/kubectl-cfos:gke_demo_v1"
@@ -1372,10 +1314,6 @@ rules:
 - apiGroups: ["constraints.gatekeeper.sh"]
   resources: ["k8segressnetworkpolicytocfosutmpolicy"]
   verbs: ["list","get","watch"]
-    #- apiGroups: [""]
-    #  resources: ["pods/exec"]
-    #  verbs: ["create"]
-    #
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -1404,16 +1342,17 @@ spec:
   - name: kubectl-container
     image: $policymanagerimage
 EOF
-kubectl apply -f $filename  && wait_for_pod_ready && kubectl exec -it po/policymanager -- curl -X GET "http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/policy" && kubectl exec -it po/policymanager -- curl -X GET "http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/addrgrp" 
 
+kubectl apply -f $filename  && wait_for_pod_ready && kubectl exec -it po/policymanager -- curl -X GET "http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/policy" && kubectl exec -it po/policymanager -- curl -X GET "http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/addrgrp" 
 ```
 - check the result
+
 `
 kubectl get pod policymanager && kubectl exec -it po/policymanager -- curl -X GET "http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/addrgrp"
 `
 ```
 NAME            READY   STATUS    RESTARTS   AGE
-policymanager   1/1     Running   0          44m
+policymanager   1/1     Running   0          12s
 {
   "status": "success",
   "http_status": 200,
@@ -1427,7 +1366,16 @@ policymanager   1/1     Running   0          44m
       "category": "default",
       "member": [
         {
-          "name": "none"
+          "name": "10.1.200.20"
+        },
+        {
+          "name": "10.1.200.21"
+        },
+        {
+          "name": "10.1.200.20"
+        },
+        {
+          "name": "10.1.200.21"
         }
       ],
       "comment": "",
@@ -1442,51 +1390,65 @@ policymanager   1/1     Running   0          44m
   "serial": "FGVMULTM23000044",
   "version": "v7.2.0",
   "build": "231"
-}\n
+}
+
 ```
 - do a ips test on a target website
+
 we do ips test again, this time, the policy created by policymanager will take the action. we can chech the ips log to prove it. the traffic shall match different policy ID which is 101
-- paste below command to send malicous traffic from application pod 
+- paste below command to send malicous traffic from application pod
+ 
 ```
-url="www.hackthebox.eu"
-kubectl get pod | grep multi | grep -v termin | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- dig $url ; done && \
-kubectl get pod | grep multi | grep -v termin | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- ping -c 2  $url ; done && \
-kubectl get pod | grep multi | grep -v termin | awk '{print $1}'  | while read line; do kubectl exec -t po/$line --  curl --max-time 5  -k -H "User-Agent: () { :; }; /bin/ls" https://$url ; done
-kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/ips.0 | grep 101 ; done
+#!/bin/bash
+[[ $ips_target_url == "" ]] && ips_target_url="www.hackthebox.eu"
+policy_id="101"
+echo -e 'generate traffic to $ips_target_url' 
+kubectl get pod | grep multi | grep -v termin | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- dig $ips_target_url ; done && \
+kubectl get pod | grep multi | grep -v termin | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- ping -c 2  $ips_target_url ; done && \
+kubectl get pod | grep multi | grep -v termin | awk '{print $1}'  | while read line; do kubectl exec -t po/$line --  curl --max-time 5  -k -H "User-Agent: () { :; }; /bin/ls" https://$ips_target_url ; done
+kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/ips.0 | grep policyid=$policy_id ; done
 ```
 - check the result
+
 `
-kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/ips.0 | grep 101 ; done
+kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/ips.0 | grep policyid=101 ; done
 `
 ```
-date=2023-05-16 time=00:44:09 eventtime=1684197849 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.20 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=12 action="dropped" proto=6 service="HTTPS" policyid=101 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=33424 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=188743683 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
-date=2023-05-16 time=00:44:14 eventtime=1684197854 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.21 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=14 action="dropped" proto=6 service="HTTPS" policyid=101 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=50370 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=188743684 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
-date=2023-05-16 time=00:43:59 eventtime=1684197839 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.20 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=11 action="dropped" proto=6 service="HTTPS" policyid=101 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=58188 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=139460611 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
-date=2023-05-16 time=00:44:04 eventtime=1684197844 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.21 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=9 action="dropped" proto=6 service="HTTPS" policyid=101 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=52722 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=139460612 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-05-16 time=11:39:25 eventtime=1684237165 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.20 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=6 action="dropped" proto=6 service="HTTPS" policyid=101 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=43854 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=98566147 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-05-16 time=11:39:30 eventtime=1684237170 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.21 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=19 action="dropped" proto=6 service="HTTPS" policyid=101 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=53100 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=98566148 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-05-16 time=11:39:14 eventtime=1684237154 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.20 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=11 action="dropped" proto=6 service="HTTPS" policyid=101 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=33744 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=224395267 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-05-16 time=11:39:20 eventtime=1684237160 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.21 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=11 action="dropped" proto=6 service="HTTPS" policyid=101 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=43388 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=224395268 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
 ```
 - do a web filter  test on a target website
+
 same to web fitler traffic
-- paste below command initial access to the target website 
+- paste below command initial access to the target website
+ 
 ```
 url="https://www.eicar.org/download/eicar.com.txt"
+policy_id="101"
 kubectl get pod | grep multi | grep -v termin | awk '{print $1}'  | while read line; do kubectl exec -t po/$line --  curl -k -I  $url  ; done
-kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/webf.0 | grep 101  ; done
+kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/webf.0 | grep policyid=$policy_id  ; done
 ```
 - check the result
-`
-kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/webf.0 | grep 101  ; done
-`
-```
-date=2023-05-16 time=00:44:24 eventtime=1684197864 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=9 srcip=10.1.200.20 srcport=49258 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
-date=2023-05-16 time=00:44:25 eventtime=1684197865 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=16 srcip=10.1.200.21 srcport=56348 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
-date=2023-05-16 time=00:44:22 eventtime=1684197862 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=11 srcip=10.1.200.20 srcport=46532 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
-date=2023-05-16 time=00:44:23 eventtime=1684197863 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=13 srcip=10.1.200.21 srcport=51054 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
-```
-- modify worker node default CNI confige
 
-in previous section, we did not touch application POD's default route, only we interested destination like 1.1.1.1 is send to cFOS, what about if want send all traffic from application POD to cFOS, we will need then insert a default route into application pod, for this purpose, we will need use keyword default-route in the annotation part of POD definition. but this is not enough. as you still want some other traffic continue to go to default interface instead goes to cFOS, for example, the traffic goes to gke cluster IP and cross POD to POD traffic. so also need modify the default GKE cni config to insert custom route. 
+`
+kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/webf.0 | grep policyid=101  ; done
+`
+```
+date=2023-05-16 time=11:39:40 eventtime=1684237180 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=21 srcip=10.1.200.20 srcport=47314 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
+date=2023-05-16 time=11:39:41 eventtime=1684237181 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=8 srcip=10.1.200.21 srcport=59376 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
+date=2023-05-16 time=11:39:38 eventtime=1684237178 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=13 srcip=10.1.200.20 srcport=49830 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
+date=2023-05-16 time=11:39:39 eventtime=1684237179 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=13 srcip=10.1.200.21 srcport=45400 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
+```
+- modify worker node default CNI config
+
+
+in previous section, we did not touch application POD's default route, only we interested destination like 1.1.1.1 is send to cFOS, the rest of traffic will contine go to internet via default route, what about if want send all traffic from application POD to cFOS ,to doing this,
+we will need then insert a default route into application pod, for this purpose, we will need use add annotation with keyword default-route to the POD definition. but this is not enough. as you still want some other traffic continue to go to default interface instead goes to cFOS, for example, the traffic goes to gke cluster IP and cross POD to POD traffic. the GKE default cni come with host-local ipam, inside host-local ipam , we can insert custom route, we added clusterIP CIDR range and POD IP CIDR range, after that, restart multus DaemonSet to update Multus default config .
 
 - paste below command to modify default GKE cni config to insert route 
+
 ```
 #!/bin/bash 
 clustersearchstring=$(gcloud container clusters list --format="value(name)" --limit=1) && \
@@ -1502,43 +1464,44 @@ kubectl logs  ds/kube-multus-ds -n kube-system
 fi
 
 
- #gcloud compute ssh $name --command="sudo sed -i '/\"dst\": \"0.0.0.0\\/0\"/!b;n;N;s/        \\]$/,\n          {\"dst\": \"10.144.0.0\\/20\"},\n          {\"dst\": \"10.140.0.0\\/14\"}\n        ]/' /etc/cni/net.d/10-containerd-net.conflist"
-
-
-#gcloud compute ssh $name --command="sudo cat /etc/cni/net.d/10-containerd-net.conflist"
-#gcloud compute ssh $name --command='sudo cat /etc/cni/net.d/00-multus.conf' 
 kubectl logs  ds/kube-multus-ds -n kube-system
 }
 done
 ```
 - check the result
+
 `
 kubectl logs ds/kube-multus-ds -n kube-system
 `
 ```
-2023-05-16T00:45:18+00:00 Generating Multus configuration file using files in /host/etc/cni/net.d...
-2023-05-16T00:45:19+00:00 Using MASTER_PLUGIN: 10-containerd-net.conflist
-2023-05-16T00:45:21+00:00 Nested capabilities string: "capabilities": {"portMappings": true},
-2023-05-16T00:45:21+00:00 Using /host/etc/cni/net.d/10-containerd-net.conflist as a source to generate the Multus configuration
-2023-05-16T00:45:22+00:00 Config file created @ /host/etc/cni/net.d/00-multus.conf
-{ "cniVersion": "0.3.1", "name": "multus-cni-network", "type": "multus", "capabilities": {"portMappings": true}, "kubeconfig": "/etc/cni/net.d/multus.d/multus.kubeconfig", "delegates": [ { "name": "k8s-pod-network", "cniVersion": "0.3.1", "plugins": [ { "type": "ptp", "mtu": 1460, "ipam": { "type": "host-local", "subnet": "10.140.0.0/24", "routes": [ { "dst": "0.0.0.0/0" } , {"dst": "10.144.0.0/20"}, {"dst": "10.140.0.0/14"} ] } }, { "type": "portmap", "capabilities": { "portMappings": true } } ] } ] }
-2023-05-16T00:45:22+00:00 Entering sleep (success)...
+2023-05-16T11:40:39+00:00 Generating Multus configuration file using files in /host/etc/cni/net.d...
+2023-05-16T11:40:39+00:00 Using MASTER_PLUGIN: 10-containerd-net.conflist
+2023-05-16T11:40:40+00:00 Nested capabilities string: "capabilities": {"portMappings": true},
+2023-05-16T11:40:40+00:00 Using /host/etc/cni/net.d/10-containerd-net.conflist as a source to generate the Multus configuration
+2023-05-16T11:40:41+00:00 Config file created @ /host/etc/cni/net.d/00-multus.conf
+{ "cniVersion": "0.3.1", "name": "multus-cni-network", "type": "multus", "capabilities": {"portMappings": true}, "kubeconfig": "/etc/cni/net.d/multus.d/multus.kubeconfig", "delegates": [ { "name": "k8s-pod-network", "cniVersion": "0.3.1", "plugins": [ { "type": "ptp", "mtu": 1460, "ipam": { "type": "host-local", "subnet": "10.140.1.0/24", "routes": [ { "dst": "0.0.0.0/0" } , {"dst": "10.144.0.0/20"}, {"dst": "10.140.0.0/14"} ] } }, { "type": "portmap", "capabilities": { "portMappings": true } } ] } ] }
+2023-05-16T11:40:41+00:00 Entering sleep (success)...
 ```
-- delete current appliation deployment 
+- delete current appliation deployment
+ 
 
-- paste below command to delete 
+- paste below command to delete
+ 
 ```
 kubectl get deployment multitool01-deployment && kubectl delete deployment multitool01-deployment
 ```
 - create application deployment 
+
 
 create deployment with annotation to use net-attach-def and also config default route point to net-attach-def attached interface. which is cFOS interface. 
 the annotation field has context 
 *k8s.v1.cni.cncf.io/networks: '[ { "name": "cfosapp",  "default-route": ["10.1.200.252"]  } ]'* , which config an default route with nexthop to 10.1.200.252.
 check ip route table on application shall see the default route point to cFOS interface. 
 - paste below command to create deployment 
+
 ```
 file="app_with_annotations_cfosapp_with_defalt_route.yml"
+annotation="k8s.v1.cni.cncf.io/networks: '[ { \"name\": \"$app_nad_annotation\", \"default-route\": [\"10.1.200.252\"] } ]'"
 cat << EOF > $file 
 apiVersion: apps/v1
 kind: Deployment
@@ -1556,7 +1519,8 @@ spec:
       labels:
         app: multitool01
       annotations:
-        k8s.v1.cni.cncf.io/networks: '[ { "name": "cfosapp",  "default-route": ["10.1.200.252"]  } ]' 
+        $annotation
+        #k8s.v1.cni.cncf.io/networks: '[ { "name": "cfosapp",  "default-route": ["10.1.200.252"]  } ]' 
     spec:
       containers:
         - name: multitool01
@@ -1575,6 +1539,7 @@ EOF
 kubectl create -f $file && kubectl rollout status deployment multitool01-deployment
 ```
 - check the result
+
 `
 nodeName=$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}') && for node in $nodeName; do podName=$(kubectl get pods -l app=multitool01 --field-selector spec.nodeName="$node" -o jsonpath='{.items[*].metadata.name}') ; kubectl exec -it po/$podName -- ip route && kubectl exec -t po/$podName -- ip address ; done
 `
@@ -1582,30 +1547,9 @@ nodeName=$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}') && for nod
 default via 10.1.200.252 dev net1 
 1.1.1.1 via 10.1.200.252 dev net1 
 10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.23 
-10.140.0.0/14 via 10.140.1.1 dev eth0 
-10.140.1.0/24 via 10.140.1.1 dev eth0 src 10.140.1.14 
-10.140.1.1 dev eth0 scope link src 10.140.1.14 
-10.144.0.0/20 via 10.140.1.1 dev eth0 
-89.238.73.0/24 via 10.1.200.252 dev net1 
-104.18.0.0/16 via 10.1.200.252 dev net1 
-1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
-    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-    inet 127.0.0.1/8 scope host lo
-       valid_lft forever preferred_lft forever
-2: eth0@if16: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether 82:ec:bc:79:57:bd brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet 10.140.1.14/24 brd 10.140.1.255 scope global eth0
-       valid_lft forever preferred_lft forever
-3: net1@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether b2:14:bf:79:23:c5 brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet 10.1.200.23/24 brd 10.1.200.255 scope global net1
-       valid_lft forever preferred_lft forever
-default via 10.1.200.252 dev net1 
-1.1.1.1 via 10.1.200.252 dev net1 
-10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.23 
-10.140.0.0/24 via 10.140.0.1 dev eth0 src 10.140.0.10 
+10.140.0.0/24 via 10.140.0.1 dev eth0 src 10.140.0.14 
 10.140.0.0/14 via 10.140.0.1 dev eth0 
-10.140.0.1 dev eth0 scope link src 10.140.0.10 
+10.140.0.1 dev eth0 scope link src 10.140.0.14 
 10.144.0.0/20 via 10.140.0.1 dev eth0 
 89.238.73.0/24 via 10.1.200.252 dev net1 
 104.18.0.0/16 via 10.1.200.252 dev net1 
@@ -1613,42 +1557,69 @@ default via 10.1.200.252 dev net1
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
-2: eth0@if13: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether 7a:0b:78:32:03:ca brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet 10.140.0.10/24 brd 10.140.0.255 scope global eth0
+2: eth0@if16: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
+    link/ether ae:97:82:db:0e:0a brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.140.0.14/24 brd 10.140.0.255 scope global eth0
        valid_lft forever preferred_lft forever
 3: net1@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether c6:2f:48:c9:10:08 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    link/ether c2:c7:26:ed:b8:13 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.1.200.23/24 brd 10.1.200.255 scope global net1
+       valid_lft forever preferred_lft forever
+default via 10.1.200.252 dev net1 
+1.1.1.1 via 10.1.200.252 dev net1 
+10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.23 
+10.140.0.0/14 via 10.140.1.1 dev eth0 
+10.140.1.0/24 via 10.140.1.1 dev eth0 src 10.140.1.11 
+10.140.1.1 dev eth0 scope link src 10.140.1.11 
+10.144.0.0/20 via 10.140.1.1 dev eth0 
+89.238.73.0/24 via 10.1.200.252 dev net1 
+104.18.0.0/16 via 10.1.200.252 dev net1 
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+2: eth0@if13: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
+    link/ether 26:22:2e:33:29:2b brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.140.1.11/24 brd 10.140.1.255 scope global eth0
+       valid_lft forever preferred_lft forever
+3: net1@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
+    link/ether 82:0e:6f:ab:33:97 brd ff:ff:ff:ff:ff:ff link-netnsid 0
     inet 10.1.200.23/24 brd 10.1.200.255 scope global net1
        valid_lft forever preferred_lft forever
 ```
 - do a web filter  test on a target website
-this time we ,use destination that not on match default route, for example "https://xoso.com.vn". this website will be classified by cFOS as Gambling that shall be blocked by default profile.
+
+this time we ,use destination that not on match default route, for example https://xoso.com.vn  this website will be classified by cFOS as Gambling that shall be blocked by default profile.
 
 - paste below command initial access to the target website 
 ```
-url="https://xoso.com.vn"
-kubectl get pod | grep multi | grep -v termin | awk '{print $1}'  | while read line; do kubectl exec -t po/$line --  curl -k -I  $url  ; done
-kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/webf.0 | grep 101  ; done
+#!/bin/bash 
+[[ $internet_webf_url == "" ]] && internet_webf_url="https://xoso.com.vn"
+policy_id="101"
+kubectl get pod | grep multi | grep -v termin | awk '{print $1}'  | while read line; do kubectl exec -t po/$line --  curl -k -I  $internet_webf_url  ; done
+kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/webf.0 | grep policyid=$policy_id  ; done
 ```
 - check the result
+
 `
-kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/webf.0 | grep 101  ; done
+kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/webf.0 | grep policyid=101  ; done
 `
 ```
-date=2023-05-16 time=00:44:24 eventtime=1684197864 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=9 srcip=10.1.200.20 srcport=49258 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
-date=2023-05-16 time=00:44:25 eventtime=1684197865 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=16 srcip=10.1.200.21 srcport=56348 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
-date=2023-05-16 time=00:47:52 eventtime=1684198072 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=18 srcip=10.1.200.23 srcport=40486 srcintf="net1" dstip=104.18.24.243 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="xoso.com.vn" profile="default" action="blocked" reqtype="direct" url="https://xoso.com.vn/" sentbyte=106 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
-date=2023-05-16 time=00:47:52 eventtime=1684198072 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=20 srcip=10.1.200.22 srcport=34002 srcintf="net1" dstip=104.18.24.243 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="xoso.com.vn" profile="default" action="blocked" reqtype="direct" url="https://xoso.com.vn/" sentbyte=106 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
-date=2023-05-16 time=00:44:22 eventtime=1684197862 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=11 srcip=10.1.200.20 srcport=46532 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
-date=2023-05-16 time=00:44:23 eventtime=1684197863 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=13 srcip=10.1.200.21 srcport=51054 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
-date=2023-05-16 time=00:47:51 eventtime=1684198071 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=13 srcip=10.1.200.23 srcport=56156 srcintf="net1" dstip=104.18.25.243 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="xoso.com.vn" profile="default" action="blocked" reqtype="direct" url="https://xoso.com.vn/" sentbyte=106 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
-date=2023-05-16 time=00:47:52 eventtime=1684198072 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=17 srcip=10.1.200.22 srcport=34302 srcintf="net1" dstip=104.18.24.243 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="xoso.com.vn" profile="default" action="blocked" reqtype="direct" url="https://xoso.com.vn/" sentbyte=106 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-05-16 time=11:39:40 eventtime=1684237180 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=21 srcip=10.1.200.20 srcport=47314 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
+date=2023-05-16 time=11:39:41 eventtime=1684237181 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=8 srcip=10.1.200.21 srcport=59376 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
+date=2023-05-16 time=11:41:01 eventtime=1684237261 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=23 srcip=10.1.200.23 srcport=54128 srcintf="net1" dstip=104.18.25.243 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="xoso.com.vn" profile="default" action="blocked" reqtype="direct" url="https://xoso.com.vn/" sentbyte=106 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-05-16 time=11:41:01 eventtime=1684237261 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=25 srcip=10.1.200.22 srcport=57988 srcintf="net1" dstip=104.18.25.243 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="xoso.com.vn" profile="default" action="blocked" reqtype="direct" url="https://xoso.com.vn/" sentbyte=106 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-05-16 time=11:39:38 eventtime=1684237178 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=13 srcip=10.1.200.20 srcport=49830 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
+date=2023-05-16 time=11:39:39 eventtime=1684237179 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=13 srcip=10.1.200.21 srcport=45400 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
+date=2023-05-16 time=11:41:02 eventtime=1684237262 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=15 srcip=10.1.200.23 srcport=42446 srcintf="net1" dstip=104.18.25.243 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="xoso.com.vn" profile="default" action="blocked" reqtype="direct" url="https://xoso.com.vn/" sentbyte=106 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-05-16 time=11:41:02 eventtime=1684237262 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=15 srcip=10.1.200.22 srcport=42920 srcintf="net1" dstip=104.18.25.243 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="xoso.com.vn" profile="default" action="blocked" reqtype="direct" url="https://xoso.com.vn/" sentbyte=106 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
 ```
-- use cfos restful API to delete firewall policy 
+- use cfos restful API to delete firewall policy
+ 
 the policy created by policy_manager pod has policy id 101, let us delete this firewall policy use cfosrestapi. 
 after delete firewall policy, we use crl to check whether any firewall policy left on cFOS POD
-- paste below command delete firewall policy 
+- paste below command delete firewall policy
+ 
 ```
 policy_id="101"
 #url="http://fos-deployment.default.svc.cluster.local"
@@ -1661,6 +1632,7 @@ kubectl exec -it po/policymanager -- curl -X DELETE "$i/api/v2/cmdb/firewall/pol
 done
 ```
 - check the result
+
 `
 kubectl exec -it po/policymanager -- curl -X GET http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/policy/101
 `
@@ -1675,13 +1647,16 @@ kubectl exec -it po/policymanager -- curl -X GET http://fos-deployment.default.s
   "serial": "FGVMULTM23000044",
   "version": "v7.2.0",
   "build": "231"
-}\n
+}
+
 ```
-- install gatekeeperv3 constraint template  
+- install gatekeeperv3 constraint template 
+ 
 
 in this template, include a session call targets. in the targets it use rego as policy engine language to parse the policy . 
 we use repo function *http.send* to send API to cFOS. you only need deploy template once.  
-- paste below command to install gatekeeper constraint template 
+- paste below command to install gatekeeper constraint template
+ 
 ```
 filename="47_constraint_template.yml"
 
@@ -1876,7 +1851,9 @@ kubectl get constrainttemplates -o yaml
 
 ```
 - check the result
-check routing table and ip address
+
+check constraint template
+
 `
 kubectl get constrainttemplates -o yaml
 `
@@ -1886,11 +1863,11 @@ items:
 - apiVersion: templates.gatekeeper.sh/v1
   kind: ConstraintTemplate
   metadata:
-    creationTimestamp: "2023-05-16T00:48:12Z"
+    creationTimestamp: "2023-05-16T11:41:27Z"
     generation: 1
     name: k8segressnetworkpolicytocfosutmpolicy
-    resourceVersion: "6526"
-    uid: 799104f8-d85a-40ae-a903-b8a0a59e2471
+    resourceVersion: "5843"
+    uid: 5e3f1447-4e85-4f36-98bd-a893ca3e8ee3
   spec:
     crd:
       spec:
@@ -2003,22 +1980,24 @@ items:
         message: 'Could not create CRD: customresourcedefinitions.apiextensions.k8s.io
           "k8segressnetworkpolicytocfosutmpolicy.constraints.gatekeeper.sh" already
           exists'
-      id: gatekeeper-controller-manager-5db7c8878c-wl9q2
+      id: gatekeeper-controller-manager-5db7c8878c-2d2gl
       observedGeneration: 1
       operations:
       - mutation-webhook
       - webhook
-      templateUID: 799104f8-d85a-40ae-a903-b8a0a59e2471
+      templateUID: 5e3f1447-4e85-4f36-98bd-a893ca3e8ee3
     created: false
 kind: List
 metadata:
   resourceVersion: ""
 ```
-- create standard networkpolicy   
-here we create reguard k8s egress networkpolicy, this policy will be created on cFOS with gatekeeper help. 
+- create standard networkpolicy
+   
+here we create standard  k8s egress networkpolicy, this policy will be created on cFOS with gatekeeper help. 
 after creating. use "kubectl get networkpolicy will not show you the policy" as it actually created on cFOS. 
 instead , you can get policy by use cFOS API with command *kubectl exec -it po/policymanager -- curl -X GET http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/policy*
-- paste below command to deploy networkpolicy 
+- paste below command to deploy networkpolicy
+ 
 ```
 filename="49_network_firewallpolicy_egress.yml"
 cat << EOF >$filename
@@ -2054,6 +2033,7 @@ done
 
 ```
 - check the result
+
 `
 kubectl exec -it po/policymanager -- curl -X GET http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/policy && kubectl exec -it po/policymanager -- curl -X GET http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/policy
 `
@@ -2192,32 +2172,41 @@ kubectl exec -it po/policymanager -- curl -X GET http://fos-deployment.default.s
   "serial": "FGVMULTM23000044",
   "version": "v7.2.0",
   "build": "231"
-}\n
+}
+
 ```
 - do a ips test on a target website
+
 we do ips test again, this time, the policy created by policymanager will take the action. we can chech the ips log to prove it. the traffic shall match different policy ID which is 200
-- paste below command to send malicous traffic from application pod 
+- paste below command to send malicous traffic from application pod
+ 
 ```
-url="www.hackthebox.eu"
-kubectl get pod | grep multi | grep -v termin | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- dig $url ; done && \
-kubectl get pod | grep multi | grep -v termin | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- ping -c 2  $url ; done && \
-kubectl get pod | grep multi | grep -v termin | awk '{print $1}'  | while read line; do kubectl exec -t po/$line --  curl --max-time 5  -k -H "User-Agent: () { :; }; /bin/ls" https://$url ; done
-kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/ips.0 | grep 200 ; done
+#!/bin/bash
+[[ $ips_target_url == "" ]] && ips_target_url="www.hackthebox.eu"
+policy_id="200"
+echo -e 'generate traffic to $ips_target_url' 
+kubectl get pod | grep multi | grep -v termin | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- dig $ips_target_url ; done && \
+kubectl get pod | grep multi | grep -v termin | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- ping -c 2  $ips_target_url ; done && \
+kubectl get pod | grep multi | grep -v termin | awk '{print $1}'  | while read line; do kubectl exec -t po/$line --  curl --max-time 5  -k -H "User-Agent: () { :; }; /bin/ls" https://$ips_target_url ; done
+kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/ips.0 | grep policyid=$policy_id ; done
 ```
 - check the result
+
 `
 kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/ips.0 | grep policyid=200 ; done
 `
 ```
-date=2023-05-16 time=00:48:42 eventtime=1684198122 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.25 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=4 action="dropped" proto=6 service="HTTPS" policyid=200 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=39726 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=188743685 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
-date=2023-05-16 time=00:48:53 eventtime=1684198133 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.24 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=2 action="dropped" proto=6 service="HTTPS" policyid=200 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=56218 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=188743686 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
-date=2023-05-16 time=00:48:48 eventtime=1684198128 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.24 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=3 action="dropped" proto=6 service="HTTPS" policyid=200 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=49518 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=139460613 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
-date=2023-05-16 time=00:48:58 eventtime=1684198138 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.25 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=3 action="dropped" proto=6 service="HTTPS" policyid=200 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=59048 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=139460614 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-05-16 time=11:42:16 eventtime=1684237336 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.25 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=2 action="dropped" proto=6 service="HTTPS" policyid=200 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=55938 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=98566149 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-05-16 time=11:42:21 eventtime=1684237341 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.24 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=3 action="dropped" proto=6 service="HTTPS" policyid=200 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=59672 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=98566150 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-05-16 time=11:42:11 eventtime=1684237331 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.24 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=4 action="dropped" proto=6 service="HTTPS" policyid=200 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=41802 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=224395269 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-05-16 time=11:42:27 eventtime=1684237347 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.25 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=6 action="dropped" proto=6 service="HTTPS" policyid=200 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=56432 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=224395270 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
 ```
 - install gatekeeperv3 
+
 We will use standard k8s networkpolicy to create firewallpolicy for cFOS, the networkpolicy submitted by kubectl will first be send to gatekeeper admission controller. where there is a constraint delpoyed to inspect the policy constraint via constraint template. if the networkpolicy pass the constrait check. the constraint template will use cFOS Restapi to create firewall policy. and then the constraint template will give output telling the networkpolicy creation is forbiden instead it created on CFOS. 
 
 - paste below command to install gatekeeper 
+
 ```
 kubectl apply -f https://raw.githubusercontent.com/open-policy-agent/gatekeeper/master/deploy/gatekeeper.yaml && \
 kubectl rollout status deployment/gatekeeper-audit -n gatekeeper-system &&  \
@@ -2227,7 +2216,8 @@ kubectl rollout status deployment/gatekeeper-controller-manager  -n gatekeeper-s
 
 ```
 - check the result
-check routing table and ip address
+
+check gatekeeper installation status
 `
 kubectl rollout status deployment/gatekeeper-audit -n gatekeeper-system &&  kubectl rollout status deployment/gatekeeper-controller-manager  -n gatekeeper-system  && kubectl rollout status deployment/gatekeeper-audit -n gatekeeper-system
 `
@@ -2236,13 +2226,16 @@ deployment "gatekeeper-audit" successfully rolled out
 deployment "gatekeeper-controller-manager" successfully rolled out
 deployment "gatekeeper-audit" successfully rolled out
 ```
-- install policy constraint   
+- install policy constraint
+   
 
-the policy constraint mainly function as parameter input to constraint template. here for example, use pass in policy id=200 for constraint template. we also pass in cFOS restAPI URL etc., 
+the policy constraint define what API to watch, for example, here we wathc NetworkPolicy API, also it  function as parameter input to constraint template. here for example, user pass in policy id=200 for constraint template. we also pass in cFOS restAPI URL etc., 
 beaware that here we are using dns name of clusterIP for cFOS API, if we are not using shared  storage for cFOS /data folder, we need run API call multiple times to make sure it config each of cFOS POD. 
 
 - paste below command to install policy constraint template 
+
 ```
+policy_id=200
 filename="48_constraint_for_cfos.yml"
 cat << EOF >$filename
 apiVersion: constraints.gatekeeper.sh/v1beta1
@@ -2259,7 +2252,7 @@ spec:
     firewalladdressapiurl : "http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/address"
     firewallpolicyapiurl : "http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/policy"
     firewalladdressgrpapiurl: "http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/addrgrp"
-    policyid : "200"
+    policyid : "$policy_id"
     label: "cfosegressfirewallpolicy"
     outgoingport: "eth0"
     utmstatus: "enable"
@@ -2274,7 +2267,9 @@ EOF
 kubectl apply -f $filename && kubectl get k8segressnetworkpolicytocfosutmpolicy -o yaml
 ```
 - check the result
-check routing table and ip address
+
+check constraint
+ s
 `
 kubectl get k8segressnetworkpolicytocfosutmpolicy -o yaml
 `
@@ -2287,11 +2282,11 @@ items:
     annotations:
       kubectl.kubernetes.io/last-applied-configuration: |
         {"apiVersion":"constraints.gatekeeper.sh/v1beta1","kind":"K8sEgressNetworkPolicyToCfosUtmPolicy","metadata":{"annotations":{},"name":"cfosnetworkpolicy"},"spec":{"enforcementAction":"deny","match":{"kinds":[{"apiGroups":["networking.k8s.io"],"kinds":["NetworkPolicy"]}]},"parameters":{"action":"permit","avprofile":"default","extraservice":"PING","firewalladdressapiurl":"http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/address","firewalladdressgrpapiurl":"http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/addrgrp","firewallpolicyapiurl":"http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/policy","ipsprofile":"default","label":"cfosegressfirewallpolicy","outgoingport":"eth0","policyid":"200","srcintf":"any","sslsshprofile":"deep-inspection","utmstatus":"enable"}}}
-    creationTimestamp: "2023-05-16T00:48:14Z"
+    creationTimestamp: "2023-05-16T11:41:31Z"
     generation: 1
     name: cfosnetworkpolicy
-    resourceVersion: "6552"
-    uid: effe6d7c-2a95-4d40-baf7-ba3bdbb9a785
+    resourceVersion: "5877"
+    uid: e6ccffc2-75f4-4aee-830f-2f0cc93d38e6
   spec:
     enforcementAction: deny
     match:
@@ -2314,23 +2309,6 @@ items:
       srcintf: any
       sslsshprofile: deep-inspection
       utmstatus: enable
-  status:
-    byPod:
-    - constraintUID: effe6d7c-2a95-4d40-baf7-ba3bdbb9a785
-      enforced: true
-      id: gatekeeper-audit-94c9bfc9b-x5gk8
-      observedGeneration: 1
-      operations:
-      - audit
-      - mutation-status
-      - status
-    - constraintUID: effe6d7c-2a95-4d40-baf7-ba3bdbb9a785
-      enforced: true
-      id: gatekeeper-controller-manager-5db7c8878c-gvwcv
-      observedGeneration: 1
-      operations:
-      - mutation-webhook
-      - webhook
 kind: List
 metadata:
   resourceVersion: ""
@@ -2340,10 +2318,12 @@ due to limitation of policymanager, it require pod ip change to trigger update a
 you can use "kubectl logs -f po/policymanager" to check the log of policymanager 
 
 - paste below command to restart appliation DaemonSet 
+
 ```
 kubectl rollout restart deployment multitool01-deployment && kubectl rollout status deployment multitool01-deployment
 ```
 - check the result
+
 `
 kubectl rollout status deployment multitool01-deployment
 `
@@ -2351,20 +2331,24 @@ kubectl rollout status deployment multitool01-deployment
 deployment "multitool01-deployment" successfully rolled out
 ```
 - do a web filter  test on a target website
-same to web fitler traffic
-- paste below command initial access to the target website 
+
+
+- paste below command initial access to the target website
+ 
 ```
 url="https://www.eicar.org/download/eicar.com.txt"
+policy_id="200"
 kubectl get pod | grep multi | grep -v termin | awk '{print $1}'  | while read line; do kubectl exec -t po/$line --  curl -k -I  $url  ; done
-kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/webf.0 | grep policyid=200  ; done
+kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/webf.0 | grep policyid=$policy_id  ; done
 ```
 - check the result
+
 `
 kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/webf.0 | grep policyid=200  ; done
 `
 ```
-date=2023-05-16 time=00:49:05 eventtime=1684198145 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=200 sessionid=4 srcip=10.1.200.25 srcport=47410 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
-date=2023-05-16 time=00:49:07 eventtime=1684198147 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=200 sessionid=6 srcip=10.1.200.24 srcport=38546 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
-date=2023-05-16 time=00:49:06 eventtime=1684198146 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=200 sessionid=5 srcip=10.1.200.24 srcport=54890 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
-date=2023-05-16 time=00:49:08 eventtime=1684198148 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=200 sessionid=5 srcip=10.1.200.25 srcport=44980 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
+date=2023-05-16 time=11:42:30 eventtime=1684237350 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=200 sessionid=5 srcip=10.1.200.25 srcport=36952 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
+date=2023-05-16 time=11:42:31 eventtime=1684237351 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=200 sessionid=7 srcip=10.1.200.24 srcport=43026 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
+date=2023-05-16 time=11:42:29 eventtime=1684237349 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=200 sessionid=8 srcip=10.1.200.24 srcport=53888 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
+date=2023-05-16 time=11:42:32 eventtime=1684237352 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=200 sessionid=2 srcip=10.1.200.25 srcport=39054 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
 ```
