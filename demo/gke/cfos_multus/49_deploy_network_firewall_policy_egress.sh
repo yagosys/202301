@@ -1,4 +1,4 @@
-filename="17_network_firewallpolicy_egress.yml"
+filename="49_network_firewallpolicy_egress.yml"
 cat << EOF >$filename
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
