@@ -1,30 +1,30 @@
 #!/bin/bash
 filename="./../01_gke.sh"
 
-echo '- create gke cluster ' > "${filename}.md"
+echo -e '- create gke cluster\n ' > "${filename}.md"
 
 cat << EOF >> "${filename}.md"
 
-create gke cluster 
 *enable-ip-alias* to enable use alias ip on VM for pod ip address
-*service-ipv4-cidr* is for clusterVIP address
+*service-ipv4-cidr* is the cidr for clusterVIP address
 *cluster-ipv4-cidr* is for POD ip address scope
+*kubectl get node -o wide" shall show the node in ready state. 
 
 EOF
 
-echo '- paste below command to create gke cluster ' >> "${filename}.md" 
+echo -e '- paste below command to create gke cluster\n ' >> "${filename}.md" 
 
-echo '```' >> "${filename}.md"
+echo -e '```' >> "${filename}.md"
 cat $filename >> "${filename}.md"
-echo '```' >> "${filename}.md"
+echo -e '```' >> "${filename}.md"
 
 
-echo '- check the result' >> "${filename}.md"
+echo -e '- check the result\n' >> "${filename}.md"
 
 
-echo '`kubectl get node -o wide`' >> "${filename}.md"
-echo '```' >> "${filename}.md"
-echo "$(kubectl get node -o wide)"  >> "${filename}.md"
-echo '```' >> "${filename}.md"
+echo -e '`kubectl get node -o wide`' >> "${filename}.md"
+echo -e '```' >> "${filename}.md"
+echo -e "$(kubectl get node -o wide)"  >> "${filename}.md"
+echo -e '```' >> "${filename}.md"
 
 

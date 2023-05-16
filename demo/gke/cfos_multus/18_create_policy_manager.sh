@@ -46,10 +46,6 @@ rules:
 - apiGroups: ["constraints.gatekeeper.sh"]
   resources: ["k8segressnetworkpolicytocfosutmpolicy"]
   verbs: ["list","get","watch"]
-    #- apiGroups: [""]
-    #  resources: ["pods/exec"]
-    #  verbs: ["create"]
-    #
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -78,5 +74,5 @@ spec:
   - name: kubectl-container
     image: $policymanagerimage
 EOF
-kubectl apply -f $filename  && wait_for_pod_ready && kubectl exec -it po/policymanager -- curl -X GET "http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/policy" && kubectl exec -it po/policymanager -- curl -X GET "http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/addrgrp" 
 
+kubectl apply -f $filename  && wait_for_pod_ready && kubectl exec -it po/policymanager -- curl -X GET "http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/policy" && kubectl exec -it po/policymanager -- curl -X GET "http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/addrgrp" 

@@ -1,10 +1,10 @@
+#!/bin/bash -xe
 filename="04_nad_macvlan_for_app.yml"
-master_interface_on_worker_node="ens4"
-dst1='{ "dst": "1.1.1.1/32", "gw": "10.1.200.252" },'
-dst2='{ "dst": "104.18.0.0/16", "gw": "10.1.200.252"},'
-lastdst='{ "dst": "89.238.73.0/24", "gw": "10.1.200.252"}'
+[[ custom_dst1 == "" ]] && custom_dst1='{ "dst": "1.1.1.1/32", "gw": "10.1.200.252" },'
+[[ custom_dst2 == "" ]] && custom_dst2='{ "dst": "104.18.0.0/16", "gw": "10.1.200.252"},'
+[[ custom_lastdst == "" ]] && custom_lastdst='{ "dst": "89.238.73.0/24", "gw": "10.1.200.252"}'
+[[ app_nad_annotation == "" ]] && app_nad_annotation="cfosapp"
 
-app_nad_annotation="cfosapp"
 cat << EOF > $filename
 apiVersion: "k8s.cni.cncf.io/v1"
 kind: NetworkAttachmentDefinition
@@ -20,9 +20,9 @@ spec:
         "type": "host-local",
         "subnet": "10.1.200.0/24",
         "routes": [
-          $dst1
-          $dst2
-          $lastdst
+          $custom_dst1
+          $custom_dst2
+          $custom_lastdst
         ],
         "rangeStart": "10.1.200.20",
         "rangeEnd": "10.1.200.251",

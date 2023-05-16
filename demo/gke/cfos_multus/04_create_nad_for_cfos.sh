@@ -1,10 +1,12 @@
+#!/bin/bash -xe
+[[ $master_interface_on_worker_node == "" ]] && master_interface_on_worker_node="ens4"
+[[ $net_attach_def_name_for_cfos == "" ]]    &&  net_attach_def_name_for_cfos="cfosdefaultcni5"
 filename="04_nad_macvlan_cfos.yml"
-master_interface_on_worker_node="ens4"
 cat << EOF > $filename
 apiVersion: "k8s.cni.cncf.io/v1"
 kind: NetworkAttachmentDefinition
 metadata:
-  name: cfosdefaultcni5
+  name: $net_attach_def_name_for_cfos
 spec:
   config: '{
       "cniVersion": "0.3.1",

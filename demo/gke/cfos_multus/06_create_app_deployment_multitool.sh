@@ -1,5 +1,5 @@
 file="app_with_annotations_cfosapp.yml"
-annotations="k8s.v1.cni.cncf.io/networks: '[ { \"name\": \"cfosapp\" } ]'"
+annotations="k8s.v1.cni.cncf.io/networks: '[ { \"name\": \"$app_nad_annotation\" } ]'"
 cat << EOF > $file 
 apiVersion: apps/v1
 kind: Deployment

@@ -25,7 +25,7 @@ cat $filename >> "${filename}.md"
 echo '```' >> "${filename}.md"
 
 
-echo '- check the result' >> "${filename}.md"
+echo '- check the result\n' >> "${filename}.md"
 
 
 

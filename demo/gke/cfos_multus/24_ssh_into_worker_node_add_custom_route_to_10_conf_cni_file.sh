@@ -12,11 +12,6 @@ kubectl logs  ds/kube-multus-ds -n kube-system
 fi
 
 
- #gcloud compute ssh $name --command="sudo sed -i '/\"dst\": \"0.0.0.0\\/0\"/!b;n;N;s/        \\]$/,\n          {\"dst\": \"10.144.0.0\\/20\"},\n          {\"dst\": \"10.140.0.0\\/14\"}\n        ]/' /etc/cni/net.d/10-containerd-net.conflist"
-
-
-#gcloud compute ssh $name --command="sudo cat /etc/cni/net.d/10-containerd-net.conflist"
-#gcloud compute ssh $name --command='sudo cat /etc/cni/net.d/00-multus.conf' 
 kubectl logs  ds/kube-multus-ds -n kube-system
 }
 done

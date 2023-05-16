@@ -1,4 +1,7 @@
+#!/bin/bash -xe 
 file="cfos_ds.yml" 
+[[ $cfosIp == "" ]] && cfosIp="10.1.200.252/32"
+annotations="k8s.v1.cni.cncf.io/networks: '[ { \"name\": \"$net_attach_def_name_for_cfos\",  \"ips\": [ \"$cfosIp\" ], \"mac\": \"CA:FE:C0:FF:00:02\" } ]'"
 
 cat << EOF > $file
 ---
@@ -35,7 +38,8 @@ spec:
       labels:
         app: fos
       annotations:
-        k8s.v1.cni.cncf.io/networks: '[ { "name": "cfosdefaultcni5",  "ips": [ "10.1.200.252/32" ], "mac": "CA:FE:C0:FF:00:02" } ]'
+        $annotations
+        #k8s.v1.cni.cncf.io/networks: '[ { "name": "cfosdefaultcni5",  "ips": [ "10.1.200.252/32" ], "mac": "CA:FE:C0:FF:00:02" } ]'
     spec:
       containers:
       - name: fos

@@ -1,3 +1,4 @@
+policy_id=200
 filename="48_constraint_for_cfos.yml"
 cat << EOF >$filename
 apiVersion: constraints.gatekeeper.sh/v1beta1
@@ -14,7 +15,7 @@ spec:
     firewalladdressapiurl : "http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/address"
     firewallpolicyapiurl : "http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/policy"
     firewalladdressgrpapiurl: "http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/addrgrp"
-    policyid : "200"
+    policyid : "$policy_id"
     label: "cfosegressfirewallpolicy"
     outgoingport: "eth0"
     utmstatus: "enable"

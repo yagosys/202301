@@ -1,4 +1,5 @@
 file="app_with_annotations_cfosapp_with_defalt_route.yml"
+annotation="k8s.v1.cni.cncf.io/networks: '[ { \"name\": \"$app_nad_annotation\", \"default-route\": [\"10.1.200.252\"] } ]'"
 cat << EOF > $file 
 apiVersion: apps/v1
 kind: Deployment
@@ -16,7 +17,8 @@ spec:
       labels:
         app: multitool01
       annotations:
-        k8s.v1.cni.cncf.io/networks: '[ { "name": "cfosapp",  "default-route": ["10.1.200.252"]  } ]' 
+        $annotation
+        #k8s.v1.cni.cncf.io/networks: '[ { "name": "cfosapp",  "default-route": ["10.1.200.252"]  } ]' 
     spec:
       containers:
         - name: multitool01

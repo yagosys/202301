@@ -1,6 +1,7 @@
 file="multus_auto.yml"
 #multusconfig="/tmp/multus-conf/07-multus.conf" 
 multusconfig="auto"
+multus_bin_hostpath="/home/kubernetes/bin"
 cat << EOF > $file
 # Note:
 #   This deployment file is designed for 'quickstart' of multus, easy installation to test it,
@@ -241,7 +242,7 @@ spec:
             path: /etc/cni/net.d
         - name: cnibin
           hostPath:
-            path: /home/kubernetes/bin
+            path: $multus_bin_hostpath
         - name: multus-cfg
           configMap:
             name: multus-cni-config
