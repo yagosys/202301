@@ -5,6 +5,7 @@ echo 'source ./variable.sh' >> README.md
 echo './demo_multiple_nodes.sh' >> README.md
 echo ' ``` ' >> README.md
 
+
 echo 'or do it step by step according below procedure ' >> README.md
 echo 'merge document' 
 
@@ -29,4 +30,13 @@ cat  \
 ./../24_ssh_into_worker_node_add_custom_route_to_10_conf_cni_file.sh.md \
 ./../25_delete_app.sh.md \
 ./../26_create_app_deployment_multtool_with_defaultroute.sh.md \
-./../27_webftest.sh.md  > README.md
+./../27_webftest.sh.md \
+./../38_delete_policy_101.sh.md \
+./../47_create_gatekeeper_constraint_template.sh.md \
+./../49_deploy_network_firewall_policy_egress.sh.md \
+./../52_ipstest.sh.md \
+./../46_install_gatekeeperv3.sh.md \
+./../48_deploy_constraint_fos_cfos.sh.md \
+./../50_restart_app.sh.md \
+./../53_webftest.sh.md \
+> README.md
