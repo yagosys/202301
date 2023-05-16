@@ -1870,7 +1870,7 @@ after creating. use "kubectl get networkpolicy will not show you the policy" as 
 instead , you can get policy by use cFOS API with command *kubectl exec -it po/policymanager -- curl -X GET http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/policy*
 - paste below command to deploy networkpolicy 
 ```
-filename="17_network_firewallpolicy_egress.yml"
+filename="49_network_firewallpolicy_egress.yml"
 cat << EOF >$filename
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -2042,7 +2042,8 @@ kubectl exec -it po/policymanager -- curl -X GET http://fos-deployment.default.s
   "serial": "FGVMULTM23000044",
   "version": "v7.2.0",
   "build": "231"
-}```
+}\n
+```
 - do a ips test on a target website
 we do ips test again, this time, the policy created by policymanager will take the action. we can chech the ips log to prove it. the traffic shall match different policy ID which is 200
 - paste below command to send malicous traffic from application pod 
