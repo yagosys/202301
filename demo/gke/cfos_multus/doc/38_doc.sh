@@ -19,12 +19,13 @@ echo '- check the result' >> "${filename}.md"
 
 
 
-command="kubectl exec -it po/policymanager -- curl -X GET http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/policy"
+command="kubectl exec -it po/policymanager -- curl -X GET http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/policy/101"
 
 echo '`' >> "${filename}.md"
 echo "$command" >> "${filename}.md"
 echo '`' >> "${filename}.md"
 echo '```' >> "${filename}.md"
 eval "$command"  >> "${filename}.md"
+echo '\n' >> "${filename}.md"
 echo '```' >> "${filename}.md"
 
