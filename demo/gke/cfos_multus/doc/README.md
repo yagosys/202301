@@ -1512,20 +1512,21 @@ done
 ```
 - check the result
 `
-kubectl exec -it po/policymanager -- curl -X GET http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/policy
+kubectl exec -it po/policymanager -- curl -X GET http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/policy/101
 `
 ```
 {
-  "status": "success",
-  "http_status": 200,
+  "status": "error",
+  "http_status": 404,
+  "http_method": "GET",
   "path": "firewall",
   "name": "policy",
-  "http_method": "GET",
-  "results": [],
+  "error": "failed to load config",
   "serial": "FGVMULTM23000044",
   "version": "v7.2.0",
   "build": "231"
-}```
+}\n
+```
 - install gatekeeperv3 constraint template  
 
 in this template, include a session call targets. in the targets it use rego as policy engine language to parse the policy . 
