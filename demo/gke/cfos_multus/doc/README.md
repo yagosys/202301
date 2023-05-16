@@ -2,8 +2,8 @@
 
 create network for GKE VM instances.
 the *ipcidrRange* is the ip range for VM node. 
-the *firewallallowProtocol="tcp:22* allow ssh into worker node from anywhere 
-- paste below command to create network 
+the *firewallallowProtocol=all* allow ssh into worker node from anywhere  to all protocols
+- paste below command to create network, subnets and firewall-rules  
 ```
 #!/bin/bash -xe
 echo $networkName
@@ -21,13 +21,14 @@ gcloud compute firewall-rules create $firewallruleName --network $networkName --
 
 ```
 - check the result
+
 `gcloud compute networks list --format json`
 ```
 [
   {
     "autoCreateSubnetworks": false,
-    "creationTimestamp": "2023-05-15T17:32:56.585-07:00",
-    "id": "6919919867270230487",
+    "creationTimestamp": "2023-05-15T19:29:51.132-07:00",
+    "id": "2853168068019836016",
     "kind": "compute#network",
     "name": "gkenetwork1",
     "networkFirewallPolicyEnforcementOrder": "AFTER_CLASSIC_FIREWALL",
@@ -35,7 +36,7 @@ gcloud compute firewall-rules create $firewallruleName --network $networkName --
       "routingMode": "REGIONAL"
     },
     "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/gkenetwork1",
-    "selfLinkWithId": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/6919919867270230487",
+    "selfLinkWithId": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/2853168068019836016",
     "subnetworks": [
       "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-east1/subnetworks/gkenode"
     ],
@@ -48,18 +49,28 @@ gcloud compute firewall-rules create $firewallruleName --network $networkName --
 ```
 [
   {
-    "creationTimestamp": "2023-05-15T17:33:12.210-07:00",
-    "fingerprint": "uGY5WAy_VGk=",
+    "creationTimestamp": "2023-05-15T19:30:04.959-07:00",
+    "fingerprint": "wZDnvad88r0=",
     "gatewayAddress": "10.0.0.1",
-    "id": "8286856779033178535",
+    "id": "4940901015761146947",
     "ipCidrRange": "10.0.0.0/24",
     "kind": "compute#subnetwork",
     "name": "gkenode",
     "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/gkenetwork1",
-    "privateIpGoogleAccess": false,
+    "privateIpGoogleAccess": true,
     "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
     "purpose": "PRIVATE",
     "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-east1",
+    "secondaryIpRanges": [
+      {
+        "ipCidrRange": "10.144.0.0/20",
+        "rangeName": "gke-my-first-cluster-1-services-ece0bc06"
+      },
+      {
+        "ipCidrRange": "10.140.0.0/14",
+        "rangeName": "gke-my-first-cluster-1-pods-ece0bc06"
+      }
+    ],
     "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-east1/subnetworks/gkenode",
     "stackType": "IPV4_ONLY"
   }
@@ -71,14 +82,154 @@ gcloud compute firewall-rules create $firewallruleName --network $networkName --
   {
     "allowed": [
       {
-        "IPProtocol": "all"
+        "IPProtocol": "sctp"
+      },
+      {
+        "IPProtocol": "tcp"
+      },
+      {
+        "IPProtocol": "udp"
+      },
+      {
+        "IPProtocol": "icmp"
+      },
+      {
+        "IPProtocol": "esp"
+      },
+      {
+        "IPProtocol": "ah"
       }
     ],
-    "creationTimestamp": "2023-05-15T17:33:32.128-07:00",
+    "creationTimestamp": "2023-05-15T19:31:35.771-07:00",
     "description": "",
     "direction": "INGRESS",
     "disabled": false,
-    "id": "5325826571923059123",
+    "id": "3395271920928642536",
+    "kind": "compute#firewall",
+    "logConfig": {
+      "enable": false
+    },
+    "name": "gke-my-first-cluster-1-ece0bc06-all",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/gkenetwork1",
+    "priority": 1000,
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/firewalls/gke-my-first-cluster-1-ece0bc06-all",
+    "sourceRanges": [
+      "10.140.0.0/14"
+    ],
+    "targetTags": [
+      "gke-my-first-cluster-1-ece0bc06-node"
+    ]
+  },
+  {
+    "creationTimestamp": "2023-05-15T19:31:35.727-07:00",
+    "denied": [
+      {
+        "IPProtocol": "tcp",
+        "ports": [
+          "10255"
+        ]
+      }
+    ],
+    "description": "",
+    "direction": "INGRESS",
+    "disabled": false,
+    "id": "7385047447989343720",
+    "kind": "compute#firewall",
+    "logConfig": {
+      "enable": false
+    },
+    "name": "gke-my-first-cluster-1-ece0bc06-exkubelet",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/gkenetwork1",
+    "priority": 1000,
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/firewalls/gke-my-first-cluster-1-ece0bc06-exkubelet",
+    "sourceRanges": [
+      "0.0.0.0/0"
+    ],
+    "targetTags": [
+      "gke-my-first-cluster-1-ece0bc06-node"
+    ]
+  },
+  {
+    "allowed": [
+      {
+        "IPProtocol": "tcp",
+        "ports": [
+          "10255"
+        ]
+      }
+    ],
+    "creationTimestamp": "2023-05-15T19:31:35.830-07:00",
+    "description": "",
+    "direction": "INGRESS",
+    "disabled": false,
+    "id": "8256475236943222248",
+    "kind": "compute#firewall",
+    "logConfig": {
+      "enable": false
+    },
+    "name": "gke-my-first-cluster-1-ece0bc06-inkubelet",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/gkenetwork1",
+    "priority": 999,
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/firewalls/gke-my-first-cluster-1-ece0bc06-inkubelet",
+    "sourceRanges": [
+      "10.140.0.0/14"
+    ],
+    "sourceTags": [
+      "gke-my-first-cluster-1-ece0bc06-node"
+    ],
+    "targetTags": [
+      "gke-my-first-cluster-1-ece0bc06-node"
+    ]
+  },
+  {
+    "allowed": [
+      {
+        "IPProtocol": "icmp"
+      },
+      {
+        "IPProtocol": "tcp",
+        "ports": [
+          "1-65535"
+        ]
+      },
+      {
+        "IPProtocol": "udp",
+        "ports": [
+          "1-65535"
+        ]
+      }
+    ],
+    "creationTimestamp": "2023-05-15T19:31:36.151-07:00",
+    "description": "",
+    "direction": "INGRESS",
+    "disabled": false,
+    "id": "359073794659145191",
+    "kind": "compute#firewall",
+    "logConfig": {
+      "enable": false
+    },
+    "name": "gke-my-first-cluster-1-ece0bc06-vms",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/gkenetwork1",
+    "priority": 1000,
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/firewalls/gke-my-first-cluster-1-ece0bc06-vms",
+    "sourceRanges": [
+      "10.0.0.0/24"
+    ],
+    "targetTags": [
+      "gke-my-first-cluster-1-ece0bc06-node"
+    ]
+  },
+  {
+    "allowed": [
+      {
+        "IPProtocol": "all"
+      }
+    ],
+    "creationTimestamp": "2023-05-15T19:30:28.366-07:00",
+    "description": "",
+    "direction": "INGRESS",
+    "disabled": false,
+    "id": "6172856038942790699",
     "kind": "compute#firewall",
     "logConfig": {
       "enable": false
@@ -1163,6 +1314,11 @@ rtt min/avg/max/mdev = 4.480/4.480/4.480/0.000 ms
 POD IPs are keep changing due to scale in/out or reborn , deleting etc for various reason, we need to keep update the POD ip address to cFOS address group. 
 we create a POD dedicated for this. this POD keep running a background proces which update the application POD's IP  that has annoation to net-attach-def "cfosapp" to cFOS via cFOS restful API. 
 the API call to cFOS can use either cFOS dns name or cFOS node IPs. if cFOS use shared storage for configuration, then use dns name is proper way, otherwise, we will need to update each cFOS POD directly via CFOS POD ip address. the policy_manager by default using cFOS POD ip address. 
+
+the policy_manager pod use image from *interbeing/kubectl-cfos:gke_demo_v1*
+the source code of this image is under policymanager/
+build.sh  Dockerfile  script.sh
+you can build by yourself. 
 - paste below command to create policy_manager 
 ```
 filename="18_cfospolicymanager.yml"
@@ -1254,7 +1410,7 @@ kubectl get pod policymanager && kubectl exec -it po/policymanager -- curl -X GE
 `
 ```
 NAME            READY   STATUS    RESTARTS   AGE
-policymanager   1/1     Running   0          11s
+policymanager   1/1     Running   0          44m
 {
   "status": "success",
   "http_status": 200,
@@ -1268,16 +1424,7 @@ policymanager   1/1     Running   0          11s
       "category": "default",
       "member": [
         {
-          "name": "10.1.200.20"
-        },
-        {
-          "name": "10.1.200.21"
-        },
-        {
-          "name": "10.1.200.20"
-        },
-        {
-          "name": "10.1.200.21"
+          "name": "none"
         }
       ],
       "comment": "",
