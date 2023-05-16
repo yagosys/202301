@@ -122,20 +122,50 @@ cd ./../
 
 ./38_delete_policy_101.sh 
 
+cd doc 
+./38_doc.sh
+cd ./../
+
 ./46_install_gatekeeperv3.sh
+
+cd doc 
+./46_doc.sh
+cd ./../
 
 ./47_create_gatekeeper_constraint_template.sh
 
+cd doc 
+./47_doc.sh
+cd ./../
+
 
 ./48_deploy_constraint_fos_cfos.sh
+cd doc 
+./48_doc.sh
+cd ./../
+
+echo sleep 10
+sleep 10
 
 ./49_deploy_network_firewall_policy_egress.sh
+cd doc 
+./49_doc.sh
+cd ./../
 
 ./50_restart_app.sh
+cd doc 
+./50_doc.sh
+cd ./../
 
 ./52_ipstest.sh 
+cd doc 
+./52_doc.sh
+cd ./../
 
 ./53_webftest.sh 
+cd doc 
+./53_doc.sh
+cd ./../
 
 
 

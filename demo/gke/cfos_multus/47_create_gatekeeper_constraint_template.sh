@@ -1,4 +1,4 @@
-filename="15_constraint_template.yml"
+filename="47_constraint_template.yml"
 
 cat << EOF > $filename
 apiVersion: templates.gatekeeper.sh/v1beta1

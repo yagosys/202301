@@ -1,4 +1,4 @@
-filename="16_constraint_for_cfos.yml"
+filename="48_constraint_for_cfos.yml"
 cat << EOF >$filename
 apiVersion: constraints.gatekeeper.sh/v1beta1
 kind: K8sEgressNetworkPolicyToCfosUtmPolicy
