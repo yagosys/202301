@@ -2,7 +2,7 @@
 
 create network for GKE VM instances.
 the *ipcidrRange* is the ip range for VM node. 
-the *firewallallowProtocol=all* allow ssh into worker node from anywhere  to all protocols
+the *firewallallowProtocol=all* allow ssh into worker node from anywhere  to *all* protocols
 - paste below command to create network, subnets and firewall-rules  
 ```
 #!/bin/bash -xe
@@ -244,14 +244,16 @@ gcloud compute firewall-rules create $firewallruleName --network $networkName --
   }
 ]
 ```
-- create gke cluster 
+- create gke cluster
+ 
 
-create gke cluster 
+create gke cluster\n 
 *enable-ip-alias* to enable use alias ip on VM for pod ip address
-*service-ipv4-cidr* is for clusterVIP address
+*service-ipv4-cidr* is the cidr for clusterVIP address
 *cluster-ipv4-cidr* is for POD ip address scope
 
-- paste below command to create gke cluster 
+- paste below command to create gke cluster
+ 
 ```
 #!/bin/bash -xe
 [[ $defaultClustername == "" ]] && defaultClustername="my-first-cluster-1"
@@ -308,11 +310,12 @@ echo cluster worker node vm has internal ip $(gcloud compute instances describe 
 echo cluster worker node vm has alias ip $(gcloud compute instances describe $name  --format="value(networkInterfaces.aliasIpRanges)")
 ```
 - check the result
+
 `kubectl get node -o wide`
 ```
 NAME                                                STATUS   ROLES    AGE   VERSION            INTERNAL-IP   EXTERNAL-IP      OS-IMAGE             KERNEL-VERSION    CONTAINER-RUNTIME
-gke-my-first-cluster-1-default-pool-cd44c9ff-hr67   Ready    <none>   34s   v1.26.3-gke.1000   10.0.0.4      34.80.212.63     Ubuntu 22.04.2 LTS   5.15.0-1028-gke   containerd://1.6.18
-gke-my-first-cluster-1-default-pool-cd44c9ff-td6v   Ready    <none>   31s   v1.26.3-gke.1000   10.0.0.3      35.189.160.192   Ubuntu 22.04.2 LTS   5.15.0-1028-gke   containerd://1.6.18
+gke-my-first-cluster-1-default-pool-904c27c6-83jk   Ready    <none>   44m   v1.26.3-gke.1000   10.0.0.4      35.189.160.192   Ubuntu 22.04.2 LTS   5.15.0-1028-gke   containerd://1.6.18
+gke-my-first-cluster-1-default-pool-904c27c6-br1b   Ready    <none>   44m   v1.26.3-gke.1000   10.0.0.3      35.189.185.168   Ubuntu 22.04.2 LTS   5.15.0-1028-gke   containerd://1.6.18
 ```
 - enable worker node ipforwarding 
 
