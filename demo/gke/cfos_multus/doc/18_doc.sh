@@ -7,7 +7,13 @@ cat << EOF >> "${filename}.md"
 POD IPs are keep changing due to scale in/out or reborn , deleting etc for various reason, we need to keep update the POD ip address to cFOS address group. 
 we create a POD dedicated for this. this POD keep running a background proces which update the application POD's IP  that has annoation to net-attach-def "cfosapp" to cFOS via cFOS restful API. 
 the API call to cFOS can use either cFOS dns name or cFOS node IPs. if cFOS use shared storage for configuration, then use dns name is proper way, otherwise, we will need to update each cFOS POD directly via CFOS POD ip address. the policy_manager by default using cFOS POD ip address. 
+
+the policy_manager pod use image from *interbeing/kubectl-cfos:gke_demo_v1*
+the source code of this image is under policymanager/
+build.sh  Dockerfile  script.sh
+you can build by yourself. 
 EOF
+
 
 echo '- paste below command to create policy_manager ' >> "${filename}.md" 
 
