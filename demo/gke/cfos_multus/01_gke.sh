@@ -18,7 +18,7 @@ region=$(gcloud compute networks subnets list --format="value(region)" --limit=1
 
 gcloud services enable container.googleapis.com  && \
 
-gcloud beta container clusters create $gkeClusterName  \
+gcloud container clusters create $gkeClusterName  \
 	--no-enable-basic-auth \
 	--cluster-version "1.26.3-gke.1000" \
 	--release-channel "rapid" \
