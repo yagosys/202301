@@ -1,6 +1,7 @@
 #!/bin/bash -xe
 [[ $master_interface_on_worker_node == "" ]] && master_interface_on_worker_node="ens4"
 [[ $net_attach_def_name_for_cfos == "" ]]    &&  net_attach_def_name_for_cfos="cfosdefaultcni5"
+[[ $cfosIpshort == "" ]] && cfosIpshort="10.1.200.252" 
 filename="04_nad_macvlan_cfos.yml"
 cat << EOF > $filename
 apiVersion: "k8s.cni.cncf.io/v1"
@@ -15,10 +16,10 @@ spec:
       "mode": "bridge",
       "ipam": {
         "type": "host-local",
-        "subnet": "10.1.200.0/24",
-        "rangeStart": "10.1.200.250",
-        "rangeEnd": "10.1.200.253",
-        "gateway": "10.1.200.1"
+        "subnet": "${cfosIpshort%.*}.0/24",
+        "rangeStart": "${cfosIpshort%.*}.251",
+        "rangeEnd": "${cfosIpshort%.*}.253",
+        "gateway": "${cfosIpshort%.*}.1"
       }
     }'
 EOF

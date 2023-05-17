@@ -1,9 +1,22 @@
-#!/bin/bash -xe
-filename="04_nad_macvlan_for_app.yml"
-[[ custom_dst1 == "" ]] && custom_dst1='{ "dst": "1.1.1.1/32", "gw": "10.1.200.252" },'
-[[ custom_dst2 == "" ]] && custom_dst2='{ "dst": "104.18.0.0/16", "gw": "10.1.200.252"},'
-[[ custom_lastdst == "" ]] && custom_lastdst='{ "dst": "89.238.73.0/24", "gw": "10.1.200.252"}'
-[[ app_nad_annotation == "" ]] && app_nad_annotation="cfosapp"
+#!/bin/bash 
+filename="05_nad_macvlan_for_app.yaml"
+
+[[ $cfosIpshort == "" ]] && cfosIpshort="10.1.200.252" 
+[[ $custom_dst1 == "" ]] && custom_dst1='{ "dst": "1.1.1.1/32", "gw": "$cfosIpshort" },'
+[[ $custom_dst2 == "" ]] && custom_dst2='{ "dst": "104.18.0.0/16", "gw": "$cfosIpshort"},'
+[[ $custom_lastdst == "" ]] && custom_lastdst='{ "dst": "1.1.1.1/32", "gw": "$cfosIpshort"}'
+[[ $app_nad_annotation == "" ]] && app_nad_annotation="cfosapp"
+
+number_of_custom_dst=$(env | grep custom_dst | cut -d '=' -f 1 | wc -l)
+
+result=""
+for i in $(seq 1 $number_of_custom_dst); do
+    temp="custom_dst$i"
+    result+=$'\n'"${!temp}"
+done
+
+echo -e "$result"
+
 
 cat << EOF > $filename
 apiVersion: "k8s.cni.cncf.io/v1"
@@ -18,15 +31,14 @@ spec:
       "mode": "bridge",
       "ipam": {
         "type": "host-local",
-        "subnet": "10.1.200.0/24",
+        "subnet": "${cfosIpshort%.*}.0/24",
         "routes": [
-          $custom_dst1
-          $custom_dst2
-          $custom_lastdst
+         $result
+         $custom_lastdst
         ],
-        "rangeStart": "10.1.200.20",
-        "rangeEnd": "10.1.200.251",
-        "gateway": "10.1.200.1"
+        "rangeStart": "${cfosIpshort%.*}.20",
+        "rangeEnd": "${cfosIpshort%.*}.251",
+        "gateway": "${cfosIpshort%.*}.1"
       }
     }'
 EOF

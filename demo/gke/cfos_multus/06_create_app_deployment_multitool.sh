@@ -1,4 +1,5 @@
 file="app_with_annotations_cfosapp.yml"
+[[ $app_image == "" ]] && app_image="praqma/network-multitool"
 annotations="k8s.v1.cni.cncf.io/networks: '[ { \"name\": \"$app_nad_annotation\" } ]'"
 cat << EOF > $file 
 apiVersion: apps/v1
@@ -21,8 +22,8 @@ spec:
     spec:
       containers:
         - name: multitool01
-          image: praqma/network-multitool
-            #image: nginx:latest
+          image: $app_image
+          #image: praqma/network-multitool
           imagePullPolicy: Always
             #command: ["/bin/sh","-c"]
           args:

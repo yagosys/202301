@@ -1,5 +1,6 @@
 #!/bin/bash -xe 
 file="cfos_ds.yml" 
+[[ $cfos_image == "" ]] && cfos_image="interbeing/fos:v7231x86"
 [[ $cfosIp == "" ]] && cfosIp="10.1.200.252/32"
 annotations="k8s.v1.cni.cncf.io/networks: '[ { \"name\": \"$net_attach_def_name_for_cfos\",  \"ips\": [ \"$cfosIp\" ], \"mac\": \"CA:FE:C0:FF:00:02\" } ]'"
 
@@ -43,7 +44,7 @@ spec:
     spec:
       containers:
       - name: fos
-        image: interbeing/fos:v7231x86
+        image: $cfos_image
         #image: 732600308177.dkr.ecr.ap-east-1.amazonaws.com/fos:v7231x86
         imagePullPolicy: Always
         securityContext:

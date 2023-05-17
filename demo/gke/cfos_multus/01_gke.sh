@@ -4,6 +4,9 @@
 [[ $subnetName == "" ]] && subnetName="gkenode"
 [[ $machineType == "" ]] && machineType="g1-small"
 [[ $num_nodes == "" ]] && num_nodes="1"
+[[ $services_ipv4_cidr == "" ]] && services_ipv4_cidr="10.144.0.0/20"
+[[ $cluster_ipv4_cidr == "" ]] && cluster_ipv4_cidr="10.140.0.0/14"
+
 
 gkeClusterName=$defaultClustername
 machineType=$machineType
@@ -39,8 +42,8 @@ gcloud beta container clusters create $gkeClusterName  \
        	--max-surge-upgrade 1 \
 	--max-unavailable-upgrade 0 \
 	--enable-shielded-nodes \
-	--services-ipv4-cidr 10.144.0.0/20 \
-        --cluster-ipv4-cidr  10.140.0.0/14
+	--services-ipv4-cidr $services_ipv4_cidr \
+        --cluster-ipv4-cidr  $cluster_ipv4_cidr
 
 echo done
 echo cluster has podIpv4CidrBlock $(gcloud container clusters describe $gkeClusterName --format="value(nodePools.networkConfig.podIpv4CidrBlock)")

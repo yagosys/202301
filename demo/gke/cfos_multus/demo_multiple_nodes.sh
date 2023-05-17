@@ -5,18 +5,18 @@ file="$HOME/license/fos_license.yaml"
 startdate=$(date)
 ./00_gcloud_env.sh && \
 
-./00_create_network.sh && \
-cd doc && \
+./00_create_network.sh 
+cd doc 
 ./00_doc.sh
 cd ./../
 
-./01_gke.sh && \
-cd doc && \
+./01_gke.sh 
+cd doc 
 ./01_doc.sh
 cd ./../
 
-./02_modifygkevmipforwarding.sh && \
-cd doc && \
+./02_modifygkevmipforwarding.sh 
+cd doc  
 ./02_doc.sh
 cd ./../
 

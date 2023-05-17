@@ -1,5 +1,8 @@
 file="app_with_annotations_cfosapp_with_defalt_route.yml"
-annotation="k8s.v1.cni.cncf.io/networks: '[ { \"name\": \"$app_nad_annotation\", \"default-route\": [\"10.1.200.252\"] } ]'"
+[[ $cfosIpshort == "" ]] && cfosIpshort="10.1.200.252" 
+annotation="k8s.v1.cni.cncf.io/networks: '[ { \"name\": \"$app_nad_annotation\", \"default-route\": [\"$cfosIpshort\"] } ]'"
+[[ $app_image == "" ]] && app_image="praqma/network-multitool"
+
 cat << EOF > $file 
 apiVersion: apps/v1
 kind: Deployment
@@ -22,8 +25,8 @@ spec:
     spec:
       containers:
         - name: multitool01
-          image: praqma/network-multitool
-            #image: nginx:latest
+          image: $app_image
+          #image: praqma/network-multitool
           imagePullPolicy: Always
             #command: ["/bin/sh","-c"]
           args:
@@ -35,3 +38,5 @@ spec:
 EOF
 
 kubectl create -f $file && kubectl rollout status deployment multitool01-deployment
+echo "sleep 30 seconds for it will take some time to trigger policymanager to update cfos addressgrp"
+sleep 30
