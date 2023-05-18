@@ -144,8 +144,8 @@ cd doc
 ./48_doc.sh
 cd ./../
 
-echo sleep 10
-sleep 10
+echo sleep 30
+sleep 30
 
 ./49_deploy_network_firewall_policy_egress.sh
 cd doc 

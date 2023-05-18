@@ -1,3 +1,6 @@
+#!/bin/bash 
+[[ -z $cfos_label ]] && cfos_label="fos"
+
 if [ $# -eq 0 ]; then
   echo "Usage: $0 <fortigate VM license file >"
   exit 1
@@ -15,7 +18,7 @@ kind: ConfigMap
 metadata:
     name: fos-license
     labels:
-        app: fos
+        app: $cfos_label
         category: license
 data:
     license: |

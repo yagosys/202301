@@ -1,4 +1,5 @@
 #!/bin/bash
+[[ -z $cfos_label ]] && cfos_label="fos"
 
 # Get list of node names
 node_list=$(kubectl get nodes -o=jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}')
@@ -8,7 +9,7 @@ for nodeName in $node_list; do
 	echo $1
      while true ; do
         kubectl rollout status deployment multitool01-deployment
-        cfospod=`kubectl get pods -l app=fos --field-selector spec.nodeName=$nodeName |    cut -d ' ' -f 1 | tail -n -1`
+        cfospod=`kubectl get pods -l app=$cfos_label --field-selector spec.nodeName=$nodeName |    cut -d ' ' -f 1 | tail -n -1`
         multpod=`kubectl get pods -l app=$1 --field-selector spec.nodeName=$nodeName |   cut -d ' ' -f 1 | tail -n -1`
         result=$(kubectl exec -it po/$multpod -- curl -k  https://1.1.1.1 2>&1 | grep -o 'decryption failed or bad record mac')
         if [ "$result" = "decryption failed or bad record mac" ]

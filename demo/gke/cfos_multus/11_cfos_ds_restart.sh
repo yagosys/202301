@@ -1,8 +1,10 @@
 [[ $ping_dst == "" ]] && ping_dst="1.1.1.1"
-kubectl rollout status ds/fos-deployment && \
-kubectl rollout restart ds/fos-deployment && \
-kubectl rollout status ds/fos-deployment && \
-podname=$(kubectl get pod -l app=fos  | grep Running | grep fos | cut -d " " -f 1) && \
+[[ -z $cfos_label ]] && cfos_label="fos" 
+
+kubectl rollout status ds/$cfos_label-deployment && \
+kubectl rollout restart ds/$cfos_label-deployment && \
+kubectl rollout status ds/$cfos_label-deployment && \
+podname=$(kubectl get pod -l app=$cfos_label  | grep Running | grep $cfos_label | cut -d " " -f 1) && \
 echo   'check cfos iptables for snat entry' && \
 kubectl exec -it po/$podname -- iptables -L -t nat --verbose | grep MASQ && \
 echo "check whether application pod can reach $ping_dst1"
