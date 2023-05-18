@@ -1,5 +1,6 @@
 #!/bin/bash
 filename="./../50_restart_app.sh"
+[[ -z $app_deployment_label="multitool01" ]] && app_deployment_label="multitool01"
 
 echo -e '- restart application deployment to trigger policymanager update addressgrp in cFOS ' > "${filename}.md"
 cat << EOF >> "${filename}.md"
@@ -18,7 +19,7 @@ echo -e '```' >> "${filename}.md"
 echo -e '- check the result\n' >> "${filename}.md"
 
 
-command="kubectl rollout status deployment multitool01-deployment"
+command="kubectl rollout status deployment $app_deployment_label-deployment"
 
 echo -e '`' >> "${filename}.md"
 echo -e "$command" >> "${filename}.md"

@@ -1,5 +1,6 @@
 #!/bin/bash
 filename="./../06_create_app_deployment_multitool.sh"
+[[ -z $app_deployment_label="multitool01" ]] && app_deployment_label="multitool01"
 
 echo -e '- create demo application deployment\n' > "${filename}.md"
 
@@ -21,7 +22,7 @@ echo -e '```' >> "${filename}.md"
 echo -e '- check the result\n' >> "${filename}.md"
 
 
-command="kubectl rollout status deployment multitool01-deployment"
+command="kubectl rollout status deployment $app_deployment_label-deployment"
 
 echo -e "\`$command\`" >> "${filename}.md"
 echo -e '```' >> "${filename}.md"
@@ -29,13 +30,13 @@ echo -e "$($command)"  >> "${filename}.md"
 echo -e '```' >> "${filename}.md"
 
 
-command='kubectl get pod -l app=multitool01'
+command="kubectl get pod -l app=$app_deployment_label"
 echo -e "\`$command\`" >> "${filename}.md"
 echo -e '```' >> "${filename}.md"
 echo -e "$($command)"  >> "${filename}.md"
 echo -e '```' >> "${filename}.md"
 
-command="nodeName=\$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}') && for node in \$nodeName; do podName=\$(kubectl get pods -l app=multitool01 --field-selector spec.nodeName=\"\$node\" -o jsonpath='{.items[*].metadata.name}') ; kubectl exec -it po/\$podName -- ip route && kubectl exec -t po/\$podName -- ip address ; done" 
+command="nodeName=\$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}') && for node in \$nodeName; do podName=\$(kubectl get pods -l app=$app_deployment_label --field-selector spec.nodeName=\"\$node\" -o jsonpath='{.items[*].metadata.name}') ; kubectl exec -it po/\$podName -- ip route && kubectl exec -t po/\$podName -- ip address ; done" 
 echo -e '`' >> "${filename}.md"
 echo -e "$command" >> "${filename}.md"
 echo -e '`' >> "${filename}.md"
