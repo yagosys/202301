@@ -1,5 +1,5 @@
 #!/bin/bash
-[[ $ips_target_url == "" ]] && ips_target_url="www.hackthebox.eu"
+[[ -z $1 ]] && ips_target_url="www.hackthebox.eu" || ips_target_url=$1
 [[ -z $gatekeeper_policy_id ]] && gatekeeper_policy_id="200"
 [[ -z $cfos_label ]] && cfos_label="fos"
 echo -e 'generate traffic to $ips_target_url' 
