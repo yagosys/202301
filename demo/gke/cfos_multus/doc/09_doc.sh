@@ -1,7 +1,7 @@
 #!/bin/bash
 filename="./../09_create_cfos_ds.sh"
 
-echo '- create cfos role and service account' > "${filename}.md"
+echo -e '- create cfos role and service account' > "${filename}.md"
 
 cat << EOF >> "${filename}.md"
 
@@ -18,45 +18,45 @@ cFOS image will be pulled from Docker Hub with pull secret.
 
 EOF
 
-echo '- paste below command to create cfos DaemonSet' >> "${filename}.md" 
+echo -e '- paste below command to create cfos DaemonSet' >> "${filename}.md" 
 
-echo '```' >> "${filename}.md"
+echo -e '```' >> "${filename}.md"
 cat $filename >> "${filename}.md"
-echo '```' >> "${filename}.md"
+echo -e '```' >> "${filename}.md"
 
 
-echo '- check the result\n' >> "${filename}.md"
+echo -e '- check the result\n' >> "${filename}.md"
 
 
 
 command='kubectl rollout status ds/fos-deployment && kubectl get pod -l app=fos'
 
-echo '`' >> "${filename}.md"
-echo "$command" >> "${filename}.md"
-echo '`' >> "${filename}.md"
-echo '```' >> "${filename}.md"
+echo -e '`' >> "${filename}.md"
+echo -e "$command" >> "${filename}.md"
+echo -e '`' >> "${filename}.md"
+echo -e '```' >> "${filename}.md"
 eval "$command"  >> "${filename}.md"
-echo '```' >> "${filename}.md"
+echo -e '```' >> "${filename}.md"
 
 
 
 
 command="nodeName=\$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}') && for node in \$nodeName; do podName=\$(kubectl get pods -l app=fos --field-selector spec.nodeName=\"\$node\" -o jsonpath='{.items[*].metadata.name}') ; kubectl exec -it po/\$podName -- ip route && kubectl exec -t po/\$podName -- ip address ; done" 
 
-echo 'check routing table and ip address' >> "${filename}.md"
-echo '`' >> "${filename}.md"
-echo "$command" >> "${filename}.md"
-echo '`' >> "${filename}.md"
-echo '```' >> "${filename}.md"
+echo -e 'check routing table and ip address\n' >> "${filename}.md"
+echo -e '`' >> "${filename}.md"
+echo -e "$command" >> "${filename}.md"
+echo -e '`' >> "${filename}.md"
+echo -e '```' >> "${filename}.md"
 eval "$command" >> "${filename}.md"
-echo '```' >> "${filename}.md"
+echo -e '```' >> "${filename}.md"
 
-echo 'check cfos license' >> "${filename}.md"
+echo -e 'check cfos license\n' >> "${filename}.md"
 command="nodeName=\$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}') && for node in \$nodeName; do podName=\$(kubectl get pods -l app=fos --field-selector spec.nodeName=\"\$node\" -o jsonpath='{.items[*].metadata.name}') ;  kubectl logs po/\$podName ; done" 
 
-echo '`' >> "${filename}.md"
-echo "$command" >> "${filename}.md"
-echo '`' >> "${filename}.md"
-echo '```' >> "${filename}.md"
+echo -e '`' >> "${filename}.md"
+echo -e "$command" >> "${filename}.md"
+echo -e '`' >> "${filename}.md"
+echo -e '```' >> "${filename}.md"
 eval "$command" >> "${filename}.md"
-echo '```' >> "${filename}.md"
+echo -e '```' >> "${filename}.md"

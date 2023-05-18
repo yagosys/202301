@@ -1,5 +1,8 @@
+#!/bin/bash
+
 filename="18_cfospolicymanager.yml"
-policymanagerimage="interbeing/kubectl-cfos:gke_demo_v1"
+[[ -z $policymanagerimage ]] && policymanagerimage="interbeing/kubectl-cfos:gke_demo_v2"
+[[ -z $app_nad_annotation ]] && app_nad_annotation="cfosapp"
 
 function wait_for_pod_ready {
 pod_name=$(kubectl get pods -l app=policy_manager -o jsonpath='{.items[0].metadata.name}')
@@ -73,6 +76,10 @@ spec:
   containers:
   - name: kubectl-container
     image: $policymanagerimage
+    env:
+      - name: app_label
+        value: $app_nad_annotation
+
 EOF
 
 kubectl apply -f $filename  && wait_for_pod_ready && kubectl exec -it po/policymanager -- curl -X GET "http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/policy" && kubectl exec -it po/policymanager -- curl -X GET "http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/addrgrp" 

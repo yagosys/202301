@@ -21,7 +21,7 @@ echo -e '- check the result\n' >> "${filename}.md"
 
 command="kubectl get k8segressnetworkpolicytocfosutmpolicy -o yaml"
 
-echo -e 'check constraint\n s' >> "${filename}.md"
+echo -e 'check constraint\n ' >> "${filename}.md"
 echo -e '`' >> "${filename}.md"
 echo -e "$command" >> "${filename}.md"
 echo -e '`' >> "${filename}.md"

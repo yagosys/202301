@@ -46,17 +46,16 @@ curl -s \
 
 }
 
-function getPodApplabel {
-#	label_value=$(kubectl get pods -o json -A | jq -r '[.items[] | select(.metadata.annotations != null and .metadata.annotations["k8s.v1.cni.cncf.io/networks"] != null and (.metadata.annotations["k8s.v1.cni.cncf.io/networks"] | (contains("cfosapp") and contains("default-route")))) | .metadata.labels.app] | unique[]')
-        label_value=$(kubectl get pods -o json -A | jq -r '[.items[] | select(.metadata.annotations != null and .metadata.annotations["k8s.v1.cni.cncf.io/networks"] != null and (.metadata.annotations["k8s.v1.cni.cncf.io/networks"] | (contains("cfosapp") ))) | "app=" + .metadata.labels.app] | unique[]')
 
-	LABEL_SELECTOR=$(echo $label_value)
-	echo $LABEL_SELECTOR
+function getPodApplabel {
+label_value=$(kubectl get pods -o json -A | jq -r "[.items[] | select(.metadata.annotations != null and .metadata.annotations[\"k8s.v1.cni.cncf.io/networks\"] != null and (.metadata.annotations[\"k8s.v1.cni.cncf.io/networks\"] | (contains(\"$app_label\") ))) | \"app=\" + .metadata.labels.app] | unique[]")
+LABEL_SELECTOR=$(echo $label_value)
+echo $LABEL_SELECTOR
 }
 
 function getPodNamespace {
-namespace=$(kubectl get pods -o json -A | jq -r '[.items[] | select(.metadata.annotations != null and .metadata.annotations["k8s.v1.cni.cncf.io/networks"] != null and (.metadata.annotations["k8s.v1.cni.cncf.io/networks"] | (contains("cfosapp") ))) | .metadata.namespace] | unique[]')
-        echo $namespace
+namespace=$(kubectl get pods -o json -A | jq -r "[.items[] | select(.metadata.annotations != null and .metadata.annotations[\"k8s.v1.cni.cncf.io/networks\"] != null and (.metadata.annotations[\"k8s.v1.cni.cncf.io/networks\"] | (contains(\"$app_label\") ))) | .metadata.namespace] | unique[]")
+echo $namespace
 }
 
 

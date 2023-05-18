@@ -36,6 +36,7 @@ export custom_lastdst='{ "dst": "1.1.1.1/32", "gw": "10.1.200.252"}'
 export app_nad_annotation="cfosapp"
 export cfos_image="interbeing/fos:v7231x86"
 export app_image="praqma/network-multitool"
+export policymanagerimage="interbeing/kubectl-cfos:gke_demo_v2"
 export internet_webf_url="https://xoso.com.vn"
 export serices_ipv4_cidr="10.144.0.0/20"
 export cluster_ipv4_cidr="10.140.0.0/14"
