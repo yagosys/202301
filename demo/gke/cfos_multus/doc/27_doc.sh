@@ -1,4 +1,5 @@
 #!/bin/bash
+[[ -z $cfos_label ]] && cfos_label="fos"
 filename="./../27_webftest.sh"
 policy_id="101"
 source ./../variable.sh
@@ -20,7 +21,7 @@ echo -e '```' >> "${filename}.md"
 echo -e '- check the result\n' >> "${filename}.md"
 
 
-command="kubectl get pod | grep fos | awk '{print \$1}'  | while read line; do kubectl exec -t po/\$line -- tail  /data/var/log/log/webf.0 | grep policyid="$policy_id"  ; done"
+command="kubectl get pod | grep $cfos_label | awk '{print \$1}'  | while read line; do kubectl exec -t po/\$line -- tail  /data/var/log/log/webf.0 | grep policyid="$policy_id"  ; done"
 
 echo -e '`' >> "${filename}.md"
 echo -e "$command" >> "${filename}.md"

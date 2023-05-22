@@ -1,7 +1,11 @@
+- prereqs 
+gcloud binary is required.  you will also need install kubectl by using `gcloud components install gke-gcloud-auth-plugin`. 
+you can use any client machine to run this demo, but use *google cloud shell* is recommended as it is pre-configured to use google cloud. 
+
+
 - generate your docker pull secret for download cFOS image 
 
 
-*please use google clud shell to run demo.*
 
 the document for ste by step demo is ./doc/README.md
 
