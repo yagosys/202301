@@ -1,8 +1,8 @@
-region="us-east-1"
+region="ap-east-1"
 instance_type="t3.large"
-worker_count=2
-#cni="calico"
-cni="do not install"
+worker_count=1
+cni="flannel"
+#cni="do not install"
 multuscni="false"
 gatekeeper="false"
 cfosLicense="/home/i/fos_license.yaml"
