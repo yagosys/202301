@@ -50,6 +50,7 @@ kubectl -n kubevirt patch kubevirt kubevirt --type=merge --patch '{"spec":{"conf
 #install localhost storageclass
 kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/v0.0.24/deploy/local-path-storage.yaml
 kubectl patch storageclass local-path -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+kubectl rollout status deployment/local-path-provisioner  -n local-path-storage
 ```
 
 
@@ -66,9 +67,7 @@ kubectl -n cdi rollout status deployment/cdi-operator
 - install crd for cdi 
 ```
 kubectl create -f https://github.com/kubevirt/containerized-data-importer/releases/download/$VERSION/cdi-cr.yaml
-
-kubectl wait -n cdi --for=jsonpath='{.status.phase}'=Deployed cdi/cdi && 
-
+kubectl wait -n cdi --for=jsonpath='{.status.phase}'=Deployed cdi/cdi --timeout=600s && 
 kubectl -n cdi get pods
 
 ```
@@ -222,3 +221,30 @@ admin@vmi/fmg.default's password:
 FMG-VM64 # 
 
 ```
+- deploy test pod
+
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tool
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tool
+  template:
+    metadata:
+      labels:
+        app: tool
+    spec:
+      containers:
+      - name: network-multitool
+        #image: praqma/network-multitool
+        image: nicolaka/netshoot
+        command: ["/bin/bash"]
+        args: ["-c", "while true; do ping localhost; sleep 60;done"]
+        securityContext:
+          privileged: true
+``
