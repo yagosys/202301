@@ -1,8 +1,8 @@
 #!/bin/bash -xe
 export VERSION=$(curl -s https://api.github.com/repos/kubevirt/kubevirt/releases | grep tag_name | grep -v -- '-rc' | sort -r | head -1 | awk -F': ' '{print $2}' | sed 's/,//' | xargs)
 echo $VERSION
-kubectl create -f https://github.com/kubevirt/kubevirt/releases/download/${VERSION}/kubevirt-operator.yaml
-kubectl create -f https://github.com/kubevirt/kubevirt/releases/download/${VERSION}/kubevirt-cr.yaml
+kubectl apply -f https://github.com/kubevirt/kubevirt/releases/download/${VERSION}/kubevirt-operator.yaml
+kubectl apply -f https://github.com/kubevirt/kubevirt/releases/download/${VERSION}/kubevirt-cr.yaml
 
 kubectl rollout status deployment -n kubevirt && 
 kubectl rollout status ds -n kubevirt && 
@@ -39,17 +39,17 @@ kubectl rollout status deployment/local-path-provisioner  -n local-path-storage
 echo  intall data importor 
 export VERSION=$(curl -Ls https://github.com/kubevirt/containerized-data-importer/releases/latest | grep -m 1 -o "v[0-9]\.[0-9]*\.[0-9]*")
 echo $VERSION
-kubectl create -f https://github.com/kubevirt/containerized-data-importer/releases/download/$VERSION/cdi-operator.yaml && 
+kubectl apply -f https://github.com/kubevirt/containerized-data-importer/releases/download/$VERSION/cdi-operator.yaml && 
 kubectl -n cdi scale deployment/cdi-operator --replicas=1 && 
 kubectl -n cdi rollout status deployment/cdi-operator 
 
 echo - install crd for cdi 
-kubectl create -f https://github.com/kubevirt/containerized-data-importer/releases/download/$VERSION/cdi-cr.yaml
+kubectl apply -f https://github.com/kubevirt/containerized-data-importer/releases/download/$VERSION/cdi-cr.yaml
 kubectl wait -n cdi --for=jsonpath='{.status.phase}'=Deployed cdi/cdi --timeout=600s && 
 kubectl -n cdi get pods
 sleep 10 
 
-cat << EOF  >fmgdv.yaml
+cat << EOF  > ~/fmgdv.yaml
 apiVersion: cdi.kubevirt.io/v1beta1
 kind: DataVolume
 metadata:
@@ -67,9 +67,9 @@ spec:
         storage: "5000Mi"
 EOF
 
-kubectl create -f fmgdv.yaml
+kubectl apply -f ~/fmgdv.yaml
 
-cat << EOF  > fmgvm.yaml
+cat << EOF  > ~/fmgvm.yaml
 apiVersion: kubevirt.io/v1
 kind: VirtualMachine
 metadata:
@@ -83,6 +83,7 @@ spec:
       creationTimestamp: null
       labels:
         kubevirt.io/domain: fmg
+        app: fmg
     spec:
       domain:
         cpu:
@@ -113,4 +114,4 @@ spec:
             - ssh-rsa YOUR_SSH_PUB_KEY_HERE
         name: cloudinitdisk
 EOF
-kubectl create -f fmgvm.yaml
+kubectl apply -f ~/fmgvm.yaml
