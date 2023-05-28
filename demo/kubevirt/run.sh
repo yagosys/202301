@@ -46,6 +46,7 @@ echo - install crd for cdi
 kubectl create -f https://github.com/kubevirt/containerized-data-importer/releases/download/$VERSION/cdi-cr.yaml
 kubectl wait -n cdi --for=jsonpath='{.status.phase}'=Deployed cdi/cdi --timeout=600s && 
 kubectl -n cdi get pods
+sleep 10 
 
 cat << EOF  >fmgdv.yaml
 apiVersion: cdi.kubevirt.io/v1beta1
@@ -56,6 +57,7 @@ spec:
   source:
     http:
       url: "https://wandy-public-7326-0030-8177.s3.ap-southeast-1.amazonaws.com/fmg707.qcow2" # S3 or GCS
+      #url: "https://wandy-public-7326-0030-8177.s3.ap-southeast-1.amazonaws.com/faz74.qcow2" # S3 or GCS
   pvc:
     accessModes:
     - ReadWriteOnce
@@ -83,7 +85,7 @@ spec:
     spec:
       domain:
         cpu:
-          cores: 2
+          cores: 4
         devices:
           disks:
           - disk:
