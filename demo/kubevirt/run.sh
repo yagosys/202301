@@ -21,10 +21,11 @@ echo "Status.phase is now Deployed"
 
 
 echo  install virtcl client  
-export KUBEVIRT_VERSION=$(curl -s https://api.github.com/repos/kubevirt/kubevirt/releases/latest | jq -r .tag_name)
-wget -O virtctl https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/virtctl-${KUBEVIRT_VERSION}-linux-amd64
-chmod +x virtctl
-sudo install virtctl /usr/local/bin
+#export KUBEVIRT_VERSION=$(curl -s https://api.github.com/repos/kubevirt/kubevirt/releases/latest | jq -r .tag_name)
+export KUBEVIRT_VERSION=$VERSION
+wget -O ~/virtctl https://github.com/kubevirt/kubevirt/releases/download/${KUBEVIRT_VERSION}/virtctl-${KUBEVIRT_VERSION}-linux-amd64
+chmod +x ~/virtctl
+sudo install ~/virtctl /usr/local/bin
 
 echo "disable kvm"
 kubectl -n kubevirt patch kubevirt kubevirt --type=merge --patch '{"spec":{"configuration":{"developerConfiguration":{"useEmulation":true}}}}'
