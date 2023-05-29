@@ -1,6 +1,9 @@
 sudo apt update
 sudo apt install xfce4 xfce4-goodies
 sudo apt install tightvncserver
+sudo apt install xtightvncviewer
+sudo apt install virt-viewer
+
 mkdir -p ~/.vnc
 touch  ~/.vnc/xstartup
 cat << EOF > ~/.vnc/xstartup
