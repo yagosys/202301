@@ -1,4 +1,17 @@
 #!/bin/bash -xe
+curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+chmod +x ./kubectl
+sudo mv ./kubectl /usr/local/bin/kubectl
+
+curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--no-deploy traefik --write-kubeconfig-mode 644" sh -
+KUBECONFIG_FILE="/etc/rancher/k3s/k3s.yaml"
+export KUBECONFIG=$KUBECONFIG_FILE
+echo "Kubeconfig file path: $KUBECONFIG_FILE"
+
+
+
+
+
 export VERSION=$(curl -s https://api.github.com/repos/kubevirt/kubevirt/releases | grep tag_name | grep -v -- '-rc' | sort -r | head -1 | awk -F': ' '{print $2}' | sed 's/,//' | xargs)
 echo $VERSION
 kubectl apply -f https://github.com/kubevirt/kubevirt/releases/download/${VERSION}/kubevirt-operator.yaml
