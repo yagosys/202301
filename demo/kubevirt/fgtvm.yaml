@@ -1,0 +1,43 @@
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  labels:
+    kubevirt.io/os: linux
+  name: fgt
+spec:
+  running: true
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        kubevirt.io/domain: fgt
+        app: fgt
+    spec:
+      domain:
+        cpu:
+          cores: 2
+        devices:
+          disks:
+          - disk:
+              bus: virtio
+            name: disk0
+          - cdrom:
+              bus: sata
+              readonly: true
+            name: cloudinitdisk
+        resources:
+          requests:
+            memory: 2000M
+      volumes:
+      - name: disk0
+        persistentVolumeClaim:
+          claimName: fgt
+      - cloudInitNoCloud:
+          userData: |
+            #cloud-config
+            hostname: fgt
+            ssh_pwauth: True
+            disable_root: false
+            ssh_authorized_keys:
+            - ssh-rsa YOUR_SSH_PUB_KEY_HERE
+        name: cloudinitdisk
