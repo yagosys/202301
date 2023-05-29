@@ -39,6 +39,7 @@ echo install krew
   ./"${KREW}" install krew
 )
 
+export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH" >> ~/.bashrc
 echo export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH" >> ~/.bashrc
 source ~/.bashrc
 kubectl krew install virt
