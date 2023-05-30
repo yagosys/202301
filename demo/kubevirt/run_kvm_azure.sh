@@ -1,6 +1,7 @@
 #!/bin/bash -xe
-git clone https://github.com/yagosys/202301.git 
 alias "k=kubectl"
+echo alias "k=kubectl" >> ~/.bashrc
+source ~/.bashrc
 curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
 chmod +x ./kubectl
 sudo mv ./kubectl /usr/local/bin/kubectl
@@ -9,6 +10,9 @@ curl -sfL https://get.k3s.io | sh -s - --disable traefik --write-kubeconfig-mode
 KUBECONFIG_FILE="/etc/rancher/k3s/k3s.yaml"
 export KUBECONFIG=$KUBECONFIG_FILE
 echo "Kubeconfig file path: $KUBECONFIG_FILE"
+mkdir ~/.kube -p
+cp $KUBECONFIG_FILE ~/.kube/config
+sleep 5
 kubectl rollout status deployment local-path-provisioner -n kube-system &&  kubectl rollout status deployment metrics-server -n kube-system
 
 
@@ -152,12 +156,34 @@ spec:
             - ssh-rsa YOUR_SSH_PUB_KEY_HERE
         name: cloudinitdisk
 EOF
-kubectl apply -f ~/fmgvm.yaml
+kubectl apply -f ~/fmgvm.yaml  &&
+
+POD_LABEL_SELECTOR="app=fmg"
+
+check_pod_status() {
+  local pod_status=$(kubectl get pod -l "$POD_LABEL_SELECTOR" -o jsonpath='{.items[0].status.phase}')
+  if [ "$pod_status" = "Running" ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+wait_for_pod_running() {
+  until check_pod_status; do
+    echo "Waiting for the pod to be in 'Running' state..."
+    sleep 5
+  done
+}
+
+wait_for_pod_running
+
+echo "The pod is now in 'Running' state."
 
 
 port="443"
 nodeport="30443"
-cat << EOF > ~/fmgNodePort$port.yaml
+cat << EOF > ~/fmgNodePort.yaml
 apiVersion: v1
 kind: Service
 metadata:
@@ -169,10 +195,10 @@ spec:
   ports:
     - port: $port
       targetPort: $port
-      nodePort: $nodeort
+      nodePort: $nodeport
 EOF
-kubectl apply -f ~/fmgNodeort$port.yaml
+kubectl apply -f ~/fmgNodePort.yaml && 
 
 #fmgip=$(kubectl get pod virt-launcher-fmg-xl8p5 -o jsonpath='{.status.podIP}')
-pubip=$(pubip=$(curl -s ipinfo.io | jq -r '.ip'))
+pubip=$(curl -s ipinfo.io | jq -r '.ip')
 echo please access via https://$pubip:$nodeport
