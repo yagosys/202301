@@ -16,6 +16,8 @@ while [ ! -f "$KUBECONFIG_FILE" ]; do
 done
 
 sudo cp "$KUBECONFIG_FILE" ~/.kube/config
+sudo cp "$KUBECONFIG_FILE" /home/adminuser/.kube/config
+cp "$KUBECONFIG_FILE" ~/.kube/
 sleep 5
 kubectl rollout status deployment local-path-provisioner -n kube-system &&  kubectl rollout status deployment metrics-server -n kube-system
 
