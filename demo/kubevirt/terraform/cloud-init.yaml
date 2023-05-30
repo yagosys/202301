@@ -1,0 +1,36 @@
+#cloud-config
+package_upgrade: true
+packages:
+  - qemu-kvm
+  - libvirt-daemon-system
+  - libvirt-clients
+  - bridge-utils
+  - virtinst
+  - virt-manager
+  - xfce4
+  - xfce4-goodies
+  - tightvncserver
+  - xtightvncviewer
+  - virt-viewer
+  - terminator
+  - xterm
+  - nmap
+  - expect
+runcmd:
+  - |
+    #!/bin/bash -xe
+    sudo systemctl start libvirtd &&
+    sudo systemctl enable libvirtd &&
+    HOME="/home/adminuser" &&
+    mkdir -p $HOME/.vnc &&
+    echo "#!/bin/sh\nxrdb \$HOME/.Xresources\nstartxfce4 &" > $HOME/.vnc/xstartup &&
+    chmod +x $HOME/.vnc/xstartup &&
+    cd $HOME &&
+    git clone https://github.com/yagosys/202301.git &&
+    cd $HOME/202301/demo/kubevirt &&
+    $HOME/202301/demo/kubevirt/run_kvm_azure.sh &&
+    mkdir -p $HOME/.kube && 
+    chown -R adminuser:adminuser ~/.kube && 
+    echo "alias 'k=kubectl'" >> $HOME/.bashrc && 
+    cd $HOME
+
