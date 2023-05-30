@@ -202,3 +202,4 @@ kubectl apply -f ~/fmgNodePort.yaml &&
 #fmgip=$(kubectl get pod virt-launcher-fmg-xl8p5 -o jsonpath='{.status.podIP}')
 pubip=$(curl -s ipinfo.io | jq -r '.ip')
 echo please access via https://$pubip:$nodeport
+echo deploymentcompleted
