@@ -1,13 +1,15 @@
 #!/bin/bash -xe
 git clone https://github.com/yagosys/202301.git 
+alias "k=kubectl"
 curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
 chmod +x ./kubectl
 sudo mv ./kubectl /usr/local/bin/kubectl
 
-curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--no-deploy traefik --write-kubeconfig-mode 644" sh -
+curl -sfL https://get.k3s.io | sh -s - --disable traefik --write-kubeconfig-mode 644
 KUBECONFIG_FILE="/etc/rancher/k3s/k3s.yaml"
 export KUBECONFIG=$KUBECONFIG_FILE
 echo "Kubeconfig file path: $KUBECONFIG_FILE"
+kubectl rollout status deployment local-path-provisioner -n kube-system &&  kubectl rollout status deployment metrics-server -n kube-system
 
 
 
@@ -64,6 +66,12 @@ echo #install localhost storageclass
 #kubectl patch storageclass local-path -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 #kubectl rollout status deployment/local-path-provisioner  -n local-path-storage
 
+if kvm-ok | grep -q "KVM acceleration can be used"; then
+    echo "KVM acceleration is available"
+else
+    echo "KVM is not available,useEmulation instead"
+    kubectl -n kubevirt patch kubevirt kubevirt --type=merge --patch '{"spec":{"configuration":{"developerConfiguration":{"useEmulation":true}}}}'
+fi
 
 echo  intall data importor 
 export VERSION=$(curl -Ls https://github.com/kubevirt/containerized-data-importer/releases/latest | grep -m 1 -o "v[0-9]\.[0-9]*\.[0-9]*")
@@ -145,3 +153,26 @@ spec:
         name: cloudinitdisk
 EOF
 kubectl apply -f ~/fmgvm.yaml
+
+
+port="443"
+nodeport="30443"
+cat << EOF > ~/fmgNodePort$port.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: fmg$port
+spec:
+  type: NodePort
+  selector:
+    app: fmg # Replace this with the labels your pod has
+  ports:
+    - port: $port
+      targetPort: $port
+      nodePort: $nodeort
+EOF
+kubectl apply -f ~/fmgNodeort$port.yaml
+
+#fmgip=$(kubectl get pod virt-launcher-fmg-xl8p5 -o jsonpath='{.status.podIP}')
+pubip=$(pubip=$(curl -s ipinfo.io | jq -r '.ip'))
+echo please access via https://$pubip:$nodeport
