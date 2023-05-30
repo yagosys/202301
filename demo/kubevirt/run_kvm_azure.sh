@@ -11,7 +11,11 @@ KUBECONFIG_FILE="/etc/rancher/k3s/k3s.yaml"
 export KUBECONFIG=$KUBECONFIG_FILE
 echo "Kubeconfig file path: $KUBECONFIG_FILE"
 mkdir ~/.kube -p
-cp $KUBECONFIG_FILE ~/.kube/config
+while [ ! -f "$KUBECONFIG_FILE" ]; do
+  sleep 1
+done
+
+sudo cp "$KUBECONFIG_FILE" ~/.kube/config
 sleep 5
 kubectl rollout status deployment local-path-provisioner -n kube-system &&  kubectl rollout status deployment metrics-server -n kube-system
 
