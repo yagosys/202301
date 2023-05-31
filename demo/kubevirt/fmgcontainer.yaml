@@ -77,6 +77,12 @@ spec:
               mountPath: /var
             - name: data-fmgt100
               mountPath: /data
+          readinessProbe:
+            tcpSocket:
+              port: 443
+            initialDelaySeconds: 180
+            periodSeconds: 10
+            failureThreshold: 3
       volumes:
         - name: var-fmgt100
           hostPath:
@@ -84,4 +90,4 @@ spec:
         - name: data-fmgt100
           hostPath:
             path: /var/fmg/data_fmgt100
-
+ #kubectl set image deployment/fortimanager-deployment fortimanager=fortinet/fortimanager:7.4
