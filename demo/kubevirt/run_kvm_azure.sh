@@ -230,7 +230,91 @@ spec:
 EOF
 kubectl apply -f ~/fmgNodePort.yaml && 
 
+echo deploy fmg74 contaier 
+
+cat << EOF > ~/fmgcontainer.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: fortimanager-clusterip
+spec:
+  selector:
+    app: fortimanager
+  ports:
+    - protocol: TCP
+      port: 443
+      targetPort: 443
+  type: ClusterIP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fortimanager-nodeport
+spec:
+  selector:
+    app: fortimanager
+  ports:
+    - protocol: TCP
+      port: 443
+      targetPort: 443
+  type: NodePort
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fortimanager-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fortimanager
+  template:
+    metadata:
+      labels:
+        app: fortimanager
+    spec:
+      containers:
+        - name: fortimanager
+          image: fortinet/fortimanager:latest
+          ports:
+            - containerPort: 541
+            - containerPort: 443
+            - containerPort: 22
+            - containerPort: 23
+            - containerPort: 8888
+            - containerPort: 8889
+            - containerPort: 8890
+            - containerPort: 8080
+            - containerPort: 161
+              protocol: UDP
+          securityContext:
+            capabilities:
+              add:
+                - ALL
+          volumeMounts:
+            - name: var-fmgt100
+              mountPath: /var
+            - name: data-fmgt100
+              mountPath: /data
+      volumes:
+        - name: var-fmgt100
+          hostPath:
+            path: /var/fmg/var_fmgt100
+        - name: data-fmgt100
+          hostPath:
+            path: /var/fmg/data_fmgt100
+EOF
+kubectl apply -f  fmgcontainer.yaml 
+
+echo create k8s connector
+kubectl -n kube-system create serviceaccount ftntconnector  
+kubectl create clusterrolebinding service-admin --clusterrole=cluster-admin --serviceaccount=kube-system:ftntconnector  
+kubectl create token ftntconnector -n kube-system  
+
 #fmgip=$(kubectl get pod virt-launcher-fmg-xl8p5 -o jsonpath='{.status.podIP}')
 pubip=$(curl -s ipinfo.io | jq -r '.ip')
-echo please access via https://$pubip:$nodeport
+echo please access via https://$pubip:$nodeport for fmgvm
+
 echo deploymentcompleted
