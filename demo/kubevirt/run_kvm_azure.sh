@@ -11,6 +11,8 @@ KUBECONFIG_FILE="/etc/rancher/k3s/k3s.yaml"
 export KUBECONFIG=$KUBECONFIG_FILE
 echo "Kubeconfig file path: $KUBECONFIG_FILE"
 mkdir ~/.kube -p
+mkdir /home/adminuser/.kube -p
+sudo chmod 777 /home/adminuser/.kube
 while [ ! -f "$KUBECONFIG_FILE" ]; do
   sleep 1
 done
@@ -105,7 +107,8 @@ spec:
   source:
     http:
       #url: "https://wandy-public-7326-0030-8177.s3.ap-southeast-1.amazonaws.com/fmg707.qcow2" # S3 or GCS
-      url: "https://wandy-public-7326-0030-8177.s3.ap-southeast-1.amazonaws.com/fmgoracle722.qcow2" # S3 or GCS
+      #url: "https://wandy-public-7326-0030-8177.s3.ap-southeast-1.amazonaws.com/fmgoracle722.qcow2" # S3 or GCS
+      url: "https://wandy-public-7326-0030-8177.s3.ap-southeast-1.amazonaws.com/fmgibm707.qcow2" # S3 or GCS
       #url: "https://wandy-public-7326-0030-8177.s3.ap-southeast-1.amazonaws.com/faz74.qcow2" # S3 or GCS
   pvc:
     accessModes:
