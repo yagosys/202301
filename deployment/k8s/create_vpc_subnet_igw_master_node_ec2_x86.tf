@@ -113,6 +113,11 @@ resource "aws_instance" "k8slab" {
   source_dest_check = false 
   private_ip = cidrhost(var.vpc_subnet0, 100)
 
+  ebs_block_device {
+    device_name = "/dev/sda1"
+    volume_type = "gp2"
+    volume_size = 20
+  }
 
   user_data     = templatefile(
 	"${path.module}/user-data-for_master_node.tftpl",

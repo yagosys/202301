@@ -1,0 +1,15 @@
+apiVersion: cdi.kubevirt.io/v1beta1
+kind: DataVolume
+metadata:
+  name: "fmg5"
+spec:
+  source:
+    http:
+      url: "https://wandy-public-7326-0030-8177.s3.ap-southeast-1.amazonaws.com/fmg5.qcow2" # S3 or GCS
+      #url: "https://wandy-public-7326-0030-8177.s3.ap-southeast-1.amazonaws.com/faz74.qcow2" # S3 or GCS
+  pvc:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: "5000Mi"

@@ -9,6 +9,11 @@ resource "aws_instance" "k8slabWorker1" {
   source_dest_check = false
   private_ip = cidrhost(var.vpc_subnet1, count.index+200)
 
+  ebs_block_device {
+    device_name = "/dev/sda1"
+    volume_type = "gp2"
+    volume_size = 20
+  }
 
   user_data     = templatefile(
         "${path.module}/user-data-for_worker_node.tftpl",

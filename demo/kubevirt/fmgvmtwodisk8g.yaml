@@ -1,0 +1,50 @@
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  labels:
+    kubevirt.io/os: linux
+  name: fmg
+spec:
+  running: true
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        kubevirt.io/domain: fmg
+        app: fmg
+    spec:
+      domain:
+        cpu:
+          cores: 4
+        devices:
+          disks:
+            - disk:
+                bus: virtio
+              name: disk0
+            - disk:
+                bus: virtio
+              name: disk1
+            - cdrom:
+                bus: sata
+                readonly: true
+              name: cloudinitdisk
+        resources:
+          requests:
+            memory: 8000M
+      volumes:
+        - name: disk0
+          persistentVolumeClaim:
+            claimName: fmg
+        - name: disk1
+          persistentVolumeClaim:
+            claimName: log
+        - cloudInitNoCloud:
+            userData: |
+              #cloud-config
+              hostname: fmg
+              ssh_pwauth: True
+              disable_root: false
+              ssh_authorized_keys:
+                - ssh-rsa YOUR_SSH_PUB_KEY_HERE
+          name: cloudinitdisk
+

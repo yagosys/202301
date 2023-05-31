@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tool
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tool
+  template:
+    metadata:
+      labels:
+        app: tool
+    spec:
+      containers:
+      - name: network-multitool
+        #image: praqma/network-multitool
+        image: nicolaka/netshoot
+        command: ["/bin/bash"]
+        args: ["-c", "while true; do ping localhost; sleep 60;done"]
+        securityContext:
+          privileged: true
