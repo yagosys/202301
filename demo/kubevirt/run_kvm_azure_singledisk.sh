@@ -120,22 +120,6 @@ EOF
 
 kubectl apply -f ~/fmgdv.yaml
 
-cat << EOF > ~/logpvc.yaml
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: log
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 7Gi
-EOF
-kubectl apply -f ~/logpvc.yaml
-
-
-
 cat << EOF  > ~/fmgvm.yaml
 apiVersion: kubevirt.io/v1
 kind: VirtualMachine
@@ -160,9 +144,6 @@ spec:
           - disk:
               bus: virtio
             name: disk0
-          - disk:
-              bus: virtio
-            name: disk1
           - cdrom:
               bus: sata
               readonly: true
@@ -174,9 +155,6 @@ spec:
       - name: disk0
         persistentVolumeClaim:
           claimName: fmg
-      - name: disk1
-        persistentVolumeClaim:
-          claimName: log
       - cloudInitNoCloud:
           userData: |
             #cloud-config
