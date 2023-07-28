@@ -6,6 +6,54 @@ the *firewallallowProtocol=all* allow ssh into worker node from anywhere  to *al
 - paste below command to create network, subnets and firewall-rules  
 ```
 #!/bin/bash -xe
+export networkName="gkenetwork1" 
+export subnetName="gkenode" 
+export ipcidrRange="10.0.0.0/24" 
+export firewallruleName="$networkName-allow-custom" 
+export firewallallowProtocol="all"
+export defaultClustername="my-first-cluster-1"
+export machineType="e2-standard-2"
+export num_nodes="2"
+export master_interface_on_worker_node="ens4"
+export net_attach_def_name_for_cfos="cfosdefaultcni5"
+export cfosIp="10.1.200.252/32"
+export ips_target_url="www.hackthebox.eu"
+export webf_target_url="https://www.eicar.org/download/eicar.com.txt"
+export my_dst_url="www.vulnhub.com"
+
+index=1
+for url in $ips_target_url $webf_target_url $my_dst_url; do
+  domain="${url#*://}" && domain="${domain%%/*}" && echo $domain
+  iplist=$(dig +short $domain | grep -E -o "([0-9]{1,3}[\.]){3}[0-9]{1,3}")
+
+  for ip in $iplist; do
+    dst="{ \"dst\": \"$ip/32\", \"gw\": \"${cfosIp%%/*}\"},"
+    echo $dst
+    echo $custom_dst$index
+    export custom_dst$index="$dst"
+    ((index++))
+  done
+done
+
+export ping_dst="1.1.1.1"
+export cfosIpshort=$( echo $cfosIp | awk -F '/' '{print $1}')
+#export custom_dst1='{ "dst": "1.1.1.1/32", "gw": "10.1.200.252" },'
+#export custom_dst1="{ \"dst\": \"$ping_dst/32\", \"gw\": \"$cfosIpshort\" },"
+#export custom_dst2='{ "dst": "104.18.0.0/16", "gw": "10.1.200.252"},'
+export custom_lastdst='{ "dst": "1.1.1.1/32", "gw": "10.1.200.252"}'
+export app_nad_annotation="cfosapp"
+export cfos_image="interbeing/fos:v7231x86"
+export app_image="praqma/network-multitool"
+export policymanagerimage="interbeing/kubectl-cfos:gke_demo_v2"
+export internet_webf_url="https://xoso.com.vn"
+export serices_ipv4_cidr="10.144.0.0/20"
+export cluster_ipv4_cidr="10.140.0.0/14"
+export app_deployment_label="multitool01"
+export cfos_label="fos"
+export cfos_data_host_path="/home/kubernetes/cfosdata"
+export configmap_policy_id="300"
+export gatekeeper_policy_id="200"
+
 echo $networkName
 
 [[ $networkName == "" ]] && networkName="gkenetwork"
@@ -26,9 +74,65 @@ gcloud compute firewall-rules create $firewallruleName --network $networkName --
 ```
 [
   {
+    "autoCreateSubnetworks": true,
+    "creationTimestamp": "2023-05-21T20:13:52.000-07:00",
+    "id": "2969526282620461824",
+    "kind": "compute#network",
+    "name": "default",
+    "networkFirewallPolicyEnforcementOrder": "AFTER_CLASSIC_FIREWALL",
+    "routingConfig": {
+      "routingMode": "REGIONAL"
+    },
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
+    "selfLinkWithId": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/2969526282620461824",
+    "subnetworks": [
+      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west6/subnetworks/default",
+      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-south1/subnetworks/default",
+      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-central1/subnetworks/default",
+      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-southeast2/subnetworks/default",
+      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-east7/subnetworks/default",
+      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/australia-southeast2/subnetworks/default",
+      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/southamerica-west1/subnetworks/default",
+      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-east4/subnetworks/default",
+      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west2/subnetworks/default",
+      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-south2/subnetworks/default",
+      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/me-west1/subnetworks/default",
+      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-northeast1/subnetworks/default",
+      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west12/subnetworks/default",
+      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-central2/subnetworks/default",
+      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/northamerica-northeast2/subnetworks/default",
+      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west4/subnetworks/default",
+      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-southwest1/subnetworks/default",
+      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-north1/subnetworks/default",
+      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/me-central1/subnetworks/default",
+      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/southamerica-east1/subnetworks/default",
+      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-west2/subnetworks/default",
+      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-east1/subnetworks/default",
+      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west8/subnetworks/default",
+      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-southeast1/subnetworks/default",
+      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-south1/subnetworks/default",
+      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-northeast2/subnetworks/default",
+      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-east5/subnetworks/default",
+      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west10/subnetworks/default",
+      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-east2/subnetworks/default",
+      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-west4/subnetworks/default",
+      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west3/subnetworks/default",
+      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west9/subnetworks/default",
+      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/australia-southeast1/subnetworks/default",
+      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-northeast3/subnetworks/default",
+      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-west1/subnetworks/default",
+      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/northamerica-northeast1/subnetworks/default",
+      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west1/subnetworks/default",
+      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-east1/subnetworks/default",
+      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-west3/subnetworks/default"
+    ],
+    "x_gcloud_bgp_routing_mode": "REGIONAL",
+    "x_gcloud_subnet_mode": "AUTO"
+  },
+  {
     "autoCreateSubnetworks": false,
-    "creationTimestamp": "2023-05-18T00:32:47.108-07:00",
-    "id": "7011832803059329648",
+    "creationTimestamp": "2023-07-28T11:01:18.908-07:00",
+    "id": "1574252048510729345",
     "kind": "compute#network",
     "name": "gkenetwork1",
     "networkFirewallPolicyEnforcementOrder": "AFTER_CLASSIC_FIREWALL",
@@ -36,7 +140,7 @@ gcloud compute firewall-rules create $firewallruleName --network $networkName --
       "routingMode": "REGIONAL"
     },
     "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/gkenetwork1",
-    "selfLinkWithId": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/7011832803059329648",
+    "selfLinkWithId": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/1574252048510729345",
     "subnetworks": [
       "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-east1/subnetworks/gkenode"
     ],
@@ -49,10 +153,74 @@ gcloud compute firewall-rules create $firewallruleName --network $networkName --
 ```
 [
   {
-    "creationTimestamp": "2023-05-18T00:33:02.987-07:00",
-    "fingerprint": "UJPhD-8NtFU=",
+    "creationTimestamp": "2023-05-21T20:14:01.952-07:00",
+    "fingerprint": "DBvUAB5JpnM=",
+    "gatewayAddress": "10.128.0.1",
+    "id": "3653023482570564374",
+    "ipCidrRange": "10.128.0.0/20",
+    "kind": "compute#subnetwork",
+    "name": "default",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
+    "privateIpGoogleAccess": false,
+    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
+    "purpose": "PRIVATE",
+    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-central1",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-central1/subnetworks/default",
+    "stackType": "IPV4_ONLY"
+  },
+  {
+    "creationTimestamp": "2023-05-21T20:14:02.104-07:00",
+    "fingerprint": "F8LwyqDEWfE=",
+    "gatewayAddress": "10.132.0.1",
+    "id": "5531467510110970645",
+    "ipCidrRange": "10.132.0.0/20",
+    "kind": "compute#subnetwork",
+    "name": "default",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
+    "privateIpGoogleAccess": false,
+    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
+    "purpose": "PRIVATE",
+    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west1",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west1/subnetworks/default",
+    "stackType": "IPV4_ONLY"
+  },
+  {
+    "creationTimestamp": "2023-05-21T20:14:02.212-07:00",
+    "fingerprint": "kWhgapVphBg=",
+    "gatewayAddress": "10.138.0.1",
+    "id": "1354424154744906517",
+    "ipCidrRange": "10.138.0.0/20",
+    "kind": "compute#subnetwork",
+    "name": "default",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
+    "privateIpGoogleAccess": false,
+    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
+    "purpose": "PRIVATE",
+    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-west1",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-west1/subnetworks/default",
+    "stackType": "IPV4_ONLY"
+  },
+  {
+    "creationTimestamp": "2023-05-21T20:14:03.597-07:00",
+    "fingerprint": "fw7EZ1Nthsc=",
+    "gatewayAddress": "10.140.0.1",
+    "id": "3452618813890585364",
+    "ipCidrRange": "10.140.0.0/20",
+    "kind": "compute#subnetwork",
+    "name": "default",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
+    "privateIpGoogleAccess": false,
+    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
+    "purpose": "PRIVATE",
+    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-east1",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-east1/subnetworks/default",
+    "stackType": "IPV4_ONLY"
+  },
+  {
+    "creationTimestamp": "2023-07-28T11:01:36.569-07:00",
+    "fingerprint": "65EHnJpboXU=",
     "gatewayAddress": "10.0.0.1",
-    "id": "973775312268061249",
+    "id": "2321498958409088111",
     "ipCidrRange": "10.0.0.0/24",
     "kind": "compute#subnetwork",
     "name": "gkenode",
@@ -62,6 +230,564 @@ gcloud compute firewall-rules create $firewallruleName --network $networkName --
     "purpose": "PRIVATE",
     "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-east1",
     "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-east1/subnetworks/gkenode",
+    "stackType": "IPV4_ONLY"
+  },
+  {
+    "creationTimestamp": "2023-05-21T20:14:02.243-07:00",
+    "fingerprint": "_5_z-gQgM5s=",
+    "gatewayAddress": "10.142.0.1",
+    "id": "8374742504377377557",
+    "ipCidrRange": "10.142.0.0/20",
+    "kind": "compute#subnetwork",
+    "name": "default",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
+    "privateIpGoogleAccess": false,
+    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
+    "purpose": "PRIVATE",
+    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-east1",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-east1/subnetworks/default",
+    "stackType": "IPV4_ONLY"
+  },
+  {
+    "creationTimestamp": "2023-05-21T20:14:02.365-07:00",
+    "fingerprint": "UeUfquoHGn0=",
+    "gatewayAddress": "10.146.0.1",
+    "id": "8198574688336044821",
+    "ipCidrRange": "10.146.0.0/20",
+    "kind": "compute#subnetwork",
+    "name": "default",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
+    "privateIpGoogleAccess": false,
+    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
+    "purpose": "PRIVATE",
+    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-northeast1",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-northeast1/subnetworks/default",
+    "stackType": "IPV4_ONLY"
+  },
+  {
+    "creationTimestamp": "2023-05-21T20:14:04.363-07:00",
+    "fingerprint": "KbUuUGtm4UI=",
+    "gatewayAddress": "10.148.0.1",
+    "id": "486222762403652371",
+    "ipCidrRange": "10.148.0.0/20",
+    "kind": "compute#subnetwork",
+    "name": "default",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
+    "privateIpGoogleAccess": false,
+    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
+    "purpose": "PRIVATE",
+    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-southeast1",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-southeast1/subnetworks/default",
+    "stackType": "IPV4_ONLY"
+  },
+  {
+    "creationTimestamp": "2023-05-21T20:14:02.209-07:00",
+    "fingerprint": "09fY46MCKhE=",
+    "gatewayAddress": "10.150.0.1",
+    "id": "1923220159951495957",
+    "ipCidrRange": "10.150.0.0/20",
+    "kind": "compute#subnetwork",
+    "name": "default",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
+    "privateIpGoogleAccess": false,
+    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
+    "purpose": "PRIVATE",
+    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-east4",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-east4/subnetworks/default",
+    "stackType": "IPV4_ONLY"
+  },
+  {
+    "creationTimestamp": "2023-05-21T20:14:04.729-07:00",
+    "fingerprint": "qxkbwZ9o4QQ=",
+    "gatewayAddress": "10.152.0.1",
+    "id": "1229029036895200019",
+    "ipCidrRange": "10.152.0.0/20",
+    "kind": "compute#subnetwork",
+    "name": "default",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
+    "privateIpGoogleAccess": false,
+    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
+    "purpose": "PRIVATE",
+    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/australia-southeast1",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/australia-southeast1/subnetworks/default",
+    "stackType": "IPV4_ONLY"
+  },
+  {
+    "creationTimestamp": "2023-05-21T20:14:02.961-07:00",
+    "fingerprint": "tnb69KSqvzA=",
+    "gatewayAddress": "10.154.0.1",
+    "id": "5858556564218536725",
+    "ipCidrRange": "10.154.0.0/20",
+    "kind": "compute#subnetwork",
+    "name": "default",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
+    "privateIpGoogleAccess": false,
+    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
+    "purpose": "PRIVATE",
+    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west2",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west2/subnetworks/default",
+    "stackType": "IPV4_ONLY"
+  },
+  {
+    "creationTimestamp": "2023-05-21T20:14:03.072-07:00",
+    "fingerprint": "EhpweTastXE=",
+    "gatewayAddress": "10.156.0.1",
+    "id": "2088568579712049940",
+    "ipCidrRange": "10.156.0.0/20",
+    "kind": "compute#subnetwork",
+    "name": "default",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
+    "privateIpGoogleAccess": false,
+    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
+    "purpose": "PRIVATE",
+    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west3",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west3/subnetworks/default",
+    "stackType": "IPV4_ONLY"
+  },
+  {
+    "creationTimestamp": "2023-05-21T20:14:03.624-07:00",
+    "fingerprint": "Jt0-3NtDFf0=",
+    "gatewayAddress": "10.158.0.1",
+    "id": "8298213110649938708",
+    "ipCidrRange": "10.158.0.0/20",
+    "kind": "compute#subnetwork",
+    "name": "default",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
+    "privateIpGoogleAccess": false,
+    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
+    "purpose": "PRIVATE",
+    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/southamerica-east1",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/southamerica-east1/subnetworks/default",
+    "stackType": "IPV4_ONLY"
+  },
+  {
+    "creationTimestamp": "2023-05-21T20:14:04.143-07:00",
+    "fingerprint": "F3B6y9-blEA=",
+    "gatewayAddress": "10.160.0.1",
+    "id": "7483311257429697299",
+    "ipCidrRange": "10.160.0.0/20",
+    "kind": "compute#subnetwork",
+    "name": "default",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
+    "privateIpGoogleAccess": false,
+    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
+    "purpose": "PRIVATE",
+    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-south1",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-south1/subnetworks/default",
+    "stackType": "IPV4_ONLY"
+  },
+  {
+    "creationTimestamp": "2023-05-21T20:14:02.413-07:00",
+    "fingerprint": "Ma5_jrNNt1w=",
+    "gatewayAddress": "10.162.0.1",
+    "id": "1381506058144932629",
+    "ipCidrRange": "10.162.0.0/20",
+    "kind": "compute#subnetwork",
+    "name": "default",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
+    "privateIpGoogleAccess": false,
+    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
+    "purpose": "PRIVATE",
+    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/northamerica-northeast1",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/northamerica-northeast1/subnetworks/default",
+    "stackType": "IPV4_ONLY"
+  },
+  {
+    "creationTimestamp": "2023-05-21T20:14:03.097-07:00",
+    "fingerprint": "dSI9jbHxgb8=",
+    "gatewayAddress": "10.164.0.1",
+    "id": "8425078284135916308",
+    "ipCidrRange": "10.164.0.0/20",
+    "kind": "compute#subnetwork",
+    "name": "default",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
+    "privateIpGoogleAccess": false,
+    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
+    "purpose": "PRIVATE",
+    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west4",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west4/subnetworks/default",
+    "stackType": "IPV4_ONLY"
+  },
+  {
+    "creationTimestamp": "2023-05-21T20:14:03.348-07:00",
+    "fingerprint": "0_hzXv23VBE=",
+    "gatewayAddress": "10.166.0.1",
+    "id": "4657576810815906580",
+    "ipCidrRange": "10.166.0.0/20",
+    "kind": "compute#subnetwork",
+    "name": "default",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
+    "privateIpGoogleAccess": false,
+    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
+    "purpose": "PRIVATE",
+    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-north1",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-north1/subnetworks/default",
+    "stackType": "IPV4_ONLY"
+  },
+  {
+    "creationTimestamp": "2023-05-21T20:14:02.913-07:00",
+    "fingerprint": "JWvyvc7cynI=",
+    "gatewayAddress": "10.168.0.1",
+    "id": "7449269969411859221",
+    "ipCidrRange": "10.168.0.0/20",
+    "kind": "compute#subnetwork",
+    "name": "default",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
+    "privateIpGoogleAccess": false,
+    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
+    "purpose": "PRIVATE",
+    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-west2",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-west2/subnetworks/default",
+    "stackType": "IPV4_ONLY"
+  },
+  {
+    "creationTimestamp": "2023-05-21T20:14:03.733-07:00",
+    "fingerprint": "yc-ha1-gLyg=",
+    "gatewayAddress": "10.170.0.1",
+    "id": "7361961479081779988",
+    "ipCidrRange": "10.170.0.0/20",
+    "kind": "compute#subnetwork",
+    "name": "default",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
+    "privateIpGoogleAccess": false,
+    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
+    "purpose": "PRIVATE",
+    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-east2",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-east2/subnetworks/default",
+    "stackType": "IPV4_ONLY"
+  },
+  {
+    "creationTimestamp": "2023-05-21T20:14:03.172-07:00",
+    "fingerprint": "_GiHXAagrGE=",
+    "gatewayAddress": "10.172.0.1",
+    "id": "6540204067783140116",
+    "ipCidrRange": "10.172.0.0/20",
+    "kind": "compute#subnetwork",
+    "name": "default",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
+    "privateIpGoogleAccess": false,
+    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
+    "purpose": "PRIVATE",
+    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west6",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west6/subnetworks/default",
+    "stackType": "IPV4_ONLY"
+  },
+  {
+    "creationTimestamp": "2023-05-21T20:14:03.559-07:00",
+    "fingerprint": "6wkfI5Ku9eM=",
+    "gatewayAddress": "10.174.0.1",
+    "id": "72994733265740564",
+    "ipCidrRange": "10.174.0.0/20",
+    "kind": "compute#subnetwork",
+    "name": "default",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
+    "privateIpGoogleAccess": false,
+    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
+    "purpose": "PRIVATE",
+    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-northeast2",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-northeast2/subnetworks/default",
+    "stackType": "IPV4_ONLY"
+  },
+  {
+    "creationTimestamp": "2023-05-21T20:14:03.207-07:00",
+    "fingerprint": "F3-Is16syts=",
+    "gatewayAddress": "10.178.0.1",
+    "id": "816096634651239188",
+    "ipCidrRange": "10.178.0.0/20",
+    "kind": "compute#subnetwork",
+    "name": "default",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
+    "privateIpGoogleAccess": false,
+    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
+    "purpose": "PRIVATE",
+    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-northeast3",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-northeast3/subnetworks/default",
+    "stackType": "IPV4_ONLY"
+  },
+  {
+    "creationTimestamp": "2023-05-21T20:14:02.253-07:00",
+    "fingerprint": "EauVXNI1Fmw=",
+    "gatewayAddress": "10.180.0.1",
+    "id": "7203855658377503509",
+    "ipCidrRange": "10.180.0.0/20",
+    "kind": "compute#subnetwork",
+    "name": "default",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
+    "privateIpGoogleAccess": false,
+    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
+    "purpose": "PRIVATE",
+    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-west3",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-west3/subnetworks/default",
+    "stackType": "IPV4_ONLY"
+  },
+  {
+    "creationTimestamp": "2023-05-21T20:14:02.740-07:00",
+    "fingerprint": "pe_8H5OxcOs=",
+    "gatewayAddress": "10.182.0.1",
+    "id": "9137734403605619477",
+    "ipCidrRange": "10.182.0.0/20",
+    "kind": "compute#subnetwork",
+    "name": "default",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
+    "privateIpGoogleAccess": false,
+    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
+    "purpose": "PRIVATE",
+    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-west4",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-west4/subnetworks/default",
+    "stackType": "IPV4_ONLY"
+  },
+  {
+    "creationTimestamp": "2023-05-21T20:14:03.854-07:00",
+    "fingerprint": "3ReVp6pLIaM=",
+    "gatewayAddress": "10.184.0.1",
+    "id": "4110360190183236372",
+    "ipCidrRange": "10.184.0.0/20",
+    "kind": "compute#subnetwork",
+    "name": "default",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
+    "privateIpGoogleAccess": false,
+    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
+    "purpose": "PRIVATE",
+    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-southeast2",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-southeast2/subnetworks/default",
+    "stackType": "IPV4_ONLY"
+  },
+  {
+    "creationTimestamp": "2023-05-21T20:14:02.220-07:00",
+    "fingerprint": "TH_TKIw-bhs=",
+    "gatewayAddress": "10.186.0.1",
+    "id": "8958960105056330517",
+    "ipCidrRange": "10.186.0.0/20",
+    "kind": "compute#subnetwork",
+    "name": "default",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
+    "privateIpGoogleAccess": false,
+    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
+    "purpose": "PRIVATE",
+    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-central2",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-central2/subnetworks/default",
+    "stackType": "IPV4_ONLY"
+  },
+  {
+    "creationTimestamp": "2023-05-21T20:14:02.319-07:00",
+    "fingerprint": "ok2oL2vbTE8=",
+    "gatewayAddress": "10.188.0.1",
+    "id": "7958282353435435797",
+    "ipCidrRange": "10.188.0.0/20",
+    "kind": "compute#subnetwork",
+    "name": "default",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
+    "privateIpGoogleAccess": false,
+    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
+    "purpose": "PRIVATE",
+    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/northamerica-northeast2",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/northamerica-northeast2/subnetworks/default",
+    "stackType": "IPV4_ONLY"
+  },
+  {
+    "creationTimestamp": "2023-05-21T20:14:05.031-07:00",
+    "fingerprint": "QtGIc7qImbU=",
+    "gatewayAddress": "10.190.0.1",
+    "id": "8361679060698882834",
+    "ipCidrRange": "10.190.0.0/20",
+    "kind": "compute#subnetwork",
+    "name": "default",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
+    "privateIpGoogleAccess": false,
+    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
+    "purpose": "PRIVATE",
+    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-south2",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-south2/subnetworks/default",
+    "stackType": "IPV4_ONLY"
+  },
+  {
+    "creationTimestamp": "2023-05-21T20:14:04.229-07:00",
+    "fingerprint": "pEq5WGnsWV8=",
+    "gatewayAddress": "10.192.0.1",
+    "id": "2954054461800538899",
+    "ipCidrRange": "10.192.0.0/20",
+    "kind": "compute#subnetwork",
+    "name": "default",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
+    "privateIpGoogleAccess": false,
+    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
+    "purpose": "PRIVATE",
+    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/australia-southeast2",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/australia-southeast2/subnetworks/default",
+    "stackType": "IPV4_ONLY"
+  },
+  {
+    "creationTimestamp": "2023-05-21T20:14:03.814-07:00",
+    "fingerprint": "wqr-2daA42U=",
+    "gatewayAddress": "10.194.0.1",
+    "id": "1706741906878718740",
+    "ipCidrRange": "10.194.0.0/20",
+    "kind": "compute#subnetwork",
+    "name": "default",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
+    "privateIpGoogleAccess": false,
+    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
+    "purpose": "PRIVATE",
+    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/southamerica-west1",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/southamerica-west1/subnetworks/default",
+    "stackType": "IPV4_ONLY"
+  },
+  {
+    "creationTimestamp": "2023-05-22T11:32:08.804-07:00",
+    "fingerprint": "X6rdudQq5eM=",
+    "gatewayAddress": "10.196.0.1",
+    "id": "3894697366716287943",
+    "ipCidrRange": "10.196.0.0/20",
+    "kind": "compute#subnetwork",
+    "name": "default",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
+    "privateIpGoogleAccess": false,
+    "purpose": "PRIVATE",
+    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-east7",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-east7/subnetworks/default",
+    "stackType": "IPV4_ONLY"
+  },
+  {
+    "creationTimestamp": "2023-05-21T20:14:02.783-07:00",
+    "fingerprint": "AFipPZLhx4o=",
+    "gatewayAddress": "10.198.0.1",
+    "id": "1608699481527116565",
+    "ipCidrRange": "10.198.0.0/20",
+    "kind": "compute#subnetwork",
+    "name": "default",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
+    "privateIpGoogleAccess": false,
+    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
+    "purpose": "PRIVATE",
+    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west8",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west8/subnetworks/default",
+    "stackType": "IPV4_ONLY"
+  },
+  {
+    "creationTimestamp": "2023-05-21T20:14:02.179-07:00",
+    "fingerprint": "tX8SHj2p22g=",
+    "gatewayAddress": "10.200.0.1",
+    "id": "7078781632282845973",
+    "ipCidrRange": "10.200.0.0/20",
+    "kind": "compute#subnetwork",
+    "name": "default",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
+    "privateIpGoogleAccess": false,
+    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
+    "purpose": "PRIVATE",
+    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west9",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west9/subnetworks/default",
+    "stackType": "IPV4_ONLY"
+  },
+  {
+    "creationTimestamp": "2023-05-21T20:14:02.281-07:00",
+    "fingerprint": "IZ-gDdKtV7w=",
+    "gatewayAddress": "10.202.0.1",
+    "id": "993042883450200853",
+    "ipCidrRange": "10.202.0.0/20",
+    "kind": "compute#subnetwork",
+    "name": "default",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
+    "privateIpGoogleAccess": false,
+    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
+    "purpose": "PRIVATE",
+    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-east5",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-east5/subnetworks/default",
+    "stackType": "IPV4_ONLY"
+  },
+  {
+    "creationTimestamp": "2023-05-21T20:14:02.679-07:00",
+    "fingerprint": "ar-Zcgn0ejQ=",
+    "gatewayAddress": "10.204.0.1",
+    "id": "8581268502181536533",
+    "ipCidrRange": "10.204.0.0/20",
+    "kind": "compute#subnetwork",
+    "name": "default",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
+    "privateIpGoogleAccess": false,
+    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
+    "purpose": "PRIVATE",
+    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-southwest1",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-southwest1/subnetworks/default",
+    "stackType": "IPV4_ONLY"
+  },
+  {
+    "creationTimestamp": "2023-05-21T20:14:02.102-07:00",
+    "fingerprint": "ZuIhWEGo_1o=",
+    "gatewayAddress": "10.206.0.1",
+    "id": "5893132846247666453",
+    "ipCidrRange": "10.206.0.0/20",
+    "kind": "compute#subnetwork",
+    "name": "default",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
+    "privateIpGoogleAccess": false,
+    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
+    "purpose": "PRIVATE",
+    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-south1",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-south1/subnetworks/default",
+    "stackType": "IPV4_ONLY"
+  },
+  {
+    "creationTimestamp": "2023-05-21T20:14:03.032-07:00",
+    "fingerprint": "eb-zD2AdsG4=",
+    "gatewayAddress": "10.208.0.1",
+    "id": "4719216308842357524",
+    "ipCidrRange": "10.208.0.0/20",
+    "kind": "compute#subnetwork",
+    "name": "default",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
+    "privateIpGoogleAccess": false,
+    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
+    "purpose": "PRIVATE",
+    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/me-west1",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/me-west1/subnetworks/default",
+    "stackType": "IPV4_ONLY"
+  },
+  {
+    "creationTimestamp": "2023-05-21T20:14:02.790-07:00",
+    "fingerprint": "eibcnlYr0fU=",
+    "gatewayAddress": "10.210.0.1",
+    "id": "2489464168605246229",
+    "ipCidrRange": "10.210.0.0/20",
+    "kind": "compute#subnetwork",
+    "name": "default",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
+    "privateIpGoogleAccess": false,
+    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
+    "purpose": "PRIVATE",
+    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west12",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west12/subnetworks/default",
+    "stackType": "IPV4_ONLY"
+  },
+  {
+    "creationTimestamp": "2023-05-21T20:14:03.574-07:00",
+    "fingerprint": "rATX5jeFgV8=",
+    "gatewayAddress": "10.212.0.1",
+    "id": "2906688982639665940",
+    "ipCidrRange": "10.212.0.0/20",
+    "kind": "compute#subnetwork",
+    "name": "default",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
+    "privateIpGoogleAccess": false,
+    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
+    "purpose": "PRIVATE",
+    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/me-central1",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/me-central1/subnetworks/default",
+    "stackType": "IPV4_ONLY"
+  },
+  {
+    "creationTimestamp": "2023-07-01T16:18:47.044-07:00",
+    "fingerprint": "YmZ42G6z3Pc=",
+    "gatewayAddress": "10.214.0.1",
+    "id": "5634814039672294072",
+    "ipCidrRange": "10.214.0.0/20",
+    "kind": "compute#subnetwork",
+    "name": "default",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
+    "privateIpGoogleAccess": false,
+    "purpose": "PRIVATE",
+    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west10",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west10/subnetworks/default",
     "stackType": "IPV4_ONLY"
   }
 ]
@@ -75,11 +801,34 @@ gcloud compute firewall-rules create $firewallruleName --network $networkName --
         "IPProtocol": "all"
       }
     ],
-    "creationTimestamp": "2023-05-18T00:33:22.123-07:00",
+    "creationTimestamp": "2023-05-21T20:15:39.366-07:00",
     "description": "",
     "direction": "INGRESS",
     "disabled": false,
-    "id": "7153549930505202221",
+    "id": "5858433534880342196",
+    "kind": "compute#firewall",
+    "logConfig": {
+      "enable": false
+    },
+    "name": "defaultall",
+    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
+    "priority": 1000,
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/firewalls/defaultall",
+    "sourceRanges": [
+      "0.0.0.0/0"
+    ]
+  },
+  {
+    "allowed": [
+      {
+        "IPProtocol": "all"
+      }
+    ],
+    "creationTimestamp": "2023-07-28T11:02:00.876-07:00",
+    "description": "",
+    "direction": "INGRESS",
+    "disabled": false,
+    "id": "4797978037585558647",
     "kind": "compute#firewall",
     "logConfig": {
       "enable": false
@@ -121,13 +870,13 @@ gkeNetworkName=$(gcloud compute networks list --format="value(name)" --filter="n
 gkeSubnetworkName=$(gcloud compute networks subnets  list --format="value(name)" --filter="name="$subnetName"" --limit=1)
 
 projectName=$(gcloud config list --format="value(core.project)") && \
-region=$(gcloud compute networks subnets list --format="value(region)" --limit=1) && \
+region=$(gcloud config get compute/region) && \
 
 gcloud services enable container.googleapis.com  && \
 
 gcloud container clusters create $gkeClusterName  \
 	--no-enable-basic-auth \
-	--cluster-version "1.26.3-gke.1000" \
+	--cluster-version "1.26.5-gke.2100" \
 	--release-channel "rapid" \
 	--machine-type $machineType \
 	--image-type "UBUNTU_CONTAINERD" \
@@ -166,9 +915,9 @@ echo cluster worker node vm has alias ip $(gcloud compute instances describe $na
 
 `kubectl get node -o wide`
 ```
-NAME                                                STATUS   ROLES    AGE   VERSION            INTERNAL-IP   EXTERNAL-IP      OS-IMAGE             KERNEL-VERSION    CONTAINER-RUNTIME
-gke-my-first-cluster-1-default-pool-c10fbf4f-3d1s   Ready    <none>   33s   v1.26.3-gke.1000   10.0.0.4      35.189.160.192   Ubuntu 22.04.2 LTS   5.15.0-1028-gke   containerd://1.6.18
-gke-my-first-cluster-1-default-pool-c10fbf4f-5qxh   Ready    <none>   33s   v1.26.3-gke.1000   10.0.0.3      34.80.212.63     Ubuntu 22.04.2 LTS   5.15.0-1028-gke   containerd://1.6.18
+NAME                                                STATUS   ROLES    AGE   VERSION            INTERNAL-IP   EXTERNAL-IP       OS-IMAGE             KERNEL-VERSION    CONTAINER-RUNTIME
+gke-my-first-cluster-1-default-pool-a559e3c9-6gg2   Ready    <none>   40s   v1.26.5-gke.2100   10.0.0.3      130.211.250.164   Ubuntu 22.04.2 LTS   5.15.0-1034-gke   containerd://1.6.18
+gke-my-first-cluster-1-default-pool-a559e3c9-sqnp   Ready    <none>   37s   v1.26.5-gke.2100   10.0.0.4      34.80.80.72       Ubuntu 22.04.2 LTS   5.15.0-1034-gke   containerd://1.6.18
 ```
 - enable worker node ipforwarding
  
@@ -477,13 +1226,10 @@ kubectl rollout status ds/kube-multus-ds -n kube-system
  you shall see output 
 ```
 daemon set "kube-multus-ds" successfully rolled out
-2023-05-18T07:41:46+00:00 Generating Multus configuration file using files in /host/etc/cni/net.d...
-2023-05-18T07:41:47+00:00 Using MASTER_PLUGIN: 10-containerd-net.conflist
-2023-05-18T07:41:48+00:00 Nested capabilities string: "capabilities": {"portMappings": true},
-2023-05-18T07:41:48+00:00 Using /host/etc/cni/net.d/10-containerd-net.conflist as a source to generate the Multus configuration
-2023-05-18T07:41:48+00:00 Config file created @ /host/etc/cni/net.d/00-multus.conf
-{ "cniVersion": "0.3.1", "name": "multus-cni-network", "type": "multus", "capabilities": {"portMappings": true}, "kubeconfig": "/etc/cni/net.d/multus.d/multus.kubeconfig", "delegates": [ { "name": "k8s-pod-network", "cniVersion": "0.3.1", "plugins": [ { "type": "ptp", "mtu": 1460, "ipam": { "type": "host-local", "subnet": "10.140.0.0/24", "routes": [ { "dst": "0.0.0.0/0" } ] } }, { "type": "portmap", "capabilities": { "portMappings": true } } ] } ] }
-2023-05-18T07:41:48+00:00 Entering sleep (success)...
+2023-07-28T18:10:20+00:00 Generating Multus configuration file using files in /host/etc/cni/net.d...
+2023-07-28T18:10:20+00:00 Using MASTER_PLUGIN: 10-containerd-net.conflist
+2023-07-28T18:10:21+00:00 Nested capabilities string: "capabilities": {"portMappings": true},
+2023-07-28T18:10:21+00:00 Using /host/etc/cni/net.d/10-containerd-net.conflist as a source to generate the Multus configuration
 ```
 - create net-attach-def for cfos  
 
@@ -532,12 +1278,12 @@ kubectl get net-attach-def cfosdefaultcni5 -o yaml
 apiVersion: k8s.cni.cncf.io/v1
 kind: NetworkAttachmentDefinition
 metadata:
-  creationTimestamp: "2023-05-18T07:41:51Z"
+  creationTimestamp: "2023-07-28T18:10:25Z"
   generation: 1
   name: cfosdefaultcni5
   namespace: default
-  resourceVersion: "2821"
-  uid: 4314fde9-cc8f-4744-bb99-8083f1e6a5e3
+  resourceVersion: "2393"
+  uid: b796fc51-898f-4ced-b635-623855b41f35
 spec:
   config: '{ "cniVersion": "0.3.1", "type": "macvlan", "master": "ens4", "mode": "bridge",
     "ipam": { "type": "host-local", "subnet": "10.1.200.0/24", "rangeStart": "10.1.200.251",
@@ -549,7 +1295,7 @@ We use host-local as IPAM CNI. this net-attach-def is for application to attach.
 the cni config of macvlan use bridge mode and associated with *"ens4"* interface on worker node. if the master interface on worker node is other than ens4. you need change that.
 you can ssh into worker node to check master interface name. 
 the net-attach-def has name *"cfosapp"*.  we also use *"cfosapp"* as label in policy manager demo. if you change this name to something  else, you will also need to change the image for policy manager where *cfosapp* is hard coded in the image script. 
-in the nad config, we inserted specific custom route *{ "dst": "104.18.8.132/32", "gw": "10.1.200.252"},,{ "dst": "104.18.9.132/32", "gw": "10.1.200.252"},,{ "dst": "1.1.1.1/32", "gw": "10.1.200.252"}*, for traffic destinated to these subnets, the nexthop is cFOS interface ip.
+in the nad config, we inserted specific custom route *{ "dst": "104.18.9.132/32", "gw": "10.1.200.252"},,{ "dst": "104.18.8.132/32", "gw": "10.1.200.252"},,{ "dst": "1.1.1.1/32", "gw": "10.1.200.252"}*, for traffic destinated to these subnets, the nexthop is cFOS interface ip.
 - paste below command to create net-attach-def
 
 ```
@@ -608,23 +1354,23 @@ kubectl get net-attach-def $app_nad_annotation -o yaml
 apiVersion: k8s.cni.cncf.io/v1
 kind: NetworkAttachmentDefinition
 metadata:
-  creationTimestamp: "2023-05-18T07:41:52Z"
+  creationTimestamp: "2023-07-28T18:10:28Z"
   generation: 1
   name: cfosapp
   namespace: default
-  resourceVersion: "2831"
-  uid: 6618ec98-5f33-47a8-9c69-fe61ea382034
+  resourceVersion: "2412"
+  uid: 9c3e2a28-ff27-4155-bb45-ad52d25e03d8
 spec:
   config: |-
     { "cniVersion": "0.3.1", "type": "macvlan", "master": "ens4", "mode": "bridge", "ipam": { "type": "host-local", "subnet": "10.1.200.0/24", "routes": [
-    { "dst": "104.18.8.132/32", "gw": "10.1.200.252"}, { "dst": "104.18.9.132/32", "gw": "10.1.200.252"}, { "dst": "89.238.73.97/32", "gw": "10.1.200.252"}, { "dst": "1.1.1.1/32", "gw": "10.1.200.252"} ], "rangeStart": "10.1.200.20", "rangeEnd": "10.1.200.251", "gateway": "10.1.200.1" } }
+    { "dst": "104.18.9.132/32", "gw": "10.1.200.252"}, { "dst": "104.18.8.132/32", "gw": "10.1.200.252"}, { "dst": "89.238.73.97/32", "gw": "10.1.200.252"}, { "dst": "104.21.42.126/32", "gw": "10.1.200.252"}, { "dst": "172.67.162.8/32", "gw": "10.1.200.252"}, { "dst": "1.1.1.1/32", "gw": "10.1.200.252"} ], "rangeStart": "10.1.200.20", "rangeEnd": "10.1.200.251", "gateway": "10.1.200.1" } }
 ```
 - create demo application deployment
 
 
 we use annotation *k8s.v1.cni.cncf.io/networks: '[ { "name": "cfosapp" } ]'* to config to POD for secondary interface and custom route entry.
 we did not touch pod default route, instead we only insert custom route that we are interested. so for destination, the next hop will be cFOS. cFOS will inspect traffic for those traffic.
-when POD attach to *cfosapp*, it will obtain *{ "dst": "104.18.8.132/32", "gw": "10.1.200.252"},, { "dst": "104.18.9.132/32", "gw": "10.1.200.252"},, { "dst": "1.1.1.1/32", "gw": "10.1.200.252"}*  route point to cFOS for inspection in this demo. 
+when POD attach to *cfosapp*, it will obtain *{ "dst": "104.18.9.132/32", "gw": "10.1.200.252"},, { "dst": "104.18.8.132/32", "gw": "10.1.200.252"},, { "dst": "1.1.1.1/32", "gw": "10.1.200.252"}*  route point to cFOS for inspection in this demo. 
 
 - paste below command to create application deployment
 
@@ -632,6 +1378,7 @@ when POD attach to *cfosapp*, it will obtain *{ "dst": "104.18.8.132/32", "gw": 
 file="app_with_annotations_cfosapp.yml"
 [[ $app_image == "" ]] && app_image="praqma/network-multitool"
 [[ -z $app_deployment_label ]] && app_deployment_label="multitool01"
+[[ -z $app_nad_annotation ]] && app_nad_annotation="cfosapp"
 
 annotations="k8s.v1.cni.cncf.io/networks: '[ { \"name\": \"$app_nad_annotation\" } ]'"
 cat << EOF > $file 
@@ -678,53 +1425,57 @@ deployment "multitool01-deployment" successfully rolled out
 `kubectl get pod -l app=multitool01`
 ```
 NAME                                      READY   STATUS    RESTARTS   AGE
-multitool01-deployment-7f5bf4b7cd-46vv4   1/1     Running   0          8s
-multitool01-deployment-7f5bf4b7cd-5v2fw   1/1     Running   0          8s
-multitool01-deployment-7f5bf4b7cd-ds9t8   1/1     Running   0          8s
-multitool01-deployment-7f5bf4b7cd-j5hcr   1/1     Running   0          8s
+multitool01-deployment-7f5bf4b7cd-78rzw   1/1     Running   0          9s
+multitool01-deployment-7f5bf4b7cd-mbgqf   1/1     Running   0          9s
+multitool01-deployment-7f5bf4b7cd-pnb8c   1/1     Running   0          9s
+multitool01-deployment-7f5bf4b7cd-s8qql   1/1     Running   0          9s
 ```
 `
 nodeName=$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}') && for node in $nodeName; do podName=$(kubectl get pods -l app=multitool01 --field-selector spec.nodeName="$node" -o jsonpath='{.items[*].metadata.name}') ; kubectl exec -it po/$podName -- ip route && kubectl exec -t po/$podName -- ip address ; done
 `
 ```
-default via 10.140.1.1 dev eth0 
+default via 10.140.0.1 dev eth0 
 1.1.1.1 via 10.1.200.252 dev net1 
 10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.21 
-10.140.1.0/24 via 10.140.1.1 dev eth0 src 10.140.1.10 
-10.140.1.1 dev eth0 scope link src 10.140.1.10 
+10.140.0.0/24 via 10.140.0.1 dev eth0 src 10.140.0.10 
+10.140.0.1 dev eth0 scope link src 10.140.0.10 
 89.238.73.97 via 10.1.200.252 dev net1 
 104.18.8.132 via 10.1.200.252 dev net1 
 104.18.9.132 via 10.1.200.252 dev net1 
+104.21.42.126 via 10.1.200.252 dev net1 
+172.67.162.8 via 10.1.200.252 dev net1 
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
 2: eth0@if12: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether de:98:13:86:d0:23 brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet 10.140.1.10/24 brd 10.140.1.255 scope global eth0
+    link/ether 86:41:58:b0:4d:e6 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.140.0.10/24 brd 10.140.0.255 scope global eth0
        valid_lft forever preferred_lft forever
 3: net1@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether 66:ed:7c:24:ab:9d brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    link/ether da:f3:e1:24:2f:8c brd ff:ff:ff:ff:ff:ff link-netnsid 0
     inet 10.1.200.21/24 brd 10.1.200.255 scope global net1
        valid_lft forever preferred_lft forever
-default via 10.140.0.1 dev eth0 
+default via 10.140.1.1 dev eth0 
 1.1.1.1 via 10.1.200.252 dev net1 
 10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.21 
-10.140.0.0/24 via 10.140.0.1 dev eth0 src 10.140.0.5 
-10.140.0.1 dev eth0 scope link src 10.140.0.5 
+10.140.1.0/24 via 10.140.1.1 dev eth0 src 10.140.1.6 
+10.140.1.1 dev eth0 scope link src 10.140.1.6 
 89.238.73.97 via 10.1.200.252 dev net1 
 104.18.8.132 via 10.1.200.252 dev net1 
 104.18.9.132 via 10.1.200.252 dev net1 
+104.21.42.126 via 10.1.200.252 dev net1 
+172.67.162.8 via 10.1.200.252 dev net1 
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
-2: eth0@if7: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether 42:11:fd:13:a1:71 brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet 10.140.0.5/24 brd 10.140.0.255 scope global eth0
+2: eth0@if8: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
+    link/ether 9a:ef:ce:c1:55:25 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.140.1.6/24 brd 10.140.1.255 scope global eth0
        valid_lft forever preferred_lft forever
 3: net1@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether 0e:6b:ce:0c:d6:37 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    link/ether 16:29:34:10:bc:29 brd ff:ff:ff:ff:ff:ff link-netnsid 0
     inet 10.1.200.21/24 brd 10.1.200.255 scope global net1
        valid_lft forever preferred_lft forever
 ```
@@ -802,15 +1553,15 @@ kubectl get rolebinding read-configmaps && kubectl get rolebinding read-secrets 
 `
 ```
 NAME              ROLE                           AGE
-read-configmaps   ClusterRole/configmap-reader   0s
+read-configmaps   ClusterRole/configmap-reader   1s
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  creationTimestamp: "2023-05-18T07:42:04Z"
+  creationTimestamp: "2023-07-28T18:10:50Z"
   name: read-secrets
   namespace: default
-  resourceVersion: "2972"
-  uid: b70f038e-b9ec-4440-bebe-5ea0ed06f7c8
+  resourceVersion: "2636"
+  uid: dc79d074-0cf6-46c9-b4f7-3e807b7d9fd9
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -924,8 +1675,8 @@ kubectl rollout status ds/fos-deployment && kubectl get pod -l app=fos
 ```
 daemon set "fos-deployment" successfully rolled out
 NAME                   READY   STATUS    RESTARTS   AGE
-fos-deployment-fc22v   1/1     Running   0          10s
-fos-deployment-jgqxg   1/1     Running   0          10s
+fos-deployment-lgz96   1/1     Running   0          10s
+fos-deployment-s8pv4   1/1     Running   0          10s
 ```
 check routing table and ip address
 
@@ -933,33 +1684,33 @@ check routing table and ip address
 nodeName=$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}') && for node in $nodeName; do podName=$(kubectl get pods -l app=fos --field-selector spec.nodeName="$node" -o jsonpath='{.items[*].metadata.name}') ; kubectl exec -it po/$podName -- ip route && kubectl exec -t po/$podName -- ip address ; done
 `
 ```
-default via 10.140.1.1 dev eth0 
+default via 10.140.0.1 dev eth0 
 10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.252 
-10.140.1.0/24 via 10.140.1.1 dev eth0 src 10.140.1.11 
-10.140.1.1 dev eth0 scope link src 10.140.1.11 
+10.140.0.0/24 via 10.140.0.1 dev eth0 src 10.140.0.11 
+10.140.0.1 dev eth0 scope link src 10.140.0.11 
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
 2: eth0@if13: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether 62:6b:14:7b:47:c4 brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet 10.140.1.11/24 brd 10.140.1.255 scope global eth0
+    link/ether 92:d2:33:89:15:a5 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.140.0.11/24 brd 10.140.0.255 scope global eth0
        valid_lft forever preferred_lft forever
 3: net1@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
     link/ether ca:fe:c0:ff:00:02 brd ff:ff:ff:ff:ff:ff link-netnsid 0
     inet 10.1.200.252/24 brd 10.1.200.255 scope global net1
        valid_lft forever preferred_lft forever
-default via 10.140.0.1 dev eth0 
+default via 10.140.1.1 dev eth0 
 10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.252 
-10.140.0.0/24 via 10.140.0.1 dev eth0 src 10.140.0.7 
-10.140.0.1 dev eth0 scope link src 10.140.0.7 
+10.140.1.0/24 via 10.140.1.1 dev eth0 src 10.140.1.7 
+10.140.1.1 dev eth0 scope link src 10.140.1.7 
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
 2: eth0@if9: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether e2:83:47:a1:ae:75 brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet 10.140.0.7/24 brd 10.140.0.255 scope global eth0
+    link/ether 86:cf:6a:42:5e:34 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.140.1.7/24 brd 10.140.1.255 scope global eth0
        valid_lft forever preferred_lft forever
 3: net1@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
     link/ether ca:fe:c0:ff:00:02 brd ff:ff:ff:ff:ff:ff link-netnsid 0
@@ -977,22 +1728,31 @@ System is starting...
 
 Firmware version is 7.2.0.0231
 Preparing environment...
-INFO: 2023/05/18 07:42:15 importing license...
-INFO: 2023/05/18 07:42:15 license is imported successfuly!
+INFO: 2023/07/28 18:11:02 importing license...
+INFO: 2023/07/28 18:11:02 license is imported successfuly!
 WARNING: System is running in restricted mode due to lack of valid license!
 Starting services...
+System is ready.
+
+2023-07-28_18:11:02.99823 ok: run: /run/fcn_service/certd: (pid 275) 0s, normally down
+2023-07-28_18:11:08.08248 INFO: 2023/07/28 18:11:08 received a new fos configmap
+2023-07-28_18:11:08.08249 INFO: 2023/07/28 18:11:08 configmap name: fos-license, labels: map[app:fos category:license]
+2023-07-28_18:11:08.08249 INFO: 2023/07/28 18:11:08 got a fos license
 
 System is starting...
 
 Firmware version is 7.2.0.0231
 Preparing environment...
-INFO: 2023/05/18 07:42:14 importing license...
-INFO: 2023/05/18 07:42:14 license is imported successfuly!
+INFO: 2023/07/28 18:11:02 importing license...
+INFO: 2023/07/28 18:11:02 license is imported successfuly!
 WARNING: System is running in restricted mode due to lack of valid license!
 Starting services...
 System is ready.
 
-2023-05-18_07:42:15.02058 ok: run: /run/fcn_service/certd: (pid 272) 1s, normally down
+2023-07-28_18:11:03.17038 ok: run: /run/fcn_service/certd: (pid 273) 1s, normally down
+2023-07-28_18:11:08.27164 INFO: 2023/07/28 18:11:08 received a new fos configmap
+2023-07-28_18:11:08.27177 INFO: 2023/07/28 18:11:08 configmap name: fos-license, labels: map[app:fos category:license]
+2023-07-28_18:11:08.27212 INFO: 2023/07/28 18:11:08 got a fos license
 ```
 - create configmap for cfos to get firewall policy configuration/n 
 cfos can be configured use cFOS shell, kubernetes configmap and restApi. here we use configmap to config cFOS
@@ -1066,14 +1826,14 @@ data:
   type: partial
 kind: ConfigMap
 metadata:
-  creationTimestamp: "2023-05-18T07:42:18Z"
+  creationTimestamp: "2023-07-28T18:11:14Z"
   labels:
     app: fos
     category: config
   name: foscfgfirewallpolicy
   namespace: default
-  resourceVersion: "3124"
-  uid: d0466e8c-b4db-4abb-bf7d-52925b03b43e
+  resourceVersion: "2842"
+  uid: fdc69830-c1e0-4544-9b27-3373b261bc8e
 ```
 check cfos log for retrive config from configmap
 `
@@ -1085,25 +1845,41 @@ System is starting...
 
 Firmware version is 7.2.0.0231
 Preparing environment...
-INFO: 2023/05/18 07:42:15 importing license...
-INFO: 2023/05/18 07:42:15 license is imported successfuly!
+INFO: 2023/07/28 18:11:02 importing license...
+INFO: 2023/07/28 18:11:02 license is imported successfuly!
 WARNING: System is running in restricted mode due to lack of valid license!
 Starting services...
 System is ready.
 
-2023-05-18_07:42:16.77441 ok: run: /run/fcn_service/certd: (pid 282) 1s, normally down
+2023-07-28_18:11:02.99823 ok: run: /run/fcn_service/certd: (pid 275) 0s, normally down
+2023-07-28_18:11:08.08248 INFO: 2023/07/28 18:11:08 received a new fos configmap
+2023-07-28_18:11:08.08249 INFO: 2023/07/28 18:11:08 configmap name: fos-license, labels: map[app:fos category:license]
+2023-07-28_18:11:08.08249 INFO: 2023/07/28 18:11:08 got a fos license
+2023-07-28_18:11:14.74390 INFO: 2023/07/28 18:11:14 received a new fos configmap
+2023-07-28_18:11:14.74393 INFO: 2023/07/28 18:11:14 configmap name: foscfgfirewallpolicy, labels: map[app:fos category:config]
+2023-07-28_18:11:14.74393 INFO: 2023/07/28 18:11:14 got a fos config
+2023-07-28_18:11:14.74411 INFO: 2023/07/28 18:11:14 applying a partial fos config...
+2023-07-28_18:11:15.16668 INFO: 2023/07/28 18:11:15 fos config is applied successfully.
 
 System is starting...
 
 Firmware version is 7.2.0.0231
 Preparing environment...
-INFO: 2023/05/18 07:42:14 importing license...
-INFO: 2023/05/18 07:42:14 license is imported successfuly!
+INFO: 2023/07/28 18:11:02 importing license...
+INFO: 2023/07/28 18:11:02 license is imported successfuly!
 WARNING: System is running in restricted mode due to lack of valid license!
 Starting services...
 System is ready.
 
-2023-05-18_07:42:15.02058 ok: run: /run/fcn_service/certd: (pid 272) 1s, normally down
+2023-07-28_18:11:03.17038 ok: run: /run/fcn_service/certd: (pid 273) 1s, normally down
+2023-07-28_18:11:08.27164 INFO: 2023/07/28 18:11:08 received a new fos configmap
+2023-07-28_18:11:08.27177 INFO: 2023/07/28 18:11:08 configmap name: fos-license, labels: map[app:fos category:license]
+2023-07-28_18:11:08.27212 INFO: 2023/07/28 18:11:08 got a fos license
+2023-07-28_18:11:14.73827 INFO: 2023/07/28 18:11:14 received a new fos configmap
+2023-07-28_18:11:14.73828 INFO: 2023/07/28 18:11:14 configmap name: foscfgfirewallpolicy, labels: map[app:fos category:config]
+2023-07-28_18:11:14.73829 INFO: 2023/07/28 18:11:14 got a fos config
+2023-07-28_18:11:14.73829 INFO: 2023/07/28 18:11:14 applying a partial fos config...
+2023-07-28_18:11:15.12976 INFO: 2023/07/28 18:11:15 fos config is applied successfully.
 ```
 - restart cfos DaemonSet  to workaround policy not work issue
  
@@ -1147,9 +1923,9 @@ nodeName=$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}') && for nod
 ;  kubectl exec -it po/$podName -- iptables -L -t nat --verbose | grep MASQ ; done
 `
 ```
-fos-deployment-cqvr5n
+fos-deployment-f8rv4n
    29  2416 MASQUERADE  all  --  any    eth0    anywhere             anywhere            
-fos-deployment-cvkstn
+fos-deployment-7h2gdn
    29  2416 MASQUERADE  all  --  any    eth0    anywhere             anywhere            
 ```
 check ping result
@@ -1158,34 +1934,34 @@ check ping result
 kubectl get pod | grep multi | grep -v termin  | awk '{print $1}'  | while read line; do echo pod $line; kubectl exec -t po/$line -- ping -c1 1.1.1.1 ; done
 `
 ```
-pod multitool01-deployment-7f5bf4b7cd-46vv4
+pod multitool01-deployment-7f5bf4b7cd-78rzw
 PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
-64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=3.79 ms
+64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=4.64 ms
 
 --- 1.1.1.1 ping statistics ---
 1 packets transmitted, 1 received, 0% packet loss, time 0ms
-rtt min/avg/max/mdev = 3.788/3.788/3.788/0.000 ms
-pod multitool01-deployment-7f5bf4b7cd-5v2fw
+rtt min/avg/max/mdev = 4.642/4.642/4.642/0.000 ms
+pod multitool01-deployment-7f5bf4b7cd-mbgqf
+PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
+64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=5.03 ms
+
+--- 1.1.1.1 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 5.033/5.033/5.033/0.000 ms
+pod multitool01-deployment-7f5bf4b7cd-pnb8c
+PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
+64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=4.29 ms
+
+--- 1.1.1.1 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 4.285/4.285/4.285/0.000 ms
+pod multitool01-deployment-7f5bf4b7cd-s8qql
 PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
 64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=4.04 ms
 
 --- 1.1.1.1 ping statistics ---
 1 packets transmitted, 1 received, 0% packet loss, time 0ms
-rtt min/avg/max/mdev = 4.043/4.043/4.043/0.000 ms
-pod multitool01-deployment-7f5bf4b7cd-ds9t8
-PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
-64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=4.06 ms
-
---- 1.1.1.1 ping statistics ---
-1 packets transmitted, 1 received, 0% packet loss, time 0ms
-rtt min/avg/max/mdev = 4.059/4.059/4.059/0.000 ms
-pod multitool01-deployment-7f5bf4b7cd-j5hcr
-PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
-64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=4.42 ms
-
---- 1.1.1.1 ping statistics ---
-1 packets transmitted, 1 received, 0% packet loss, time 0ms
-rtt min/avg/max/mdev = 4.424/4.424/4.424/0.000 ms
+rtt min/avg/max/mdev = 4.039/4.039/4.039/0.000 ms
 ```
 - do a ips test on a target website
 
@@ -1213,10 +1989,10 @@ kubectl get pod | grep $cfos_label | awk '{print $1}'  | while read line; do kub
 kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/ips.0 | grep 300  ; done
 `
 ```
-date=2023-05-18 time=07:44:24 eventtime=1684395864 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.21 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=6 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=45868 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=30408705 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
-date=2023-05-18 time=07:44:29 eventtime=1684395869 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.20 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=6 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=50376 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=30408706 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
-date=2023-05-18 time=07:44:13 eventtime=1684395853 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.21 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=9 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=45844 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=224395265 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
-date=2023-05-18 time=07:44:18 eventtime=1684395858 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.20 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=3 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=44936 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=224395266 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-07-28 time=18:13:41 eventtime=1690568021 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.21 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=5 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=37752 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=208666625 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-07-28 time=18:14:00 eventtime=1690568040 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.20 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=7 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=48666 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=208666626 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-07-28 time=18:13:47 eventtime=1690568027 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.21 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=10 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=57934 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=99614721 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-07-28 time=18:13:54 eventtime=1690568034 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.20 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=2 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=35200 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=99614722 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
 ```
 - do a web filter  test on a target website 
 
@@ -1243,10 +2019,6 @@ kubectl get pod | grep $cfos_label | awk '{print $1}'  | while read line; do kub
 kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/webf.0 | grep 300 ; done
 `
 ```
-date=2023-05-18 time=07:44:39 eventtime=1684395879 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=300 sessionid=8 srcip=10.1.200.21 srcport=49642 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
-date=2023-05-18 time=07:44:40 eventtime=1684395880 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=300 sessionid=10 srcip=10.1.200.20 srcport=59520 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
-date=2023-05-18 time=07:44:37 eventtime=1684395877 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=300 sessionid=11 srcip=10.1.200.21 srcport=38444 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
-date=2023-05-18 time=07:44:38 eventtime=1684395878 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=300 sessionid=5 srcip=10.1.200.20 srcport=58758 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
 ```
 - use cfos restful API to delete firewall policy 
 
@@ -1271,34 +2043,34 @@ done
 kubectl get pod | grep multi | grep -v termin  | awk '{print $1}'  | while read line; do echo -e pod $line; kubectl exec -t po/$line -- ping -c1 1.1.1.1 ; done
 `
 ```
-pod multitool01-deployment-7f5bf4b7cd-46vv4
+pod multitool01-deployment-7f5bf4b7cd-78rzw
 PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
-64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=4.64 ms
+64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=4.54 ms
 
 --- 1.1.1.1 ping statistics ---
 1 packets transmitted, 1 received, 0% packet loss, time 0ms
-rtt min/avg/max/mdev = 4.640/4.640/4.640/0.000 ms
-pod multitool01-deployment-7f5bf4b7cd-5v2fw
+rtt min/avg/max/mdev = 4.535/4.535/4.535/0.000 ms
+pod multitool01-deployment-7f5bf4b7cd-mbgqf
 PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
-64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=3.80 ms
+64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=4.37 ms
 
 --- 1.1.1.1 ping statistics ---
 1 packets transmitted, 1 received, 0% packet loss, time 0ms
-rtt min/avg/max/mdev = 3.799/3.799/3.799/0.000 ms
-pod multitool01-deployment-7f5bf4b7cd-ds9t8
+rtt min/avg/max/mdev = 4.369/4.369/4.369/0.000 ms
+pod multitool01-deployment-7f5bf4b7cd-pnb8c
 PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
-64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=5.01 ms
+64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=4.24 ms
 
 --- 1.1.1.1 ping statistics ---
 1 packets transmitted, 1 received, 0% packet loss, time 0ms
-rtt min/avg/max/mdev = 5.006/5.006/5.006/0.000 ms
-pod multitool01-deployment-7f5bf4b7cd-j5hcr
+rtt min/avg/max/mdev = 4.236/4.236/4.236/0.000 ms
+pod multitool01-deployment-7f5bf4b7cd-s8qql
 PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
-64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=4.15 ms
+64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=7.63 ms
 
 --- 1.1.1.1 ping statistics ---
 1 packets transmitted, 1 received, 0% packet loss, time 0ms
-rtt min/avg/max/mdev = 4.153/4.153/4.153/0.000 ms
+rtt min/avg/max/mdev = 7.634/7.634/7.634/0.000 ms
 ```
 - create an POD to update POD source IP to cFOS
  
@@ -1406,7 +2178,7 @@ kubectl get pod policymanager && kubectl exec -it po/policymanager -- curl -X GE
 `
 ```
 NAME            READY   STATUS    RESTARTS   AGE
-policymanager   1/1     Running   0          12s
+policymanager   1/1     Running   0          16s
 {
   "status": "success",
   "http_status": 200,
@@ -1419,12 +2191,6 @@ policymanager   1/1     Running   0          12s
       "type": "default",
       "category": "default",
       "member": [
-        {
-          "name": "10.1.200.21"
-        },
-        {
-          "name": "10.1.200.20"
-        },
         {
           "name": "10.1.200.21"
         },
@@ -1457,7 +2223,7 @@ we do ips test again, this time, the policy created by policymanager will take t
 [[ $ips_target_url == "" ]] && ips_target_url="www.hackthebox.eu"
 [[ -z $cfos_label ]] && cfos_label="fos"
 policy_id="101"
-echo -e 'generate traffic to $ips_target_url' 
+echo -e "generate traffic to $ips_target_url"
 kubectl get pod | grep multi | grep -v termin | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- dig $ips_target_url ; done && \
 kubectl get pod | grep multi | grep -v termin | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- ping -c 2  $ips_target_url ; done && \
 kubectl get pod | grep multi | grep -v termin | awk '{print $1}'  | while read line; do kubectl exec -t po/$line --  curl --max-time 5  -k -H "User-Agent: () { :; }; /bin/ls" https://$ips_target_url ; done
@@ -1469,10 +2235,10 @@ kubectl get pod | grep $cfos_label | awk '{print $1}'  | while read line; do kub
 kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/ips.0 | grep policyid=101 ; done
 `
 ```
-date=2023-05-18 time=07:45:17 eventtime=1684395917 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.21 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=15 action="dropped" proto=6 service="HTTPS" policyid=101 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=35192 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=30408707 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
-date=2023-05-18 time=07:45:22 eventtime=1684395922 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.20 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=17 action="dropped" proto=6 service="HTTPS" policyid=101 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=33312 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=30408708 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
-date=2023-05-18 time=07:45:06 eventtime=1684395906 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.21 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=18 action="dropped" proto=6 service="HTTPS" policyid=101 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=48880 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=224395267 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
-date=2023-05-18 time=07:45:11 eventtime=1684395911 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.20 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=20 action="dropped" proto=6 service="HTTPS" policyid=101 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=50006 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=224395268 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-07-28 time=18:15:22 eventtime=1690568122 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.21 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=17 action="dropped" proto=6 service="HTTPS" policyid=101 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=49074 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=208666627 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-07-28 time=18:15:41 eventtime=1690568141 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.20 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=9 action="dropped" proto=6 service="HTTPS" policyid=101 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=41100 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=208666628 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-07-28 time=18:15:29 eventtime=1690568129 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.21 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=6 action="dropped" proto=6 service="HTTPS" policyid=101 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=43630 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=99614723 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-07-28 time=18:15:35 eventtime=1690568135 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.20 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=8 action="dropped" proto=6 service="HTTPS" policyid=101 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=60122 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=99614724 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
 ```
 - do a web filter  test on a target website
 
@@ -1481,9 +2247,9 @@ same to web fitler traffic
  
 ```
 [[ -z $cfos_label ]] && cfos_label="fos"
-url="https://www.eicar.org/download/eicar.com.txt"
+[[ -z $1 ]] &&  webf_target_url="https://www.eicar.org/download/eicar.com.txt" || webf_target_url=$1
 policy_id="101"
-kubectl get pod | grep multi | grep -v termin | awk '{print $1}'  | while read line; do kubectl exec -t po/$line --  curl -k -I  $url  ; done
+kubectl get pod | grep multi | grep -v termin | awk '{print $1}'  | while read line; do kubectl exec -t po/$line --  curl -k -I  $webf_target_url  ; done
 kubectl get pod | grep $cfos_label | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/webf.0 | grep policyid=$policy_id  ; done
 ```
 - check the result
@@ -1492,10 +2258,6 @@ kubectl get pod | grep $cfos_label | awk '{print $1}'  | while read line; do kub
 kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/webf.0 | grep policyid=101  ; done
 `
 ```
-date=2023-05-18 time=07:45:34 eventtime=1684395934 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=19 srcip=10.1.200.21 srcport=37700 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
-date=2023-05-18 time=07:45:35 eventtime=1684395935 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=21 srcip=10.1.200.20 srcport=58034 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
-date=2023-05-18 time=07:45:31 eventtime=1684395931 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=22 srcip=10.1.200.21 srcport=51298 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
-date=2023-05-18 time=07:45:32 eventtime=1684395932 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=8 srcip=10.1.200.20 srcport=44216 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
 ```
 - modify worker node default CNI config
 
@@ -1547,13 +2309,13 @@ done
 kubectl logs ds/kube-multus-ds -n kube-system
 `
 ```
-2023-05-18T07:46:34+00:00 Generating Multus configuration file using files in /host/etc/cni/net.d...
-2023-05-18T07:46:34+00:00 Using MASTER_PLUGIN: 10-containerd-net.conflist
-2023-05-18T07:46:35+00:00 Nested capabilities string: "capabilities": {"portMappings": true},
-2023-05-18T07:46:35+00:00 Using /host/etc/cni/net.d/10-containerd-net.conflist as a source to generate the Multus configuration
-2023-05-18T07:46:36+00:00 Config file created @ /host/etc/cni/net.d/00-multus.conf
+2023-07-28T18:17:10+00:00 Generating Multus configuration file using files in /host/etc/cni/net.d...
+2023-07-28T18:17:10+00:00 Using MASTER_PLUGIN: 10-containerd-net.conflist
+2023-07-28T18:17:11+00:00 Nested capabilities string: "capabilities": {"portMappings": true},
+2023-07-28T18:17:11+00:00 Using /host/etc/cni/net.d/10-containerd-net.conflist as a source to generate the Multus configuration
+2023-07-28T18:17:12+00:00 Config file created @ /host/etc/cni/net.d/00-multus.conf
 { "cniVersion": "0.3.1", "name": "multus-cni-network", "type": "multus", "capabilities": {"portMappings": true}, "kubeconfig": "/etc/cni/net.d/multus.d/multus.kubeconfig", "delegates": [ { "name": "k8s-pod-network", "cniVersion": "0.3.1", "plugins": [ { "type": "ptp", "mtu": 1460, "ipam": { "type": "host-local", "subnet": "10.140.1.0/24", "routes": [ { "dst": "0.0.0.0/0" } , {"dst": "10.144.0.0/20"}, {"dst": "10.140.0.0/14"} ] } }, { "type": "portmap", "capabilities": { "portMappings": true } } ] } ] }
-2023-05-18T07:46:36+00:00 Entering sleep (success)...
+2023-07-28T18:17:12+00:00 Entering sleep (success)...
 ```
 - delete current appliation deployment
  
@@ -1625,45 +2387,49 @@ nodeName=$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}') && for nod
 default via 10.1.200.252 dev net1 
 1.1.1.1 via 10.1.200.252 dev net1 
 10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.23 
-10.140.0.0/14 via 10.140.1.1 dev eth0 
-10.140.1.0/24 via 10.140.1.1 dev eth0 src 10.140.1.13 
-10.140.1.1 dev eth0 scope link src 10.140.1.13 
-10.144.0.0/20 via 10.140.1.1 dev eth0 
+10.140.0.0/24 via 10.140.0.1 dev eth0 src 10.140.0.14 
+10.140.0.0/14 via 10.140.0.1 dev eth0 
+10.140.0.1 dev eth0 scope link src 10.140.0.14 
+10.144.0.0/20 via 10.140.0.1 dev eth0 
 89.238.73.97 via 10.1.200.252 dev net1 
 104.18.8.132 via 10.1.200.252 dev net1 
 104.18.9.132 via 10.1.200.252 dev net1 
+104.21.42.126 via 10.1.200.252 dev net1 
+172.67.162.8 via 10.1.200.252 dev net1 
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
-2: eth0@if15: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether 02:cb:d4:c8:66:8e brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet 10.140.1.13/24 brd 10.140.1.255 scope global eth0
+2: eth0@if16: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
+    link/ether 7a:99:72:fc:ba:0a brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.140.0.14/24 brd 10.140.0.255 scope global eth0
        valid_lft forever preferred_lft forever
 3: net1@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether fe:40:31:88:6f:cc brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    link/ether 26:89:6d:93:e7:70 brd ff:ff:ff:ff:ff:ff link-netnsid 0
     inet 10.1.200.23/24 brd 10.1.200.255 scope global net1
        valid_lft forever preferred_lft forever
 default via 10.1.200.252 dev net1 
 1.1.1.1 via 10.1.200.252 dev net1 
 10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.22 
-10.140.0.0/24 via 10.140.0.1 dev eth0 src 10.140.0.10 
-10.140.0.0/14 via 10.140.0.1 dev eth0 
-10.140.0.1 dev eth0 scope link src 10.140.0.10 
-10.144.0.0/20 via 10.140.0.1 dev eth0 
+10.140.0.0/14 via 10.140.1.1 dev eth0 
+10.140.1.0/24 via 10.140.1.1 dev eth0 src 10.140.1.10 
+10.140.1.1 dev eth0 scope link src 10.140.1.10 
+10.144.0.0/20 via 10.140.1.1 dev eth0 
 89.238.73.97 via 10.1.200.252 dev net1 
 104.18.8.132 via 10.1.200.252 dev net1 
 104.18.9.132 via 10.1.200.252 dev net1 
+104.21.42.126 via 10.1.200.252 dev net1 
+172.67.162.8 via 10.1.200.252 dev net1 
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
 2: eth0@if12: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether 1a:4d:45:d6:0d:62 brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet 10.140.0.10/24 brd 10.140.0.255 scope global eth0
+    link/ether 9e:32:73:9c:c9:90 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.140.1.10/24 brd 10.140.1.255 scope global eth0
        valid_lft forever preferred_lft forever
 3: net1@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether a2:64:89:4d:75:2e brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    link/ether 02:40:47:bd:19:da brd ff:ff:ff:ff:ff:ff link-netnsid 0
     inet 10.1.200.22/24 brd 10.1.200.255 scope global net1
        valid_lft forever preferred_lft forever
 ```
@@ -1686,14 +2452,10 @@ kubectl get pod | grep $cfos_label | awk '{print $1}'  | while read line; do kub
 kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/webf.0 | grep policyid=101  ; done
 `
 ```
-date=2023-05-18 time=07:45:34 eventtime=1684395934 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=19 srcip=10.1.200.21 srcport=37700 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
-date=2023-05-18 time=07:45:35 eventtime=1684395935 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=21 srcip=10.1.200.20 srcport=58034 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
-date=2023-05-18 time=07:47:26 eventtime=1684396046 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=23 srcip=10.1.200.23 srcport=49396 srcintf="net1" dstip=104.18.25.243 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="xoso.com.vn" profile="default" action="blocked" reqtype="direct" url="https://xoso.com.vn/" sentbyte=106 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
-date=2023-05-18 time=07:47:27 eventtime=1684396047 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=25 srcip=10.1.200.22 srcport=43788 srcintf="net1" dstip=104.18.24.243 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="xoso.com.vn" profile="default" action="blocked" reqtype="direct" url="https://xoso.com.vn/" sentbyte=106 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
-date=2023-05-18 time=07:45:31 eventtime=1684395931 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=22 srcip=10.1.200.21 srcport=51298 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
-date=2023-05-18 time=07:45:32 eventtime=1684395932 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=8 srcip=10.1.200.20 srcport=44216 srcintf="net1" dstip=89.238.73.97 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.eicar.org" profile="default" action="blocked" reqtype="direct" url="https://www.eicar.org/download/eicar.com.txt" sentbyte=100 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=26 catdesc="Malicious Websites"
-date=2023-05-18 time=07:47:27 eventtime=1684396047 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=10 srcip=10.1.200.22 srcport=40686 srcintf="net1" dstip=104.18.25.243 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="xoso.com.vn" profile="default" action="blocked" reqtype="direct" url="https://xoso.com.vn/" sentbyte=106 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
-date=2023-05-18 time=07:47:28 eventtime=1684396048 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=12 srcip=10.1.200.23 srcport=48322 srcintf="net1" dstip=104.18.24.243 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="xoso.com.vn" profile="default" action="blocked" reqtype="direct" url="https://xoso.com.vn/" sentbyte=106 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-07-28 time=18:18:18 eventtime=1690568298 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=11 srcip=10.1.200.22 srcport=42840 srcintf="net1" dstip=104.18.25.243 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="xoso.com.vn" profile="default" action="blocked" reqtype="direct" url="https://xoso.com.vn/" sentbyte=106 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-07-28 time=18:18:19 eventtime=1690568299 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=23 srcip=10.1.200.23 srcport=58680 srcintf="net1" dstip=104.18.24.243 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="xoso.com.vn" profile="default" action="blocked" reqtype="direct" url="https://xoso.com.vn/" sentbyte=106 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-07-28 time=18:18:14 eventtime=1690568294 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=12 srcip=10.1.200.23 srcport=44792 srcintf="net1" dstip=104.18.25.243 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="xoso.com.vn" profile="default" action="blocked" reqtype="direct" url="https://xoso.com.vn/" sentbyte=106 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-07-28 time=18:18:16 eventtime=1690568296 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=22 srcip=10.1.200.22 srcport=32918 srcintf="net1" dstip=104.18.24.243 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="xoso.com.vn" profile="default" action="blocked" reqtype="direct" url="https://xoso.com.vn/" sentbyte=106 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
 ```
 - use cfos restful API to delete firewall policy
  
@@ -1702,8 +2464,8 @@ after delete firewall policy, we use crl to check whether any firewall policy le
 - paste below command delete firewall policy
  
 ```
-[[ -z $1 ]] && policy_id="101"
-policy_id=$1
+[[ -z $1 ]] && policy_id="101" || policy_id=$1
+echo delete policyid $policy_id
 [[ -z $cfos_label ]] && cfos_label="fos"
 #url="http://$cfos_label-deployment.default.svc.cluster.local"
 nodeList=$(kubectl get pod -l app=$cfos_label -o jsonpath='{.items[*].status.podIP}')
@@ -1721,61 +2483,12 @@ kubectl exec -it po/policymanager -- curl -X GET http://fos-deployment.default.s
 `
 ```
 {
-  "status": "success",
-  "http_status": 200,
+  "status": "error",
+  "http_status": 404,
+  "http_method": "GET",
   "path": "firewall",
   "name": "policy",
-  "http_method": "GET",
-  "results": {
-    "policyid": "101",
-    "status": "enable",
-    "utm-status": "enable",
-    "name": "corptraffic101",
-    "comments": "",
-    "srcintf": [
-      {
-        "name": "any"
-      }
-    ],
-    "dstintf": [
-      {
-        "name": "eth0"
-      }
-    ],
-    "srcaddr": [
-      {
-        "name": "defaultappmultitool"
-      }
-    ],
-    "dstaddr": [
-      {
-        "name": "all"
-      }
-    ],
-    "srcaddr6": [],
-    "dstaddr6": [],
-    "service": [
-      {
-        "name": "ALL"
-      }
-    ],
-    "ssl-ssh-profile": "deep-inspection",
-    "profile-type": "single",
-    "profile-group": "",
-    "profile-protocol-options": "default",
-    "av-profile": "default",
-    "webfilter-profile": "default",
-    "dnsfilter-profile": "",
-    "emailfilter-profile": "",
-    "dlp-sensor": "",
-    "file-filter-profile": "",
-    "ips-sensor": "default",
-    "application-list": "",
-    "action": "accept",
-    "nat": "enable",
-    "custom-log-fields": [],
-    "logtraffic": "all"
-  },
+  "error": "failed to load config",
   "serial": "FGVMULTM23000044",
   "version": "v7.2.0",
   "build": "231"
@@ -1995,11 +2708,11 @@ items:
 - apiVersion: templates.gatekeeper.sh/v1
   kind: ConstraintTemplate
   metadata:
-    creationTimestamp: "2023-05-18T07:47:53Z"
+    creationTimestamp: "2023-07-28T18:19:10Z"
     generation: 1
     name: k8segressnetworkpolicytocfosutmpolicy
-    resourceVersion: "6530"
-    uid: f683bdf7-9564-464a-b494-3e5a1f752909
+    resourceVersion: "6833"
+    uid: eacf52bf-182f-4f10-82cb-96fd5221e9fb
   spec:
     crd:
       spec:
@@ -2110,7 +2823,6 @@ items:
 kind: List
 metadata:
   resourceVersion: ""
-  selfLink: ""
 ```
 - create standard networkpolicy
    
@@ -2179,56 +2891,6 @@ kubectl exec -it po/policymanager -- curl -X GET http://fos-deployment.default.s
   "http_method": "GET",
   "results": [
     {
-      "policyid": "101",
-      "status": "enable",
-      "utm-status": "enable",
-      "name": "corptraffic101",
-      "comments": "",
-      "srcintf": [
-        {
-          "name": "any"
-        }
-      ],
-      "dstintf": [
-        {
-          "name": "eth0"
-        }
-      ],
-      "srcaddr": [
-        {
-          "name": "defaultappmultitool"
-        }
-      ],
-      "dstaddr": [
-        {
-          "name": "all"
-        }
-      ],
-      "srcaddr6": [],
-      "dstaddr6": [],
-      "service": [
-        {
-          "name": "ALL"
-        }
-      ],
-      "ssl-ssh-profile": "deep-inspection",
-      "profile-type": "single",
-      "profile-group": "",
-      "profile-protocol-options": "default",
-      "av-profile": "default",
-      "webfilter-profile": "default",
-      "dnsfilter-profile": "",
-      "emailfilter-profile": "",
-      "dlp-sensor": "",
-      "file-filter-profile": "",
-      "ips-sensor": "default",
-      "application-list": "",
-      "action": "accept",
-      "nat": "enable",
-      "custom-log-fields": [],
-      "logtraffic": "all"
-    },
-    {
       "policyid": "200",
       "status": "enable",
       "utm-status": "enable",
@@ -2295,56 +2957,6 @@ kubectl exec -it po/policymanager -- curl -X GET http://fos-deployment.default.s
   "name": "policy",
   "http_method": "GET",
   "results": [
-    {
-      "policyid": "101",
-      "status": "enable",
-      "utm-status": "enable",
-      "name": "corptraffic101",
-      "comments": "",
-      "srcintf": [
-        {
-          "name": "any"
-        }
-      ],
-      "dstintf": [
-        {
-          "name": "eth0"
-        }
-      ],
-      "srcaddr": [
-        {
-          "name": "defaultappmultitool"
-        }
-      ],
-      "dstaddr": [
-        {
-          "name": "all"
-        }
-      ],
-      "srcaddr6": [],
-      "dstaddr6": [],
-      "service": [
-        {
-          "name": "ALL"
-        }
-      ],
-      "ssl-ssh-profile": "deep-inspection",
-      "profile-type": "single",
-      "profile-group": "",
-      "profile-protocol-options": "default",
-      "av-profile": "default",
-      "webfilter-profile": "default",
-      "dnsfilter-profile": "",
-      "emailfilter-profile": "",
-      "dlp-sensor": "",
-      "file-filter-profile": "",
-      "ips-sensor": "default",
-      "application-list": "",
-      "action": "accept",
-      "nat": "enable",
-      "custom-log-fields": [],
-      "logtraffic": "all"
-    },
     {
       "policyid": "200",
       "status": "enable",
@@ -2415,7 +3027,7 @@ we do ips test again, this time, the policy created by policymanager will take t
  
 ```
 #!/bin/bash
-[[ $ips_target_url == "" ]] && ips_target_url="www.hackthebox.eu"
+[[ -z $1 ]] && ips_target_url="www.hackthebox.eu" || ips_target_url=$1
 [[ -z $gatekeeper_policy_id ]] && gatekeeper_policy_id="200"
 [[ -z $cfos_label ]] && cfos_label="fos"
 echo -e 'generate traffic to $ips_target_url' 
@@ -2430,6 +3042,10 @@ kubectl get pod | grep $cfos_label | awk '{print $1}'  | while read line; do kub
 kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/ips.0 | grep policyid=200 ; done
 `
 ```
+date=2023-07-28 time=18:21:03 eventtime=1690568463 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.25 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=2 action="dropped" proto=6 service="HTTPS" policyid=200 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=45878 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=208666629 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-07-28 time=18:21:09 eventtime=1690568469 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.24 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=4 action="dropped" proto=6 service="HTTPS" policyid=200 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=43410 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=208666630 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-07-28 time=18:21:16 eventtime=1690568476 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.25 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=3 action="dropped" proto=6 service="HTTPS" policyid=200 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=36976 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=99614725 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-07-28 time=18:21:22 eventtime=1690568482 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.24 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=5 action="dropped" proto=6 service="HTTPS" policyid=200 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=42494 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=99614726 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
 ```
 - install gatekeeperv3 
 
@@ -2515,11 +3131,11 @@ items:
     annotations:
       kubectl.kubernetes.io/last-applied-configuration: |
         {"apiVersion":"constraints.gatekeeper.sh/v1beta1","kind":"K8sEgressNetworkPolicyToCfosUtmPolicy","metadata":{"annotations":{},"name":"cfosnetworkpolicy"},"spec":{"enforcementAction":"deny","match":{"kinds":[{"apiGroups":["networking.k8s.io"],"kinds":["NetworkPolicy"]}]},"parameters":{"action":"permit","avprofile":"default","extraservice":"PING","firewalladdressapiurl":"http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/address","firewalladdressgrpapiurl":"http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/addrgrp","firewallpolicyapiurl":"http://fos-deployment.default.svc.cluster.local/api/v2/cmdb/firewall/policy","ipsprofile":"default","label":"cfosegressfirewallpolicy","outgoingport":"eth0","policyid":"200","srcintf":"any","sslsshprofile":"deep-inspection","utmstatus":"enable"}}}
-    creationTimestamp: "2023-05-18T07:47:56Z"
+    creationTimestamp: "2023-07-28T18:19:15Z"
     generation: 1
     name: cfosnetworkpolicy
-    resourceVersion: "6574"
-    uid: de163762-fb1a-424e-b48c-0d16e5416db8
+    resourceVersion: "6897"
+    uid: eaa3c556-4e60-4c4d-9273-4a41d9c5a42a
   spec:
     enforcementAction: deny
     match:
@@ -2544,24 +3160,31 @@ items:
       utmstatus: enable
   status:
     byPod:
-    - constraintUID: de163762-fb1a-424e-b48c-0d16e5416db8
+    - constraintUID: eaa3c556-4e60-4c4d-9273-4a41d9c5a42a
       enforced: true
-      id: gatekeeper-audit-94c9bfc9b-kdcp2
+      id: gatekeeper-audit-7fb8f4c95c-wqngc
       observedGeneration: 1
       operations:
       - audit
       - mutation-status
       - status
-    - constraintUID: de163762-fb1a-424e-b48c-0d16e5416db8
+    - constraintUID: eaa3c556-4e60-4c4d-9273-4a41d9c5a42a
       enforced: true
-      id: gatekeeper-controller-manager-5db7c8878c-9nxqf
+      id: gatekeeper-controller-manager-7db564f9f4-67595
       observedGeneration: 1
       operations:
       - mutation-webhook
       - webhook
-    - constraintUID: de163762-fb1a-424e-b48c-0d16e5416db8
+    - constraintUID: eaa3c556-4e60-4c4d-9273-4a41d9c5a42a
       enforced: true
-      id: gatekeeper-controller-manager-5db7c8878c-lpkvj
+      id: gatekeeper-controller-manager-7db564f9f4-kqsns
+      observedGeneration: 1
+      operations:
+      - mutation-webhook
+      - webhook
+    - constraintUID: eaa3c556-4e60-4c4d-9273-4a41d9c5a42a
+      enforced: true
+      id: gatekeeper-controller-manager-7db564f9f4-mpmlf
       observedGeneration: 1
       operations:
       - mutation-webhook
@@ -2569,7 +3192,6 @@ items:
 kind: List
 metadata:
   resourceVersion: ""
-  selfLink: ""
 ```
 - restart application deployment to trigger policymanager update addressgrp in cFOS 
 due to limitation of policymanager, it require pod ip change to trigger update addressgrp in cFOS, we can restar application pod, scale in, scale out etc to force pod IP change. 
@@ -2598,9 +3220,9 @@ deployment "multitool01-deployment" successfully rolled out
 ```
 [[ -z $cfos_label ]] && cfos_label="fos"
 [[ -z $gatekeeper_policy_id ]] && gatekeeper_policy_id="200"
-
-url="https://www.eicar.org/download/eicar.com.txt"
-kubectl get pod | grep multi | grep -v termin | awk '{print $1}'  | while read line; do kubectl exec -t po/$line --  curl -k -I  $url  ; done
+[[ -z $1 ]] &&  webf_target_url="https://www.eicar.org/download/eicar.com.txt" || webf_target_url=$1
+echo $webf_target_url
+kubectl get pod | grep multi | grep -v termin | awk '{print $1}'  | while read line; do kubectl exec -t po/$line --  curl -k -I  $webf_target_url  ; done
 kubectl get pod | grep $cfos_label | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/webf.0 | grep policyid=$gatekeeper_policy_id  ; done
 ```
 - check the result
