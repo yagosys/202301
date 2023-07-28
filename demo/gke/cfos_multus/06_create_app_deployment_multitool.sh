@@ -1,6 +1,7 @@
 file="app_with_annotations_cfosapp.yml"
 [[ $app_image == "" ]] && app_image="praqma/network-multitool"
 [[ -z $app_deployment_label ]] && app_deployment_label="multitool01"
+[[ -z $app_nad_annotation ]] && app_nad_annotation="cfosapp"
 
 annotations="k8s.v1.cni.cncf.io/networks: '[ { \"name\": \"$app_nad_annotation\" } ]'"
 cat << EOF > $file 

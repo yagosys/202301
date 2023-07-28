@@ -14,13 +14,13 @@ gkeNetworkName=$(gcloud compute networks list --format="value(name)" --filter="n
 gkeSubnetworkName=$(gcloud compute networks subnets  list --format="value(name)" --filter="name="$subnetName"" --limit=1)
 
 projectName=$(gcloud config list --format="value(core.project)") && \
-region=$(gcloud compute networks subnets list --format="value(region)" --limit=1) && \
+region=$(gcloud config get compute/region) && \
 
 gcloud services enable container.googleapis.com  && \
 
 gcloud container clusters create $gkeClusterName  \
 	--no-enable-basic-auth \
-	--cluster-version "1.26.3-gke.1000" \
+	--cluster-version "1.26.5-gke.2100" \
 	--release-channel "rapid" \
 	--machine-type $machineType \
 	--image-type "UBUNTU_CONTAINERD" \
