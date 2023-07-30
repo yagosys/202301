@@ -20,8 +20,8 @@ gcloud services enable container.googleapis.com  && \
 
 gcloud container clusters create $gkeClusterName  \
 	--no-enable-basic-auth \
-	--cluster-version "1.26.5-gke.2100" \
-	--release-channel "rapid" \
+	--cluster-version "1.26.5-gke.1400" \
+	--release-channel "stable" \
 	--machine-type $machineType \
 	--image-type "UBUNTU_CONTAINERD" \
 	--disk-type "pd-balanced" \
