@@ -2,7 +2,7 @@
 clustersearchstring=$(gcloud container clusters list --format="value(name)" --limit=1) && \
 namelist=$(gcloud compute instances list --filter="name~'$clustersearchstring'"  --format="value(name)" ) && \
 
-source ./variable.sh
+#source ./variable.sh
 
 [[ $services_ipv4_cidr == "" ]] && services_ipv4_cidr="10.144.0.0/20"
 [[ $cluster_ipv4_cidr == "" ]] && cluster_ipv4_cidr="10.140.0.0/14"

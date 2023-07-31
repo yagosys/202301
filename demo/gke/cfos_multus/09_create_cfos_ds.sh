@@ -4,6 +4,8 @@ file="cfos_ds.yml"
 [[ $cfosIp == "" ]] && cfosIp="10.1.200.252/32"
 [[ -z $cfos_label ]] && cfos_label="fos"
 [[ -z $cfos_data_host_path ]] && cfos_data_host_path="/home/kubernetes/cfosdata"
+[[ -z $net_attach_def_name_for_cfos ]] && net_attach_def_name_for_cfos="cfosdefaultcni5"
+
 
 
 annotations="k8s.v1.cni.cncf.io/networks: '[ { \"name\": \"$net_attach_def_name_for_cfos\",  \"ips\": [ \"$cfosIp\" ], \"mac\": \"CA:FE:C0:FF:00:02\" } ]'"

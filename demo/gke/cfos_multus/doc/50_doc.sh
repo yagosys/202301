@@ -1,6 +1,6 @@
 #!/bin/bash
 filename="./../50_restart_app.sh"
-[[ -z $app_deployment_label="multitool01" ]] && app_deployment_label="multitool01"
+[[ -z $app_deployment_label ]] && app_deployment_label="multitool01"
 
 echo -e '- restart application deployment to trigger policymanager update addressgrp in cFOS ' > "${filename}.md"
 cat << EOF >> "${filename}.md"

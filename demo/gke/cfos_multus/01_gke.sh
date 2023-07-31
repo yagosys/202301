@@ -2,10 +2,11 @@
 [[ $defaultClustername == "" ]] && defaultClustername="my-first-cluster-1"
 [[ $networkName == "" ]] && networkName="gkenetwork"
 [[ $subnetName == "" ]] && subnetName="gkenode"
-[[ $machineType == "" ]] && machineType="g1-small"
-[[ $num_nodes == "" ]] && num_nodes="1"
+[[ $machineType == "" ]] && machineType="e2-standard-2"
+[[ $num_nodes == "" ]] && num_nodes="2"
 [[ $services_ipv4_cidr == "" ]] && services_ipv4_cidr="10.144.0.0/20"
 [[ $cluster_ipv4_cidr == "" ]] && cluster_ipv4_cidr="10.140.0.0/14"
+[[ $cluster_version == "" ]] && cluster_version="1.26.5-gke.1400"
 
 
 gkeClusterName=$defaultClustername
@@ -20,7 +21,7 @@ gcloud services enable container.googleapis.com  && \
 
 gcloud container clusters create $gkeClusterName  \
 	--no-enable-basic-auth \
-	--cluster-version "1.26.5-gke.1400" \
+	--cluster-version $cluster_version \
 	--release-channel "stable" \
 	--machine-type $machineType \
 	--image-type "UBUNTU_CONTAINERD" \

@@ -1,5 +1,6 @@
 #!/bin/bash
-[[ $webf_target_url == "" ]] && webf_target_url="https://www.eicar.org/download/eicar.com.txt"
+#[[ $webf_target_url == "" ]] && webf_target_url="https://www.eicar.org/download/eicar.com.txt"
+[[ $webf_target_url == "" ]] && webf_target_url="https://www.casino.org"
 [[ -z $configmap_policy_id ]] && configmap_policy_id="300"
 
 [[ -z $cfos_label ]] && cfos_label="fos"

@@ -3,7 +3,6 @@ file="$HOME/license/dockerpullsecret.yaml"
 file="$HOME/license/fos_license.yaml"
 [ -e $file ] && echo found cfos license file $file || echo "$file  does not exist,exit" &&
 startdate=$(date)
-source variable.sh
 ./00_gcloud_env.sh && 
 
 ./00_create_network.sh 

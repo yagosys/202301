@@ -1,5 +1,6 @@
 file="app_with_annotations_cfosapp_with_defalt_route.yml"
 [[ $cfosIpshort == "" ]] && cfosIpshort="10.1.200.252" 
+[[ -z $app_nad_annotation  ]] && app_nad_annotation="cfosapp"
 annotations="k8s.v1.cni.cncf.io/networks: '[ { \"name\": \"$app_nad_annotation\", \"default-route\": [\"$cfosIpshort\"] } ]'"
 [[ $app_image == "" ]] && app_image="praqma/network-multitool"
 [[ -z $app_deployment_label ]] && app_deployment_label="multitool01"

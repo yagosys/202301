@@ -1,4 +1,5 @@
-#/bin/bash
+#/bin/bash -xe
+echo $networkName
 project="$1"
 region="$2"
 zone="$3"
