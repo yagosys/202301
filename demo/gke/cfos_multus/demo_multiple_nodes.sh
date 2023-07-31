@@ -174,6 +174,6 @@ echo "-----------"
 echo deploy start from $startdate to $(date)
 echo 'done'
 echo "-----------"
-echo 'do not forget delete resource created in this demo script use ./del_cluster.sh && ./del_network.sh'
+echo 'do not forget delete resource created in this demo script use ./del_cluster.sh && ./del_networks.sh'
 
 
