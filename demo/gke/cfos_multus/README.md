@@ -38,6 +38,8 @@ cfos_license.yaml created
 - check the result
 
 ```
+cd ./doc
+./gen_doc.sh
 https://github.com/yagosys/202301/tree/main/demo/gke/cfos_multus/doc/README.md
 ```
 
