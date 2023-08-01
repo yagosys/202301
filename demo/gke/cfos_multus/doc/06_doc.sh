@@ -1,6 +1,6 @@
 #!/bin/bash
 filename="./../06_create_app_deployment_multitool.sh"
-[[ -z $app_deployment_label="multitool01" ]] && app_deployment_label="multitool01"
+[[ -z $app_deployment_label ]] && app_deployment_label="multitool01"
 
 echo -e '- create demo application deployment\n' > "${filename}.md"
 

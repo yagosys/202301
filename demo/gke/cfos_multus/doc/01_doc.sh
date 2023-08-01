@@ -1,6 +1,6 @@
 #!/bin/bash
 filename="./../01_gke.sh"
-
+doc_ext="gen.sh"
 echo -e '- create gke cluster\n ' > "${filename}.md"
 
 cat << EOF >> "${filename}.md"
@@ -15,7 +15,7 @@ EOF
 echo -e '- paste below command to create gke cluster\n ' >> "${filename}.md" 
 
 echo -e '```' >> "${filename}.md"
-cat $filename >> "${filename}.md"
+cat $filename.$doc_ext >> "${filename}.md"
 echo -e '```' >> "${filename}.md"
 
 

@@ -1,6 +1,7 @@
 #!/bin/bash
 source ./../variable.sh
 filename="./../00_create_network.sh"
+doc_ext="gen.sh"
 
 echo -e  '- create network for gke cluster ' > "${filename}.md"
 
@@ -14,7 +15,7 @@ EOF
 echo -e  '- paste below command to create network, subnets and firewall-rules  ' >> "${filename}.md" 
 
 echo -e  '```' >> "${filename}.md"
-cat $filename >> "${filename}.md"
+cat $filename.$doc_ext >> "${filename}.md"
 echo -e  '```' >> "${filename}.md"
 
 
