@@ -1,3 +1,14 @@
+- install multus cni 
+
+
+
+We need to install multus CNI for route traffic from application POD to cFOS POD
+by default, GKE come with default cni which is use ptp binary with host-local ipam. the default cni config has name "10-containerd-net.conflist". when we install multus, 
+the default multus config will use *"--multus-conf-file=auto"*, with this option. multus will automatically create 00-multus.conf file with delegate to default 10-containerd-net.conflist. in this demo. we use default behavior. 
+we  need to change default multus config *path: /home/kubernetes/bin* . this is because GKE only grant this directory with writ permission.
+each worker node will have one multus POD installed. 
+- paste below command to install multus CNI  
+```
 file="multus_auto.yml"
 multusconfig="auto"
 multus_bin_hostpath="/home/kubernetes/bin"
@@ -251,3 +262,16 @@ spec:
 EOF
 kubectl create -f $file
 kubectl rollout status ds/kube-multus-ds -n kube-system
+```
+- check the result
+
+`kubectl rollout status ds/kube-multus-ds -n kube-system`
+`kubectl logs ds/kube-multus-ds -c kube-multus -n kube-system)`
+ you shall see output 
+```
+daemon set "kube-multus-ds" successfully rolled out
+2023-08-01T11:18:53+00:00 Generating Multus configuration file using files in /host/etc/cni/net.d...
+2023-08-01T11:18:53+00:00 Using MASTER_PLUGIN: 10-containerd-net.conflist
+2023-08-01T11:18:54+00:00 Nested capabilities string: "capabilities": {"portMappings": true},
+2023-08-01T11:18:54+00:00 Using /host/etc/cni/net.d/10-containerd-net.conflist as a source to generate the Multus configuration
+```

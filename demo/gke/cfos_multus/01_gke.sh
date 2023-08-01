@@ -8,14 +8,16 @@
 [[ $cluster_ipv4_cidr == "" ]] && cluster_ipv4_cidr="10.140.0.0/14"
 [[ $cluster_version == "" ]] && cluster_version="1.26.5-gke.1400"
 
+filename="01_gke.sh.gen.sh"
 
 gkeClusterName=$defaultClustername
 machineType=$machineType
 gkeNetworkName=$(gcloud compute networks list --format="value(name)" --filter="name="$networkName""  --limit=1)
 gkeSubnetworkName=$(gcloud compute networks subnets  list --format="value(name)" --filter="name="$subnetName"" --limit=1)
 
-projectName=$(gcloud config list --format="value(core.project)") && \
-region=$(gcloud config get compute/region) && \
+cat << EOF > $filename
+projectName=\$(gcloud config list --format="value(core.project)")
+region=\$(gcloud config get compute/region)
 
 gcloud services enable container.googleapis.com  && \
 
@@ -45,7 +47,9 @@ gcloud container clusters create $gkeClusterName  \
 	--enable-shielded-nodes \
 	--services-ipv4-cidr $services_ipv4_cidr \
         --cluster-ipv4-cidr  $cluster_ipv4_cidr
-
+EOF
+chmod +x $filename
+./$filename
 echo done
 echo cluster has podIpv4CidrBlock $(gcloud container clusters describe $gkeClusterName --format="value(nodePools.networkConfig.podIpv4CidrBlock)")
 echo cluster has servicesIpv4Cidr $(gcloud container clusters describe $gkeClusterName --format="value(servicesIpv4Cidr)")
