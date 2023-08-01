@@ -1,87 +1,87 @@
-#file="$HOME/license/dockerpullsecret.yaml"
-#[ -e $file ] && echo found dockerpullsecret $file || echo "$file  does not exist, exit" && 
-#file="$HOME/license/fos_license.yaml"
-#[ -e $file ] && echo found cfos license file $file || echo "$file  does not exist,exit" &&
-#startdate=$(date)
-#./00_gcloud_env.sh && 
-#
-#./00_create_network.sh 
-#cd doc 
-#./00_doc.sh
-#cd ./../
-#
-#./01_gke.sh 
-#cd doc 
-#./01_doc.sh
-#cd ./../
-#
-#./02_modifygkevmipforwarding.sh.shell.sh 
-#cd doc  
-#./02_doc.sh.shell.sh
-#cd ./../
-#
-#echo sleep 60
-#sleep 60 
-#
-#./03_install_multus_auto.sh && \
-#cd doc && \
-#./03_doc.sh
-#cd ./../
-#
-#./04_create_nad_for_cfos.sh.shell.sh && \
-#cd doc && \
-#./04_doc.sh.shell.sh
-#cd ./../
-#
-#./05_create_nad_macvlan_for_app.sh.shell.sh && \
-#cd doc && \
-#./05_doc.sh.shell.sh
-#cd ./../
-#
-#./06_create_app_deployment_multitool.sh.shell.sh && \
-#cd doc && \
-#./06_doc.sh.shell.sh
-#cd ./../
-#
-#./07_apply_license.sh && \
-#
-#./08_create_cfos_account.sh 
-#cd doc 
-#./08_doc.sh
-#cd ./../
-#
-#./09_create_cfos_ds.sh.shell.sh 
-#cd doc 
-#./09_doc.sh.shell.sh
-#cd ./../
-#
-#./10_config_cfos_firewallpolicy.sh.shell.sh 
-#cd doc 
-#./10_doc.sh.shell.sh
-#cd ./../
-#
-#./11_cfos_ds_restart.sh.shell.sh 
-#cd doc 
-#./11_doc.sh.shell.sh
-#cd ./../
-#
-#./19_pingtest.sh 
-#
-#./12_ipstest.sh.shell.sh 
-#cd doc 
-#./12_doc.sh.shell.sh
-#cd ./../
-#
-#./13_webftest.sh.shell.sh 
-#cd doc 
-#./13_doc.sh.shell.sh
-#cd ./../
-#
-#./17_delete_policy_300.sh.shell.sh 
-#cd doc 
-#./17_doc.sh.shell.sh
-#cd ./../
-#
+file="$HOME/license/dockerpullsecret.yaml"
+[ -e $file ] && echo found dockerpullsecret $file || echo "$file  does not exist, exit" && 
+file="$HOME/license/fos_license.yaml"
+[ -e $file ] && echo found cfos license file $file || echo "$file  does not exist,exit" &&
+startdate=$(date)
+./00_gcloud_env.sh && 
+
+./00_create_network.sh 
+cd doc 
+./00_doc.sh
+cd ./../
+
+./01_gke.sh 
+cd doc 
+./01_doc.sh
+cd ./../
+
+./02_modifygkevmipforwarding.sh.shell.sh 
+cd doc  
+./02_doc.sh.shell.sh
+cd ./../
+
+echo sleep 60
+sleep 60 
+
+./03_install_multus_auto.sh && \
+cd doc && \
+./03_doc.sh
+cd ./../
+
+./04_create_nad_for_cfos.sh.shell.sh && \
+cd doc && \
+./04_doc.sh.shell.sh
+cd ./../
+
+./05_create_nad_macvlan_for_app.sh.shell.sh && \
+cd doc && \
+./05_doc.sh.shell.sh
+cd ./../
+
+./06_create_app_deployment_multitool.sh.shell.sh && \
+cd doc && \
+./06_doc.sh.shell.sh
+cd ./../
+
+./07_apply_license.sh && \
+
+./08_create_cfos_account.sh 
+cd doc 
+./08_doc.sh
+cd ./../
+
+./09_create_cfos_ds.sh.shell.sh 
+cd doc 
+./09_doc.sh.shell.sh
+cd ./../
+
+./10_config_cfos_firewallpolicy.sh.shell.sh 
+cd doc 
+./10_doc.sh.shell.sh
+cd ./../
+
+./11_cfos_ds_restart.sh.shell.sh 
+cd doc 
+./11_doc.sh.shell.sh
+cd ./../
+
+./19_pingtest.sh 
+
+./12_ipstest.sh.shell.sh 
+cd doc 
+./12_doc.sh.shell.sh
+cd ./../
+
+./13_webftest.sh.shell.sh 
+cd doc 
+./13_doc.sh.shell.sh
+cd ./../
+
+./17_delete_policy_300.sh.shell.sh 
+cd doc 
+./17_doc.sh.shell.sh
+cd ./../
+
 ./18_create_policy_manager.sh  
 cd doc 
 ./18_doc.sh
