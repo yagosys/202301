@@ -32,8 +32,7 @@ cfos_license.yaml created
 - how to run 
 
 ```
-source ./variable
-./demo_multiple_nodes.sh
+./demo_multiple_nodes.shell.sh
 
 ```
 
