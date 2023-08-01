@@ -1379,6 +1379,30 @@ default via 10.140.0.1 dev eth0
 
 
 
+- apply cfos license 
+
+
+if license have not created yet. you can create license for cfos here. the license is in configmap format
+- paste below command to create cfos license
+
+```
+file="$HOME/license/dockerpullsecret.yaml"
+[ -e $file ] && kubectl create -f $file || echo "$file  does not exist"
+file="$HOME/license/fos_license.yaml"
+[ -e $file ] && kubectl create -f $file || echo "$file  does not exist"
+
+```
+- check the result
+
+`kubectl get cm fos-license`
+```
+NAME          DATA   AGE
+fos-license   1      8m4s
+```
+
+
+
+
 - create cfos role and service account
 
 
