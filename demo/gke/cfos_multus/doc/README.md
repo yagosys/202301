@@ -1,5 +1,4 @@
 README
-cat ./../00_create_network.sh.md
 
 
 - create network for gke cluster 
@@ -787,10 +786,8 @@ gcloud compute networks subnets create gkenode --network=gkenetwork --range=10.0
   }
 ]
 ```
-end of ./../00_create_network.sh.md
 
 
-cat ./../01_gke.sh.md
 
 
 - create gke cluster
@@ -818,10 +815,8 @@ NAME                                                STATUS   ROLES    AGE   VERS
 gke-my-first-cluster-1-default-pool-9dde0662-5880   Ready    <none>   38s   v1.26.5-gke.1400   10.0.0.4      35.189.170.110   Ubuntu 22.04.2 LTS   5.15.0-1033-gke   containerd://1.6.18
 gke-my-first-cluster-1-default-pool-9dde0662-m4b0   Ready    <none>   39s   v1.26.5-gke.1400   10.0.0.3      34.81.140.4      Ubuntu 22.04.2 LTS   5.15.0-1033-gke   containerd://1.6.18
 ```
-end of ./../01_gke.sh.md
 
 
-cat ./../02_modifygkevmipforwarding.sh.md
 
 
 - enable worker node ipforwarding
@@ -845,10 +840,8 @@ echo "done for $name"
 }
 done
 ```
-end of ./../02_modifygkevmipforwarding.sh.md
 
 
-cat ./../03_install_multus_auto.sh.md
 
 
 - install multus cni 
@@ -1128,10 +1121,8 @@ daemon set "kube-multus-ds" successfully rolled out
 2023-08-01T11:18:54+00:00 Nested capabilities string: "capabilities": {"portMappings": true},
 2023-08-01T11:18:54+00:00 Using /host/etc/cni/net.d/10-containerd-net.conflist as a source to generate the Multus configuration
 ```
-end of ./../03_install_multus_auto.sh.md
 
 
-cat ./../04_create_nad_for_cfos.sh.shell.sh.yml.sh.md
 
 
 - create net-attach-def for cfos  
@@ -1191,10 +1182,8 @@ kind: List
 metadata:
   resourceVersion: ""
 ```
-end of ./../04_create_nad_for_cfos.sh.shell.sh.yml.sh.md
 
 
-cat ./../05_create_nad_macvlan_for_app.sh.shell.sh.yml.sh.md
 
 
 - create net-attach-def for application deployment  
@@ -1275,10 +1264,8 @@ kind: List
 metadata:
   resourceVersion: ""
 ```
-end of ./../05_create_nad_macvlan_for_app.sh.shell.sh.yml.sh.md
 
 
-cat ./../06_create_app_deployment_multitool.sh.shell.sh.yml.sh.md
 
 
 - create demo application deployment
@@ -1388,10 +1375,8 @@ default via 10.140.0.1 dev eth0
     inet 10.1.200.21/24 brd 10.1.200.255 scope global net1
        valid_lft forever preferred_lft forever
 ```
-end of ./../06_create_app_deployment_multitool.sh.shell.sh.yml.sh.md
 
 
-cat ./../08_create_cfos_account.sh.md
 
 
 - create cfos role and service account
@@ -1485,10 +1470,8 @@ subjects:
 - kind: ServiceAccount
   name: default
 ```
-end of ./../08_create_cfos_account.sh.md
 
 
-cat ./../09_create_cfos_ds.sh.shell.sh.yml.sh.md
 
 
 - create cfos role and service account
@@ -1662,10 +1645,8 @@ System is ready.
 2023-08-01_11:19:43.14213 INFO: 2023/08/01 11:19:43 configmap name: fos-license, labels: map[app:fos category:license]
 2023-08-01_11:19:43.14217 INFO: 2023/08/01 11:19:43 got a fos license
 ```
-end of ./../09_create_cfos_ds.sh.shell.sh.yml.sh.md
 
 
-cat ./../10_config_cfos_firewallpolicy.sh.shell.sh.yml.sh.md
 
 
 - create configmap for cfos to get firewall policy configuration/n 
@@ -1791,10 +1772,8 @@ System is ready.
 2023-08-01_11:19:49.58701 INFO: 2023/08/01 11:19:49 applying a partial fos config...
 2023-08-01_11:19:49.98550 INFO: 2023/08/01 11:19:49 fos config is applied successfully.
 ```
-end of ./../10_config_cfos_firewallpolicy.sh.shell.sh.yml.sh.md
 
 
-cat ./../11_cfos_ds_restart.sh.shell.sh.gen.sh.md
 
 
 - restart cfos DaemonSet  to workaround policy not work issue
@@ -1873,10 +1852,8 @@ PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
 1 packets transmitted, 1 received, 0% packet loss, time 0ms
 rtt min/avg/max/mdev = 5.953/5.953/5.953/0.000 ms
 ```
-end of ./../11_cfos_ds_restart.sh.shell.sh.gen.sh.md
 
 
-cat ./../12_ipstest.sh.shell.sh.gen.sh.md
 
 
 - do a ips test on a target website
@@ -1906,10 +1883,8 @@ date=2023-08-01 time=11:22:35 eventtime=1690888955 tz="+0000" logid="0419016384"
 date=2023-08-01 time=11:22:24 eventtime=1690888944 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.20 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=6 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=35864 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=250609665 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
 date=2023-08-01 time=11:22:29 eventtime=1690888949 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.21 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=6 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=55610 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=250609666 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
 ```
-end of ./../12_ipstest.sh.shell.sh.gen.sh.md
 
 
-cat ./../13_webftest.sh.shell.sh.gen.sh.md
 
 
 - do a web filter  test on a target website 
@@ -1937,10 +1912,8 @@ date=2023-08-01 time=11:22:54 eventtime=1690888974 tz="+0000" logid="0316013056"
 date=2023-08-01 time=11:22:51 eventtime=1690888971 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=300 sessionid=8 srcip=10.1.200.20 srcport=39532 srcintf="net1" dstip=104.17.143.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
 date=2023-08-01 time=11:22:53 eventtime=1690888973 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=300 sessionid=8 srcip=10.1.200.21 srcport=46806 srcintf="net1" dstip=104.17.143.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
 ```
-end of ./../13_webftest.sh.shell.sh.gen.sh.md
 
 
-cat ./../17_delete_policy_300.sh.shell.sh.gen.sh.md
 
 
 - use cfos restful API to delete firewall policy 
@@ -1990,10 +1963,8 @@ PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
 1 packets transmitted, 0 received, 100% packet loss, time 0ms
 
 ```
-end of ./../17_delete_policy_300.sh.shell.sh.gen.sh.md
 
 
-cat ./../18_create_policy_manager.sh.md
 
 
 - create an POD to update POD source IP to cFOS
@@ -2143,10 +2114,8 @@ policymanager   1/1     Running   0          16s
 }
 
 ```
-end of ./../18_create_policy_manager.sh.md
 
 
-cat ./../22_ipstest.sh.shell.sh.gen.sh.md
 
 
 - do a ips test on a target website
@@ -2172,10 +2141,8 @@ date=2023-08-01 time=11:59:00 eventtime=1690891140 tz="+0000" logid="0419016384"
 date=2023-08-01 time=11:58:48 eventtime=1690891128 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.20 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=3 action="dropped" proto=6 service="HTTPS" policyid=101 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=54780 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=250609667 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
 date=2023-08-01 time=11:58:54 eventtime=1690891134 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.21 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=3 action="dropped" proto=6 service="HTTPS" policyid=101 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=54444 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=250609668 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
 ```
-end of ./../22_ipstest.sh.shell.sh.gen.sh.md
 
 
-cat ./../23_webftest.sh.shell.sh.gen.sh.md
 
 
 - do a web filter  test on a target website
@@ -2198,10 +2165,8 @@ date=2023-08-01 time=11:59:18 eventtime=1690891158 tz="+0000" logid="0316013056"
 date=2023-08-01 time=11:59:16 eventtime=1690891156 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=5 srcip=10.1.200.20 srcport=41710 srcintf="net1" dstip=104.17.142.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
 date=2023-08-01 time=11:59:17 eventtime=1690891157 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=7 srcip=10.1.200.21 srcport=40722 srcintf="net1" dstip=104.17.142.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
 ```
-end of ./../23_webftest.sh.shell.sh.gen.sh.md
 
 
-cat ./../24_ssh_into_worker_node_add_custom_route_to_10_conf_cni_file.sh.shell.sh.gen.sh.md
 
 
 - modify worker node default CNI config
@@ -2246,10 +2211,8 @@ kubectl logs ds/kube-multus-ds -n kube-system
 { "cniVersion": "0.3.1", "name": "multus-cni-network", "type": "multus", "capabilities": {"portMappings": true}, "kubeconfig": "/etc/cni/net.d/multus.d/multus.kubeconfig", "delegates": [ { "name": "k8s-pod-network", "cniVersion": "0.3.1", "plugins": [ { "type": "ptp", "mtu": 1460, "ipam": { "type": "host-local", "subnet": "10.140.1.0/24", "routes": [ { "dst": "0.0.0.0/0" } , {"dst": "10.144.0.0/20"}, {"dst": "10.140.0.0/14"} ] } }, { "type": "portmap", "capabilities": { "portMappings": true } } ] } ] }
 2023-08-01T12:00:32+00:00 Entering sleep (success)...
 ```
-end of ./../24_ssh_into_worker_node_add_custom_route_to_10_conf_cni_file.sh.shell.sh.gen.sh.md
 
 
-cat ./../25_delete_app.sh.md
 
 
 - delete current appliation deployment
@@ -2260,10 +2223,8 @@ cat ./../25_delete_app.sh.md
 ```
 kubectl get deployment multitool01-deployment && kubectl delete deployment multitool01-deployment
 ```
-end of ./../25_delete_app.sh.md
 
 
-cat ./../26_create_app_deployment_multtool_with_defaultroute.sh.shell.sh.yml.sh.md
 
 
 - create application deployment 
@@ -2368,10 +2329,8 @@ default via 10.1.200.252 dev net1
     inet 10.1.200.23/24 brd 10.1.200.255 scope global net1
        valid_lft forever preferred_lft forever
 ```
-end of ./../26_create_app_deployment_multtool_with_defaultroute.sh.shell.sh.yml.sh.md
 
 
-cat ./../27_webftest.sh.shell.sh.gen.sh.md
 
 
 - do a web filter  test on a target website
@@ -2398,10 +2357,8 @@ date=2023-08-01 time=11:59:17 eventtime=1690891157 tz="+0000" logid="0316013056"
 date=2023-08-01 time=12:01:34 eventtime=1690891294 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=5 srcip=10.1.200.23 srcport=35474 srcintf="net1" dstip=104.18.25.243 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="xoso.com.vn" profile="default" action="blocked" reqtype="direct" url="https://xoso.com.vn/" sentbyte=115 rcvdbyte=40 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
 date=2023-08-01 time=12:01:37 eventtime=1690891297 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=9 srcip=10.1.200.22 srcport=39862 srcintf="net1" dstip=104.18.25.243 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="xoso.com.vn" profile="default" action="blocked" reqtype="direct" url="https://xoso.com.vn/" sentbyte=106 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
 ```
-end of ./../27_webftest.sh.shell.sh.gen.sh.md
 
 
-cat ./../38_delete_policy_101.sh.shell.sh.gen.sh.md
 
 
 - use cfos restful API to delete firewall policy
@@ -2436,10 +2393,8 @@ kubectl exec -it po/policymanager -- curl -X GET http://fos-deployment.default.s
 }
 
 ```
-end of ./../38_delete_policy_101.sh.shell.sh.gen.sh.md
 
 
-cat ./../46_install_gatekeeperv3.sh.md
 
 
 - install gatekeeperv3 
@@ -2467,10 +2422,8 @@ deployment "gatekeeper-audit" successfully rolled out
 deployment "gatekeeper-controller-manager" successfully rolled out
 deployment "gatekeeper-audit" successfully rolled out
 ```
-end of ./../46_install_gatekeeperv3.sh.md
 
 
-cat ./../47_create_gatekeeper_constraint_template.sh.md
 
 
 - install gatekeeperv3 constraint template 
@@ -2815,10 +2768,8 @@ kind: List
 metadata:
   resourceVersion: ""
 ```
-end of ./../47_create_gatekeeper_constraint_template.sh.md
 
 
-cat ./../48_deploy_constraint_fos_cfos.sh.shell.sh.yml.sh.md
 
 
 - install policy constraint
@@ -2933,10 +2884,8 @@ kind: List
 metadata:
   resourceVersion: ""
 ```
-end of ./../48_deploy_constraint_fos_cfos.sh.shell.sh.yml.sh.md
 
 
-cat ./../49_deploy_network_firewall_policy_egress.sh.md
 
 
 - create standard networkpolicy
@@ -3135,10 +3084,8 @@ kubectl exec -it po/policymanager -- curl -X GET http://fos-deployment.default.s
 }
 
 ```
-end of ./../49_deploy_network_firewall_policy_egress.sh.md
 
 
-cat ./../50_restart_app.sh.md
 
 
 - restart application deployment to trigger policymanager update addressgrp in cFOS 
@@ -3160,10 +3107,8 @@ kubectl rollout status deployment multitool01-deployment
 ```
 deployment "multitool01-deployment" successfully rolled out
 ```
-end of ./../50_restart_app.sh.md
 
 
-cat ./../52_ipstest.sh.shell.sh.gen.sh.md
 
 
 - do a ips test on a target website
@@ -3188,10 +3133,8 @@ date=2023-08-01 time=12:04:46 eventtime=1690891486 tz="+0000" logid="0419016384"
 date=2023-08-01 time=12:04:27 eventtime=1690891467 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.24 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=3 action="dropped" proto=6 service="HTTPS" policyid=200 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=55724 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=250609669 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
 date=2023-08-01 time=12:04:34 eventtime=1690891474 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.25 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=5 action="dropped" proto=6 service="HTTPS" policyid=200 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=41132 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=250609670 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
 ```
-end of ./../52_ipstest.sh.shell.sh.gen.sh.md
 
 
-cat ./../53_webftest.sh.shell.sh.gen.sh.md
 
 
 - do a web filter  test on a target website
@@ -3214,6 +3157,5 @@ date=2023-08-01 time=12:05:04 eventtime=1690891504 tz="+0000" logid="0316013056"
 date=2023-08-01 time=12:05:00 eventtime=1690891500 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=200 sessionid=3 srcip=10.1.200.24 srcport=32882 srcintf="net1" dstip=104.17.143.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
 date=2023-08-01 time=12:05:02 eventtime=1690891502 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=200 sessionid=7 srcip=10.1.200.25 srcport=48958 srcintf="net1" dstip=104.17.143.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
 ```
-end of ./../53_webftest.sh.shell.sh.gen.sh.md
 
 
