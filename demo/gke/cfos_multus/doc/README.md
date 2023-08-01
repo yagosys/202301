@@ -829,13 +829,15 @@ to enable ipforwarding, we need to config *canIpForward: true* for instance prof
 - paste below command to enable ipforwarding
  
 ```
+projectName=$(gcloud config list --format="value(core.project)")
+zone=$(gcloud config list --format="value(compute.zone)" --limit=1)
 node_list=$(gcloud compute instances list --filter="name~'my-first-cluster-1'"  --format="value(name)" )
 for name in $node_list; do {
 
-gcloud compute instances export $name     --project cfos-384323     --zone asia-east1-a     --destination=./$name.txt
+gcloud compute instances export $name     --project $projectName     --zone $zone     --destination=./$name.txt
 grep -q "canIpForward: true" $name.txt || sed -i '/networkInterfaces/i canIpForward: true' $name.txt
 sed '/networkInterfaces/i canIpForward: true' $name.txt 
-gcloud compute instances update-from-file $name    --project cfos-384323     --zone asia-east1-a     --source=$name.txt     --most-disruptive-allowed-action=REFRESH
+gcloud compute instances update-from-file $name    --project $projectName     --zone $zone     --source=$name.txt     --most-disruptive-allowed-action=REFRESH
 echo "done for $name"
 }
 done
