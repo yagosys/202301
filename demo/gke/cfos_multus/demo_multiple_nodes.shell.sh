@@ -44,6 +44,9 @@ cd doc && \
 cd ./../
 
 ./07_apply_license.sh && \
+cd doc && \
+./07_doc.sh
+cd ./../
 
 ./08_create_cfos_account.sh 
 cd doc 
