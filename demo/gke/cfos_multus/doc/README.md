@@ -1382,8 +1382,24 @@ default via 10.140.0.1 dev eth0
 - apply cfos license 
 
 
-if license have not created yet. you can create license for cfos here. the license is in configmap format
-- paste below command to create cfos license
+if license have not applied yet. you can create and apply icense for cfos here. the license is in configmap format
+- generate docker pull secret
+
+```
+(cfos-384323)$ docker login
+Authenticating with existing credentials...
+Login Succeeded
+
+(cfos-384323)$ ./generatedockersecret.sh $HOME/.docker/config.json
+dockerpullsecret.yaml created
+```
+
+- generate cFOS license secret 
+```
+(cfos-384323)$ ./generatecfoslicensefromvmlicense.sh FGVMULTM23000010.lic
+cfos_license.yaml created
+
+- paste below command to create cfos license and cfos image pull secret 
 
 ```
 file="$HOME/license/dockerpullsecret.yaml"
@@ -1397,7 +1413,12 @@ file="$HOME/license/fos_license.yaml"
 `kubectl get cm fos-license`
 ```
 NAME          DATA   AGE
-fos-license   1      8m4s
+fos-license   1      3m16s
+```
+`kubectl get secret`
+```
+NAME               TYPE                             DATA   AGE
+dockerinterbeing   kubernetes.io/dockerconfigjson   1      3m16s
 ```
 
 
