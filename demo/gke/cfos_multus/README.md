@@ -35,6 +35,11 @@ cfos_license.yaml created
 ./demo_multiple_nodes.shell.sh
 
 ```
+- check the result
+
+```
+https://github.com/yagosys/202301/tree/main/demo/gke/cfos_multus/doc/README.md
+```
 
 - clean up
 
