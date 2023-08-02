@@ -1513,8 +1513,8 @@ we will need then insert a default route into application pod, for this purpose,
 ```
 set +H
 
-clustersearchstring=my-first-cluster-1 
-namelist=$(gcloud compute instances list --filter="name~''"  --format="value(name)" ) 
+clustersearchstring=$(gcloud container clusters list --format="value(name)" --limit=1) 
+namelist=$(gcloud compute instances list --filter="name~$clustersearchstring"  --format="value(name)" ) 
 for name in $namelist ; do {
 
 route_exists=$(gcloud compute ssh $name --command="sudo grep -E '\"dst\": \"10.144.0.0\/20\"|\"dst\": \"10.140.0.0\/14\"' /etc/cni/net.d/10-containerd-net.conflist")
@@ -1537,13 +1537,13 @@ done
 kubectl logs ds/kube-multus-ds -n kube-system
 `
 ```
-2023-08-02T11:01:02+00:00 Generating Multus configuration file using files in /host/etc/cni/net.d...
-2023-08-02T11:01:02+00:00 Using MASTER_PLUGIN: 10-containerd-net.conflist
-2023-08-02T11:01:04+00:00 Nested capabilities string: "capabilities": {"portMappings": true},
-2023-08-02T11:01:04+00:00 Using /host/etc/cni/net.d/10-containerd-net.conflist as a source to generate the Multus configuration
-2023-08-02T11:01:04+00:00 Config file created @ /host/etc/cni/net.d/00-multus.conf
+2023-08-02T21:32:18+00:00 Generating Multus configuration file using files in /host/etc/cni/net.d...
+2023-08-02T21:32:18+00:00 Using MASTER_PLUGIN: 10-containerd-net.conflist
+2023-08-02T21:32:20+00:00 Nested capabilities string: "capabilities": {"portMappings": true},
+2023-08-02T21:32:20+00:00 Using /host/etc/cni/net.d/10-containerd-net.conflist as a source to generate the Multus configuration
+2023-08-02T21:32:20+00:00 Config file created @ /host/etc/cni/net.d/00-multus.conf
 { "cniVersion": "0.3.1", "name": "multus-cni-network", "type": "multus", "capabilities": {"portMappings": true}, "kubeconfig": "/etc/cni/net.d/multus.d/multus.kubeconfig", "delegates": [ { "name": "k8s-pod-network", "cniVersion": "0.3.1", "plugins": [ { "type": "ptp", "mtu": 1460, "ipam": { "type": "host-local", "subnet": "10.140.1.0/24", "routes": [ { "dst": "0.0.0.0/0" } , {"dst": "10.144.0.0/20"}, {"dst": "10.140.0.0/14"} ] } }, { "type": "portmap", "capabilities": { "portMappings": true } } ] } ] }
-2023-08-02T11:01:04+00:00 Entering sleep (success)...
+2023-08-02T21:32:20+00:00 Entering sleep (success)...
 ```
 
 
