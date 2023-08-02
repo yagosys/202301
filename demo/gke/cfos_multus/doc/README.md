@@ -447,10 +447,10 @@ kubectl rollout status ds/kube-multus-ds -n kube-system
 - check the result
 
 ```
-`kubectl rollout status ds/kube-multus-ds -n kube-system
-`
-`kubectl logs ds/kube-multus-ds -c kube-multus -n kube-system
-`
+kubectl rollout status ds/kube-multus-ds -n kube-system
+
+kubectl logs ds/kube-multus-ds -c kube-multus -n kube-system
+
 ```
  you shall see output 
 ```
