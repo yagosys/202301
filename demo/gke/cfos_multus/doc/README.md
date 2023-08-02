@@ -84,7 +84,9 @@ gcloud compute firewall-rules create gkenetwork-allow-custom --network gkenetwor
 ```
 - check the result
 
-`gcloud compute networks list `
+```
+gcloud compute networks list 
+```
 ```
 NAME: default
 SUBNET_MODE: AUTO
@@ -98,7 +100,9 @@ BGP_ROUTING_MODE: REGIONAL
 IPV4_RANGE: 
 GATEWAY_IPV4: 
 ```
-`gcloud compute networks subnets list `
+```
+gcloud compute networks subnets list 
+```
 ```
 NAME: gkenode
 REGION: asia-east1
@@ -109,13 +113,47 @@ IPV6_ACCESS_TYPE:
 INTERNAL_IPV6_PREFIX: 
 EXTERNAL_IPV6_PREFIX: 
 ```
-`gcloud compute firewall-rules list `
+```
+gcloud compute firewall-rules list 
+```
 ```
 NAME: defaultall
 NETWORK: default
 DIRECTION: INGRESS
 PRIORITY: 1000
 ALLOW: all
+DENY: 
+DISABLED: False
+
+NAME: gke-my-first-cluster-1-57efcc51-all
+NETWORK: gkenetwork
+DIRECTION: INGRESS
+PRIORITY: 1000
+ALLOW: esp,ah,sctp,tcp,udp,icmp
+DENY: 
+DISABLED: False
+
+NAME: gke-my-first-cluster-1-57efcc51-exkubelet
+NETWORK: gkenetwork
+DIRECTION: INGRESS
+PRIORITY: 1000
+ALLOW: 
+DENY: tcp:10255
+DISABLED: False
+
+NAME: gke-my-first-cluster-1-57efcc51-inkubelet
+NETWORK: gkenetwork
+DIRECTION: INGRESS
+PRIORITY: 999
+ALLOW: tcp:10255
+DENY: 
+DISABLED: False
+
+NAME: gke-my-first-cluster-1-57efcc51-vms
+NETWORK: gkenetwork
+DIRECTION: INGRESS
+PRIORITY: 1000
+ALLOW: icmp,tcp:1-65535,udp:1-65535
 DENY: 
 DISABLED: False
 
