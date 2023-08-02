@@ -704,20 +704,22 @@ deployment "multitool01-deployment" successfully rolled out
 `kubectl get pod -l app=multitool01`
 ```
 NAME                                      READY   STATUS    RESTARTS   AGE
-multitool01-deployment-7f5bf4b7cd-92xrw   1/1     Running   0          8s
-multitool01-deployment-7f5bf4b7cd-9pt8w   1/1     Running   0          8s
-multitool01-deployment-7f5bf4b7cd-l867l   1/1     Running   0          8s
-multitool01-deployment-7f5bf4b7cd-qmggq   1/1     Running   0          8s
+multitool01-deployment-6ff79ccb9f-7gkkz   1/1     Running   0          71m
+multitool01-deployment-6ff79ccb9f-f924v   1/1     Running   0          71m
+multitool01-deployment-6ff79ccb9f-fjq97   1/1     Running   0          71m
+multitool01-deployment-6ff79ccb9f-nj97x   1/1     Running   0          71m
 ```
-`
+```
 nodeName=$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}') && for node in $nodeName; do podName=$(kubectl get pods -l app=multitool01 --field-selector spec.nodeName="$node" -o jsonpath='{.items[*].metadata.name}') ; kubectl exec -it po/$podName -- ip route && kubectl exec -t po/$podName -- ip address ; done
-`
 ```
-default via 10.140.0.1 dev eth0 
+```
+default via 10.1.200.252 dev net1 
 1.1.1.1 via 10.1.200.252 dev net1 
-10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.20 
-10.140.0.0/24 via 10.140.0.1 dev eth0 src 10.140.0.9 
-10.140.0.1 dev eth0 scope link src 10.140.0.9 
+10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.25 
+10.140.0.0/24 via 10.140.0.1 dev eth0 src 10.140.0.18 
+10.140.0.0/14 via 10.140.0.1 dev eth0 
+10.140.0.1 dev eth0 scope link src 10.140.0.18 
+10.144.0.0/20 via 10.140.0.1 dev eth0 
 89.238.73.97 via 10.1.200.252 dev net1 
 104.17.0.0/16 via 10.1.200.252 dev net1 
 104.18.0.0/16 via 10.1.200.252 dev net1 
@@ -727,19 +729,21 @@ default via 10.140.0.1 dev eth0
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
-2: eth0@if11: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether fe:1f:68:75:79:3d brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet 10.140.0.9/24 brd 10.140.0.255 scope global eth0
+2: eth0@if20: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
+    link/ether 6a:1c:51:cb:a5:82 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.140.0.18/24 brd 10.140.0.255 scope global eth0
        valid_lft forever preferred_lft forever
 3: net1@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether 7a:9d:17:c0:d5:73 brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet 10.1.200.20/24 brd 10.1.200.255 scope global net1
+    link/ether 8a:25:da:64:06:50 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.1.200.25/24 brd 10.1.200.255 scope global net1
        valid_lft forever preferred_lft forever
-default via 10.140.1.1 dev eth0 
+default via 10.1.200.252 dev net1 
 1.1.1.1 via 10.1.200.252 dev net1 
-10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.21 
-10.140.1.0/24 via 10.140.1.1 dev eth0 src 10.140.1.6 
-10.140.1.1 dev eth0 scope link src 10.140.1.6 
+10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.24 
+10.140.0.0/14 via 10.140.1.1 dev eth0 
+10.140.1.0/24 via 10.140.1.1 dev eth0 src 10.140.1.14 
+10.140.1.1 dev eth0 scope link src 10.140.1.14 
+10.144.0.0/20 via 10.140.1.1 dev eth0 
 89.238.73.97 via 10.1.200.252 dev net1 
 104.17.0.0/16 via 10.1.200.252 dev net1 
 104.18.0.0/16 via 10.1.200.252 dev net1 
@@ -749,13 +753,13 @@ default via 10.140.1.1 dev eth0
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
-2: eth0@if8: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether 72:6c:95:99:1a:8b brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet 10.140.1.6/24 brd 10.140.1.255 scope global eth0
+2: eth0@if16: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
+    link/ether e2:a7:79:6d:49:b0 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.140.1.14/24 brd 10.140.1.255 scope global eth0
        valid_lft forever preferred_lft forever
 3: net1@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether 7e:8a:9e:fe:13:0f brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet 10.1.200.21/24 brd 10.1.200.255 scope global net1
+    link/ether 26:46:6f:2a:c9:ec brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.1.200.24/24 brd 10.1.200.255 scope global net1
        valid_lft forever preferred_lft forever
 ```
 
