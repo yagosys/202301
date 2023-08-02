@@ -1,6 +1,6 @@
 #!/bin/bash
 filename="./../05_create_nad_macvlan_for_app.sh.shell.sh.yml.sh"
-
+source variable.sh
 echo -e '- create net-attach-def for application deployment  ' > "${filename}.md"
 
 cat << EOF >> "${filename}.md"
