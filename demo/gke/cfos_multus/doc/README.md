@@ -33,6 +33,36 @@ asia-east1-a
 
 
 
+- create docker images on gcr 
+
+
+
+- paste below command to create docker image  
+```
+gsutil cp gs://my-bucket-cfos-384323/FOS_X64_DOCKER-v7-build0231-FORTINET.tar .
+#gzip -d FOS_X64_DOCKER-v7-build0231-FORTINET.tar.gz
+docker load < FOS_X64_DOCKER-v7-build0231-FORTINET.tar
+docker images | grep ^fos
+PROJECT_ID=$(gcloud config list --format="value(core.project)")
+docker tag fos:latest gcr.io/$PROJECT_ID/fos:7231
+gcloud auth configure-docker
+docker push gcr.io/$PROJECT_ID/fos:7231
+export cfos_image="gcr.io/$PROJECT_ID/fos:7231"
+echo $cfos_image
+
+```
+- check the result
+
+`docker images`
+```
+REPOSITORY               TAG       IMAGE ID       CREATED        SIZE
+fos                      latest    68ddf4677772   8 months ago   144MB
+gcr.io/cfos-384323/fos   7231      68ddf4677772   8 months ago   144MB
+```
+
+
+
+
 - create network for gke cluster 
 
 create network for GKE VM instances.
@@ -41,7 +71,8 @@ the *firewallallowProtocol=all* allow ssh into worker node from anywhere  to *al
 - paste below command to create network, subnets and firewall-rules  
 ```
 gcloud compute networks create gkenetwork --subnet-mode custom --bgp-routing-mode  regional 
-gcloud compute networks subnets create gkenode --network=gkenetwork --range=10.0.0.0/24 &&  gcloud compute firewall-rules create gkenetwork-allow-custom --network gkenetwork --allow all --direction ingress --priority  100 
+gcloud compute networks subnets create gkenode --network=gkenetwork --range=10.0.0.0/24 
+gcloud compute firewall-rules create gkenetwork-allow-custom --network gkenetwork --allow all --direction ingress --priority  100 
 ```
 - check the result
 
@@ -106,8 +137,8 @@ gcloud compute networks subnets create gkenode --network=gkenetwork --range=10.0
   },
   {
     "autoCreateSubnetworks": false,
-    "creationTimestamp": "2023-08-01T04:09:45.160-07:00",
-    "id": "5173971891427563798",
+    "creationTimestamp": "2023-08-01T20:53:15.940-07:00",
+    "id": "8920151798470438340",
     "kind": "compute#network",
     "name": "gkenetwork",
     "networkFirewallPolicyEnforcementOrder": "AFTER_CLASSIC_FIREWALL",
@@ -115,7 +146,7 @@ gcloud compute networks subnets create gkenode --network=gkenetwork --range=10.0
       "routingMode": "REGIONAL"
     },
     "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/gkenetwork",
-    "selfLinkWithId": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/5173971891427563798",
+    "selfLinkWithId": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/8920151798470438340",
     "subnetworks": [
       "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-east1/subnetworks/gkenode"
     ],
@@ -192,10 +223,10 @@ gcloud compute networks subnets create gkenode --network=gkenetwork --range=10.0
     "stackType": "IPV4_ONLY"
   },
   {
-    "creationTimestamp": "2023-08-01T04:10:01.698-07:00",
-    "fingerprint": "7j1CK8BiEEo=",
+    "creationTimestamp": "2023-08-01T20:53:32.125-07:00",
+    "fingerprint": "shCkKMyjY68=",
     "gatewayAddress": "10.0.0.1",
-    "id": "4820830154112980710",
+    "id": "4283610396279205331",
     "ipCidrRange": "10.0.0.0/24",
     "kind": "compute#subnetwork",
     "name": "gkenode",
@@ -799,11 +830,11 @@ gcloud compute networks subnets create gkenode --network=gkenetwork --range=10.0
         "IPProtocol": "all"
       }
     ],
-    "creationTimestamp": "2023-08-01T04:10:20.802-07:00",
+    "creationTimestamp": "2023-08-01T20:53:51.821-07:00",
     "description": "",
     "direction": "INGRESS",
     "disabled": false,
-    "id": "6597635391206282995",
+    "id": "5139328315850780064",
     "kind": "compute#firewall",
     "logConfig": {
       "enable": false
@@ -873,11 +904,9 @@ gcloud container clusters create my-first-cluster-1  	--no-enable-basic-auth 	--
 ```
 - check the result
 
-`kubectl get node -o wide`
+```kubectl get node -o wide```
 ```
-NAME                                                STATUS   ROLES    AGE   VERSION            INTERNAL-IP   EXTERNAL-IP      OS-IMAGE             KERNEL-VERSION    CONTAINER-RUNTIME
-gke-my-first-cluster-1-default-pool-9dde0662-5880   Ready    <none>   38s   v1.26.5-gke.1400   10.0.0.4      35.189.170.110   Ubuntu 22.04.2 LTS   5.15.0-1033-gke   containerd://1.6.18
-gke-my-first-cluster-1-default-pool-9dde0662-m4b0   Ready    <none>   39s   v1.26.5-gke.1400   10.0.0.3      34.81.140.4      Ubuntu 22.04.2 LTS   5.15.0-1033-gke   containerd://1.6.18
+
 ```
 
 
