@@ -597,7 +597,7 @@ metadata:
 
 We will create net-attach-def with mac-vlan CNI ,multus CNI will use this net-attach-def to create  network and attach POD to the network.
 We use host-local as IPAM CNI. this net-attach-def is for cfos to attach. 
-the cni config of macvlan use bridge mode and associated with    interface on worker node. if the master interface on worker node is other than . you need change that to match the actual one on the host node 
+the cni config of macvlan use bridge mode and associated with ens4   interface on worker node. if the master interface on worker node is other than ens4. you need change that to match the actual one on the host node 
 you can ssh into worker node to check master interface name. 
 the net-attach-def has name cfosdefaultcni5
 - paste below command to create net-attach-def
