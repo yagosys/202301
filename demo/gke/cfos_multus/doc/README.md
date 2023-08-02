@@ -1381,46 +1381,46 @@ default via 10.140.0.1 dev eth0
 
 
 
-- apply cfos license 
+- create cfos licenset
 
 
-if license have not applied yet. you can create and apply icense for cfos here. the license is in configmap format
-- generate docker pull secret
-
-```
-(cfos-384323)$ docker login
-Authenticating with existing credentials...
-Login Succeeded
-
-(cfos-384323)$ ./generatedockersecret.sh $HOME/.docker/config.json
-dockerpullsecret.yaml created
-```
-
-- generate cFOS license secret 
-```
-(cfos-384323)$ ./generatecfoslicensefromvmlicense.sh FGVMULTM23000010.lic
-cfos_license.yaml created
-
-- paste below command to create cfos license and cfos image pull secret 
+here we create cfos license with fortigate VM license and generate configmap for cfos to fetch license
+- paste below command to create and apply license 
 
 ```
-file="$HOME/license/dockerpullsecret.yaml"
-[ -e $file ] && kubectl create -f $file || echo "$file  does not exist"
-file="$HOME/license/fos_license.yaml"
+[[ -z $cfos_license_input_file ]] && cfos_license_input_file="FGVMULTM23000044.lic"
+[[ -f $cfos_license_input_file ]] ||  echo $cfos_license_input_file does not exist
+mkdir -p $HOME/license
+file="$HOME/license/cfos_license.yaml"
+licensestring=$(sed '1d;$d' $cfos_license_input_file | tr -d '\n')
+cat <<EOF >$file
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: fos-license
+    labels:
+        app: fos
+        category: license
+data:
+    license: |
+     -----BEGIN FGT VM LICENSE-----
+     $licensestring
+     -----END FGT VM LICENSE-----
+     
+EOF
+
+#file="$HOME/license/dockerpullsecret.yaml"
+#[ -e $file ] && kubectl create -f $file || echo "$file  does not exist"
+file="$HOME/license/cfos_license.yaml"
 [ -e $file ] && kubectl create -f $file || echo "$file  does not exist"
 
 ```
 - check the result
 
-`kubectl get cm fos-license`
+`kubectl  get cm fos-license`
 ```
 NAME          DATA   AGE
-fos-license   1      3m16s
-```
-`kubectl get secret`
-```
-NAME               TYPE                             DATA   AGE
-dockerinterbeing   kubernetes.io/dockerconfigjson   1      3m16s
+fos-license   1      7m15s
 ```
 
 
@@ -1576,7 +1576,7 @@ spec:
     spec:
       containers:
       - name: fos
-        image: interbeing/fos:v7231x86
+        image: gcr.io/cfos-384323/cfos:v7231x86
         #image: 732600308177.dkr.ecr.ap-east-1.amazonaws.com/fos:v7231x86
         imagePullPolicy: Always
         securityContext:
@@ -1613,8 +1613,8 @@ kubectl rollout status ds/fos-deployment && kubectl get pod -l app=fos
 ```
 daemon set "fos-deployment" successfully rolled out
 NAME                   READY   STATUS    RESTARTS   AGE
-fos-deployment-k24wq   1/1     Running   0          11s
-fos-deployment-zcfhr   1/1     Running   0          11s
+fos-deployment-2lx6q   1/1     Running   0          2m53s
+fos-deployment-cs8xb   1/1     Running   0          2m53s
 ```
 check routing table and ip address
 
@@ -1631,7 +1631,7 @@ default via 10.140.1.1 dev eth0
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
 2: eth0@if9: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether 62:04:59:12:36:a4 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    link/ether aa:ca:93:5a:8d:25 brd ff:ff:ff:ff:ff:ff link-netnsid 0
     inet 10.140.1.7/24 brd 10.140.1.255 scope global eth0
        valid_lft forever preferred_lft forever
 3: net1@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
@@ -1647,7 +1647,7 @@ default via 10.140.0.1 dev eth0
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
 2: eth0@if13: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether aa:51:bc:6d:03:c3 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    link/ether ba:62:2f:f6:e4:cb brd ff:ff:ff:ff:ff:ff link-netnsid 0
     inet 10.140.0.11/24 brd 10.140.0.255 scope global eth0
        valid_lft forever preferred_lft forever
 3: net1@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
@@ -1666,31 +1666,31 @@ System is starting...
 
 Firmware version is 7.2.0.0231
 Preparing environment...
-INFO: 2023/08/01 11:19:37 importing license...
-INFO: 2023/08/01 11:19:37 license is imported successfuly!
+INFO: 2023/08/01 22:49:38 importing license...
+INFO: 2023/08/01 22:49:38 license is imported successfuly!
 WARNING: System is running in restricted mode due to lack of valid license!
 Starting services...
 System is ready.
 
-2023-08-01_11:19:38.00465 ok: run: /run/fcn_service/certd: (pid 275) 1s, normally down
-2023-08-01_11:19:43.08419 INFO: 2023/08/01 11:19:43 received a new fos configmap
-2023-08-01_11:19:43.08429 INFO: 2023/08/01 11:19:43 configmap name: fos-license, labels: map[app:fos category:license]
-2023-08-01_11:19:43.08431 INFO: 2023/08/01 11:19:43 got a fos license
+2023-08-01_22:49:39.07459 ok: run: /run/fcn_service/certd: (pid 274) 1s, normally down
+2023-08-01_22:49:44.16281 INFO: 2023/08/01 22:49:44 received a new fos configmap
+2023-08-01_22:49:44.16300 INFO: 2023/08/01 22:49:44 configmap name: fos-license, labels: map[app:fos category:license]
+2023-08-01_22:49:44.16301 INFO: 2023/08/01 22:49:44 got a fos license
 
 System is starting...
 
 Firmware version is 7.2.0.0231
 Preparing environment...
-INFO: 2023/08/01 11:19:37 importing license...
-INFO: 2023/08/01 11:19:37 license is imported successfuly!
+INFO: 2023/08/01 22:49:38 importing license...
+INFO: 2023/08/01 22:49:38 license is imported successfuly!
 WARNING: System is running in restricted mode due to lack of valid license!
 Starting services...
 System is ready.
 
-2023-08-01_11:19:38.07205 ok: run: /run/fcn_service/certd: (pid 273) 1s, normally down
-2023-08-01_11:19:43.14212 INFO: 2023/08/01 11:19:43 received a new fos configmap
-2023-08-01_11:19:43.14213 INFO: 2023/08/01 11:19:43 configmap name: fos-license, labels: map[app:fos category:license]
-2023-08-01_11:19:43.14217 INFO: 2023/08/01 11:19:43 got a fos license
+2023-08-01_22:49:39.08364 ok: run: /run/fcn_service/certd: (pid 274) 1s, normally down
+2023-08-01_22:49:44.18192 INFO: 2023/08/01 22:49:44 received a new fos configmap
+2023-08-01_22:49:44.18194 INFO: 2023/08/01 22:49:44 configmap name: fos-license, labels: map[app:fos category:license]
+2023-08-01_22:49:44.18194 INFO: 2023/08/01 22:49:44 got a fos license
 ```
 
 
