@@ -75,7 +75,7 @@ gcr.io/cfos-384323/fos   7231      68ddf4677772   8 months ago   144MB
 
 create network for GKE VM instances.
 the *ipcidrRange* is the ip range for VM node. 
-the *firewallallowProtocol=* allow ssh into worker node from anywhere  to ** protocols
+the *firewallallowProtocol=all* allow ssh into worker node from anywhere  to *all* protocols
 - paste below command to create network, subnets and firewall-rules  
 ```
 gcloud compute networks create gkenetwork --subnet-mode custom --bgp-routing-mode  regional 
@@ -122,6 +122,38 @@ NETWORK: default
 DIRECTION: INGRESS
 PRIORITY: 1000
 ALLOW: all
+DENY: 
+DISABLED: False
+
+NAME: gke-my-first-cluster-1-1722d96f-all
+NETWORK: gkenetwork
+DIRECTION: INGRESS
+PRIORITY: 1000
+ALLOW: esp,ah,sctp,tcp,udp,icmp
+DENY: 
+DISABLED: False
+
+NAME: gke-my-first-cluster-1-1722d96f-exkubelet
+NETWORK: gkenetwork
+DIRECTION: INGRESS
+PRIORITY: 1000
+ALLOW: 
+DENY: tcp:10255
+DISABLED: False
+
+NAME: gke-my-first-cluster-1-1722d96f-inkubelet
+NETWORK: gkenetwork
+DIRECTION: INGRESS
+PRIORITY: 999
+ALLOW: tcp:10255
+DENY: 
+DISABLED: False
+
+NAME: gke-my-first-cluster-1-1722d96f-vms
+NETWORK: gkenetwork
+DIRECTION: INGRESS
+PRIORITY: 1000
+ALLOW: icmp,tcp:1-65535,udp:1-65535
 DENY: 
 DISABLED: False
 
