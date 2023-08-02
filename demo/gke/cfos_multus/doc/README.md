@@ -67,7 +67,7 @@ gcr.io/cfos-384323/fos   7231      68ddf4677772   8 months ago   144MB
 
 create network for GKE VM instances.
 the *ipcidrRange* is the ip range for VM node. 
-the *firewallallowProtocol=all* allow ssh into worker node from anywhere  to *all* protocols
+the *firewallallowProtocol=* allow ssh into worker node from anywhere  to ** protocols
 - paste below command to create network, subnets and firewall-rules  
 ```
 gcloud compute networks create gkenetwork --subnet-mode custom --bgp-routing-mode  regional 
@@ -76,778 +76,48 @@ gcloud compute firewall-rules create gkenetwork-allow-custom --network gkenetwor
 ```
 - check the result
 
-`gcloud compute networks list --format json`
+`gcloud compute networks list `
 ```
-[
-  {
-    "autoCreateSubnetworks": true,
-    "creationTimestamp": "2023-05-21T20:13:52.000-07:00",
-    "id": "2969526282620461824",
-    "kind": "compute#network",
-    "name": "default",
-    "networkFirewallPolicyEnforcementOrder": "AFTER_CLASSIC_FIREWALL",
-    "routingConfig": {
-      "routingMode": "REGIONAL"
-    },
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
-    "selfLinkWithId": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/2969526282620461824",
-    "subnetworks": [
-      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west6/subnetworks/default",
-      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-south1/subnetworks/default",
-      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-central1/subnetworks/default",
-      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-southeast2/subnetworks/default",
-      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-east7/subnetworks/default",
-      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/australia-southeast2/subnetworks/default",
-      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/southamerica-west1/subnetworks/default",
-      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-east4/subnetworks/default",
-      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west2/subnetworks/default",
-      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-south2/subnetworks/default",
-      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/me-west1/subnetworks/default",
-      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-northeast1/subnetworks/default",
-      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west12/subnetworks/default",
-      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-central2/subnetworks/default",
-      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/northamerica-northeast2/subnetworks/default",
-      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west4/subnetworks/default",
-      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-southwest1/subnetworks/default",
-      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-north1/subnetworks/default",
-      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/me-central1/subnetworks/default",
-      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/southamerica-east1/subnetworks/default",
-      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-west2/subnetworks/default",
-      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-east1/subnetworks/default",
-      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west8/subnetworks/default",
-      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-southeast1/subnetworks/default",
-      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-south1/subnetworks/default",
-      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-northeast2/subnetworks/default",
-      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-east5/subnetworks/default",
-      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west10/subnetworks/default",
-      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-east2/subnetworks/default",
-      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-west4/subnetworks/default",
-      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west3/subnetworks/default",
-      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west9/subnetworks/default",
-      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/australia-southeast1/subnetworks/default",
-      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-northeast3/subnetworks/default",
-      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-west1/subnetworks/default",
-      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/northamerica-northeast1/subnetworks/default",
-      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west1/subnetworks/default",
-      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-east1/subnetworks/default",
-      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-west3/subnetworks/default"
-    ],
-    "x_gcloud_bgp_routing_mode": "REGIONAL",
-    "x_gcloud_subnet_mode": "AUTO"
-  },
-  {
-    "autoCreateSubnetworks": false,
-    "creationTimestamp": "2023-08-01T22:27:51.528-07:00",
-    "id": "3432728077306976184",
-    "kind": "compute#network",
-    "name": "gkenetwork",
-    "networkFirewallPolicyEnforcementOrder": "AFTER_CLASSIC_FIREWALL",
-    "routingConfig": {
-      "routingMode": "REGIONAL"
-    },
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/gkenetwork",
-    "selfLinkWithId": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/3432728077306976184",
-    "subnetworks": [
-      "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-east1/subnetworks/gkenode"
-    ],
-    "x_gcloud_bgp_routing_mode": "REGIONAL",
-    "x_gcloud_subnet_mode": "CUSTOM"
-  }
-]
+NAME: default
+SUBNET_MODE: AUTO
+BGP_ROUTING_MODE: REGIONAL
+IPV4_RANGE: 
+GATEWAY_IPV4: 
+
+NAME: gkenetwork
+SUBNET_MODE: CUSTOM
+BGP_ROUTING_MODE: REGIONAL
+IPV4_RANGE: 
+GATEWAY_IPV4: 
 ```
-`gcloud compute networks subnets list --format json`
+`gcloud compute networks subnets list `
 ```
-[
-  {
-    "creationTimestamp": "2023-05-21T20:14:01.952-07:00",
-    "fingerprint": "DBvUAB5JpnM=",
-    "gatewayAddress": "10.128.0.1",
-    "id": "3653023482570564374",
-    "ipCidrRange": "10.128.0.0/20",
-    "kind": "compute#subnetwork",
-    "name": "default",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
-    "privateIpGoogleAccess": false,
-    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
-    "purpose": "PRIVATE",
-    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-central1",
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-central1/subnetworks/default",
-    "stackType": "IPV4_ONLY"
-  },
-  {
-    "creationTimestamp": "2023-05-21T20:14:02.104-07:00",
-    "fingerprint": "F8LwyqDEWfE=",
-    "gatewayAddress": "10.132.0.1",
-    "id": "5531467510110970645",
-    "ipCidrRange": "10.132.0.0/20",
-    "kind": "compute#subnetwork",
-    "name": "default",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
-    "privateIpGoogleAccess": false,
-    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
-    "purpose": "PRIVATE",
-    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west1",
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west1/subnetworks/default",
-    "stackType": "IPV4_ONLY"
-  },
-  {
-    "creationTimestamp": "2023-05-21T20:14:02.212-07:00",
-    "fingerprint": "kWhgapVphBg=",
-    "gatewayAddress": "10.138.0.1",
-    "id": "1354424154744906517",
-    "ipCidrRange": "10.138.0.0/20",
-    "kind": "compute#subnetwork",
-    "name": "default",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
-    "privateIpGoogleAccess": false,
-    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
-    "purpose": "PRIVATE",
-    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-west1",
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-west1/subnetworks/default",
-    "stackType": "IPV4_ONLY"
-  },
-  {
-    "creationTimestamp": "2023-05-21T20:14:03.597-07:00",
-    "fingerprint": "fw7EZ1Nthsc=",
-    "gatewayAddress": "10.140.0.1",
-    "id": "3452618813890585364",
-    "ipCidrRange": "10.140.0.0/20",
-    "kind": "compute#subnetwork",
-    "name": "default",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
-    "privateIpGoogleAccess": false,
-    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
-    "purpose": "PRIVATE",
-    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-east1",
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-east1/subnetworks/default",
-    "stackType": "IPV4_ONLY"
-  },
-  {
-    "creationTimestamp": "2023-08-01T22:28:04.970-07:00",
-    "fingerprint": "59HHPB1S8dw=",
-    "gatewayAddress": "10.0.0.1",
-    "id": "5608188137250772875",
-    "ipCidrRange": "10.0.0.0/24",
-    "kind": "compute#subnetwork",
-    "name": "gkenode",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/gkenetwork",
-    "privateIpGoogleAccess": false,
-    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
-    "purpose": "PRIVATE",
-    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-east1",
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-east1/subnetworks/gkenode",
-    "stackType": "IPV4_ONLY"
-  },
-  {
-    "creationTimestamp": "2023-05-21T20:14:02.243-07:00",
-    "fingerprint": "_5_z-gQgM5s=",
-    "gatewayAddress": "10.142.0.1",
-    "id": "8374742504377377557",
-    "ipCidrRange": "10.142.0.0/20",
-    "kind": "compute#subnetwork",
-    "name": "default",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
-    "privateIpGoogleAccess": false,
-    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
-    "purpose": "PRIVATE",
-    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-east1",
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-east1/subnetworks/default",
-    "stackType": "IPV4_ONLY"
-  },
-  {
-    "creationTimestamp": "2023-05-21T20:14:02.365-07:00",
-    "fingerprint": "UeUfquoHGn0=",
-    "gatewayAddress": "10.146.0.1",
-    "id": "8198574688336044821",
-    "ipCidrRange": "10.146.0.0/20",
-    "kind": "compute#subnetwork",
-    "name": "default",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
-    "privateIpGoogleAccess": false,
-    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
-    "purpose": "PRIVATE",
-    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-northeast1",
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-northeast1/subnetworks/default",
-    "stackType": "IPV4_ONLY"
-  },
-  {
-    "creationTimestamp": "2023-05-21T20:14:04.363-07:00",
-    "fingerprint": "KbUuUGtm4UI=",
-    "gatewayAddress": "10.148.0.1",
-    "id": "486222762403652371",
-    "ipCidrRange": "10.148.0.0/20",
-    "kind": "compute#subnetwork",
-    "name": "default",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
-    "privateIpGoogleAccess": false,
-    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
-    "purpose": "PRIVATE",
-    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-southeast1",
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-southeast1/subnetworks/default",
-    "stackType": "IPV4_ONLY"
-  },
-  {
-    "creationTimestamp": "2023-05-21T20:14:02.209-07:00",
-    "fingerprint": "09fY46MCKhE=",
-    "gatewayAddress": "10.150.0.1",
-    "id": "1923220159951495957",
-    "ipCidrRange": "10.150.0.0/20",
-    "kind": "compute#subnetwork",
-    "name": "default",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
-    "privateIpGoogleAccess": false,
-    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
-    "purpose": "PRIVATE",
-    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-east4",
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-east4/subnetworks/default",
-    "stackType": "IPV4_ONLY"
-  },
-  {
-    "creationTimestamp": "2023-05-21T20:14:04.729-07:00",
-    "fingerprint": "qxkbwZ9o4QQ=",
-    "gatewayAddress": "10.152.0.1",
-    "id": "1229029036895200019",
-    "ipCidrRange": "10.152.0.0/20",
-    "kind": "compute#subnetwork",
-    "name": "default",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
-    "privateIpGoogleAccess": false,
-    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
-    "purpose": "PRIVATE",
-    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/australia-southeast1",
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/australia-southeast1/subnetworks/default",
-    "stackType": "IPV4_ONLY"
-  },
-  {
-    "creationTimestamp": "2023-05-21T20:14:02.961-07:00",
-    "fingerprint": "tnb69KSqvzA=",
-    "gatewayAddress": "10.154.0.1",
-    "id": "5858556564218536725",
-    "ipCidrRange": "10.154.0.0/20",
-    "kind": "compute#subnetwork",
-    "name": "default",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
-    "privateIpGoogleAccess": false,
-    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
-    "purpose": "PRIVATE",
-    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west2",
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west2/subnetworks/default",
-    "stackType": "IPV4_ONLY"
-  },
-  {
-    "creationTimestamp": "2023-05-21T20:14:03.072-07:00",
-    "fingerprint": "EhpweTastXE=",
-    "gatewayAddress": "10.156.0.1",
-    "id": "2088568579712049940",
-    "ipCidrRange": "10.156.0.0/20",
-    "kind": "compute#subnetwork",
-    "name": "default",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
-    "privateIpGoogleAccess": false,
-    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
-    "purpose": "PRIVATE",
-    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west3",
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west3/subnetworks/default",
-    "stackType": "IPV4_ONLY"
-  },
-  {
-    "creationTimestamp": "2023-05-21T20:14:03.624-07:00",
-    "fingerprint": "Jt0-3NtDFf0=",
-    "gatewayAddress": "10.158.0.1",
-    "id": "8298213110649938708",
-    "ipCidrRange": "10.158.0.0/20",
-    "kind": "compute#subnetwork",
-    "name": "default",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
-    "privateIpGoogleAccess": false,
-    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
-    "purpose": "PRIVATE",
-    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/southamerica-east1",
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/southamerica-east1/subnetworks/default",
-    "stackType": "IPV4_ONLY"
-  },
-  {
-    "creationTimestamp": "2023-05-21T20:14:04.143-07:00",
-    "fingerprint": "F3B6y9-blEA=",
-    "gatewayAddress": "10.160.0.1",
-    "id": "7483311257429697299",
-    "ipCidrRange": "10.160.0.0/20",
-    "kind": "compute#subnetwork",
-    "name": "default",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
-    "privateIpGoogleAccess": false,
-    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
-    "purpose": "PRIVATE",
-    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-south1",
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-south1/subnetworks/default",
-    "stackType": "IPV4_ONLY"
-  },
-  {
-    "creationTimestamp": "2023-05-21T20:14:02.413-07:00",
-    "fingerprint": "Ma5_jrNNt1w=",
-    "gatewayAddress": "10.162.0.1",
-    "id": "1381506058144932629",
-    "ipCidrRange": "10.162.0.0/20",
-    "kind": "compute#subnetwork",
-    "name": "default",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
-    "privateIpGoogleAccess": false,
-    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
-    "purpose": "PRIVATE",
-    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/northamerica-northeast1",
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/northamerica-northeast1/subnetworks/default",
-    "stackType": "IPV4_ONLY"
-  },
-  {
-    "creationTimestamp": "2023-05-21T20:14:03.097-07:00",
-    "fingerprint": "dSI9jbHxgb8=",
-    "gatewayAddress": "10.164.0.1",
-    "id": "8425078284135916308",
-    "ipCidrRange": "10.164.0.0/20",
-    "kind": "compute#subnetwork",
-    "name": "default",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
-    "privateIpGoogleAccess": false,
-    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
-    "purpose": "PRIVATE",
-    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west4",
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west4/subnetworks/default",
-    "stackType": "IPV4_ONLY"
-  },
-  {
-    "creationTimestamp": "2023-05-21T20:14:03.348-07:00",
-    "fingerprint": "0_hzXv23VBE=",
-    "gatewayAddress": "10.166.0.1",
-    "id": "4657576810815906580",
-    "ipCidrRange": "10.166.0.0/20",
-    "kind": "compute#subnetwork",
-    "name": "default",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
-    "privateIpGoogleAccess": false,
-    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
-    "purpose": "PRIVATE",
-    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-north1",
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-north1/subnetworks/default",
-    "stackType": "IPV4_ONLY"
-  },
-  {
-    "creationTimestamp": "2023-05-21T20:14:02.913-07:00",
-    "fingerprint": "JWvyvc7cynI=",
-    "gatewayAddress": "10.168.0.1",
-    "id": "7449269969411859221",
-    "ipCidrRange": "10.168.0.0/20",
-    "kind": "compute#subnetwork",
-    "name": "default",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
-    "privateIpGoogleAccess": false,
-    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
-    "purpose": "PRIVATE",
-    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-west2",
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-west2/subnetworks/default",
-    "stackType": "IPV4_ONLY"
-  },
-  {
-    "creationTimestamp": "2023-05-21T20:14:03.733-07:00",
-    "fingerprint": "yc-ha1-gLyg=",
-    "gatewayAddress": "10.170.0.1",
-    "id": "7361961479081779988",
-    "ipCidrRange": "10.170.0.0/20",
-    "kind": "compute#subnetwork",
-    "name": "default",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
-    "privateIpGoogleAccess": false,
-    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
-    "purpose": "PRIVATE",
-    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-east2",
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-east2/subnetworks/default",
-    "stackType": "IPV4_ONLY"
-  },
-  {
-    "creationTimestamp": "2023-05-21T20:14:03.172-07:00",
-    "fingerprint": "_GiHXAagrGE=",
-    "gatewayAddress": "10.172.0.1",
-    "id": "6540204067783140116",
-    "ipCidrRange": "10.172.0.0/20",
-    "kind": "compute#subnetwork",
-    "name": "default",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
-    "privateIpGoogleAccess": false,
-    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
-    "purpose": "PRIVATE",
-    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west6",
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west6/subnetworks/default",
-    "stackType": "IPV4_ONLY"
-  },
-  {
-    "creationTimestamp": "2023-05-21T20:14:03.559-07:00",
-    "fingerprint": "6wkfI5Ku9eM=",
-    "gatewayAddress": "10.174.0.1",
-    "id": "72994733265740564",
-    "ipCidrRange": "10.174.0.0/20",
-    "kind": "compute#subnetwork",
-    "name": "default",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
-    "privateIpGoogleAccess": false,
-    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
-    "purpose": "PRIVATE",
-    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-northeast2",
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-northeast2/subnetworks/default",
-    "stackType": "IPV4_ONLY"
-  },
-  {
-    "creationTimestamp": "2023-05-21T20:14:03.207-07:00",
-    "fingerprint": "F3-Is16syts=",
-    "gatewayAddress": "10.178.0.1",
-    "id": "816096634651239188",
-    "ipCidrRange": "10.178.0.0/20",
-    "kind": "compute#subnetwork",
-    "name": "default",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
-    "privateIpGoogleAccess": false,
-    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
-    "purpose": "PRIVATE",
-    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-northeast3",
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-northeast3/subnetworks/default",
-    "stackType": "IPV4_ONLY"
-  },
-  {
-    "creationTimestamp": "2023-05-21T20:14:02.253-07:00",
-    "fingerprint": "EauVXNI1Fmw=",
-    "gatewayAddress": "10.180.0.1",
-    "id": "7203855658377503509",
-    "ipCidrRange": "10.180.0.0/20",
-    "kind": "compute#subnetwork",
-    "name": "default",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
-    "privateIpGoogleAccess": false,
-    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
-    "purpose": "PRIVATE",
-    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-west3",
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-west3/subnetworks/default",
-    "stackType": "IPV4_ONLY"
-  },
-  {
-    "creationTimestamp": "2023-05-21T20:14:02.740-07:00",
-    "fingerprint": "pe_8H5OxcOs=",
-    "gatewayAddress": "10.182.0.1",
-    "id": "9137734403605619477",
-    "ipCidrRange": "10.182.0.0/20",
-    "kind": "compute#subnetwork",
-    "name": "default",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
-    "privateIpGoogleAccess": false,
-    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
-    "purpose": "PRIVATE",
-    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-west4",
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-west4/subnetworks/default",
-    "stackType": "IPV4_ONLY"
-  },
-  {
-    "creationTimestamp": "2023-05-21T20:14:03.854-07:00",
-    "fingerprint": "3ReVp6pLIaM=",
-    "gatewayAddress": "10.184.0.1",
-    "id": "4110360190183236372",
-    "ipCidrRange": "10.184.0.0/20",
-    "kind": "compute#subnetwork",
-    "name": "default",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
-    "privateIpGoogleAccess": false,
-    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
-    "purpose": "PRIVATE",
-    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-southeast2",
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-southeast2/subnetworks/default",
-    "stackType": "IPV4_ONLY"
-  },
-  {
-    "creationTimestamp": "2023-05-21T20:14:02.220-07:00",
-    "fingerprint": "TH_TKIw-bhs=",
-    "gatewayAddress": "10.186.0.1",
-    "id": "8958960105056330517",
-    "ipCidrRange": "10.186.0.0/20",
-    "kind": "compute#subnetwork",
-    "name": "default",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
-    "privateIpGoogleAccess": false,
-    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
-    "purpose": "PRIVATE",
-    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-central2",
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-central2/subnetworks/default",
-    "stackType": "IPV4_ONLY"
-  },
-  {
-    "creationTimestamp": "2023-05-21T20:14:02.319-07:00",
-    "fingerprint": "ok2oL2vbTE8=",
-    "gatewayAddress": "10.188.0.1",
-    "id": "7958282353435435797",
-    "ipCidrRange": "10.188.0.0/20",
-    "kind": "compute#subnetwork",
-    "name": "default",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
-    "privateIpGoogleAccess": false,
-    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
-    "purpose": "PRIVATE",
-    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/northamerica-northeast2",
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/northamerica-northeast2/subnetworks/default",
-    "stackType": "IPV4_ONLY"
-  },
-  {
-    "creationTimestamp": "2023-05-21T20:14:05.031-07:00",
-    "fingerprint": "QtGIc7qImbU=",
-    "gatewayAddress": "10.190.0.1",
-    "id": "8361679060698882834",
-    "ipCidrRange": "10.190.0.0/20",
-    "kind": "compute#subnetwork",
-    "name": "default",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
-    "privateIpGoogleAccess": false,
-    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
-    "purpose": "PRIVATE",
-    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-south2",
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/asia-south2/subnetworks/default",
-    "stackType": "IPV4_ONLY"
-  },
-  {
-    "creationTimestamp": "2023-05-21T20:14:04.229-07:00",
-    "fingerprint": "pEq5WGnsWV8=",
-    "gatewayAddress": "10.192.0.1",
-    "id": "2954054461800538899",
-    "ipCidrRange": "10.192.0.0/20",
-    "kind": "compute#subnetwork",
-    "name": "default",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
-    "privateIpGoogleAccess": false,
-    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
-    "purpose": "PRIVATE",
-    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/australia-southeast2",
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/australia-southeast2/subnetworks/default",
-    "stackType": "IPV4_ONLY"
-  },
-  {
-    "creationTimestamp": "2023-05-21T20:14:03.814-07:00",
-    "fingerprint": "wqr-2daA42U=",
-    "gatewayAddress": "10.194.0.1",
-    "id": "1706741906878718740",
-    "ipCidrRange": "10.194.0.0/20",
-    "kind": "compute#subnetwork",
-    "name": "default",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
-    "privateIpGoogleAccess": false,
-    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
-    "purpose": "PRIVATE",
-    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/southamerica-west1",
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/southamerica-west1/subnetworks/default",
-    "stackType": "IPV4_ONLY"
-  },
-  {
-    "creationTimestamp": "2023-05-22T11:32:08.804-07:00",
-    "fingerprint": "X6rdudQq5eM=",
-    "gatewayAddress": "10.196.0.1",
-    "id": "3894697366716287943",
-    "ipCidrRange": "10.196.0.0/20",
-    "kind": "compute#subnetwork",
-    "name": "default",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
-    "privateIpGoogleAccess": false,
-    "purpose": "PRIVATE",
-    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-east7",
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-east7/subnetworks/default",
-    "stackType": "IPV4_ONLY"
-  },
-  {
-    "creationTimestamp": "2023-05-21T20:14:02.783-07:00",
-    "fingerprint": "AFipPZLhx4o=",
-    "gatewayAddress": "10.198.0.1",
-    "id": "1608699481527116565",
-    "ipCidrRange": "10.198.0.0/20",
-    "kind": "compute#subnetwork",
-    "name": "default",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
-    "privateIpGoogleAccess": false,
-    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
-    "purpose": "PRIVATE",
-    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west8",
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west8/subnetworks/default",
-    "stackType": "IPV4_ONLY"
-  },
-  {
-    "creationTimestamp": "2023-05-21T20:14:02.179-07:00",
-    "fingerprint": "tX8SHj2p22g=",
-    "gatewayAddress": "10.200.0.1",
-    "id": "7078781632282845973",
-    "ipCidrRange": "10.200.0.0/20",
-    "kind": "compute#subnetwork",
-    "name": "default",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
-    "privateIpGoogleAccess": false,
-    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
-    "purpose": "PRIVATE",
-    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west9",
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west9/subnetworks/default",
-    "stackType": "IPV4_ONLY"
-  },
-  {
-    "creationTimestamp": "2023-05-21T20:14:02.281-07:00",
-    "fingerprint": "IZ-gDdKtV7w=",
-    "gatewayAddress": "10.202.0.1",
-    "id": "993042883450200853",
-    "ipCidrRange": "10.202.0.0/20",
-    "kind": "compute#subnetwork",
-    "name": "default",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
-    "privateIpGoogleAccess": false,
-    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
-    "purpose": "PRIVATE",
-    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-east5",
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-east5/subnetworks/default",
-    "stackType": "IPV4_ONLY"
-  },
-  {
-    "creationTimestamp": "2023-05-21T20:14:02.679-07:00",
-    "fingerprint": "ar-Zcgn0ejQ=",
-    "gatewayAddress": "10.204.0.1",
-    "id": "8581268502181536533",
-    "ipCidrRange": "10.204.0.0/20",
-    "kind": "compute#subnetwork",
-    "name": "default",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
-    "privateIpGoogleAccess": false,
-    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
-    "purpose": "PRIVATE",
-    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-southwest1",
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-southwest1/subnetworks/default",
-    "stackType": "IPV4_ONLY"
-  },
-  {
-    "creationTimestamp": "2023-05-21T20:14:02.102-07:00",
-    "fingerprint": "ZuIhWEGo_1o=",
-    "gatewayAddress": "10.206.0.1",
-    "id": "5893132846247666453",
-    "ipCidrRange": "10.206.0.0/20",
-    "kind": "compute#subnetwork",
-    "name": "default",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
-    "privateIpGoogleAccess": false,
-    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
-    "purpose": "PRIVATE",
-    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-south1",
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/us-south1/subnetworks/default",
-    "stackType": "IPV4_ONLY"
-  },
-  {
-    "creationTimestamp": "2023-05-21T20:14:03.032-07:00",
-    "fingerprint": "eb-zD2AdsG4=",
-    "gatewayAddress": "10.208.0.1",
-    "id": "4719216308842357524",
-    "ipCidrRange": "10.208.0.0/20",
-    "kind": "compute#subnetwork",
-    "name": "default",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
-    "privateIpGoogleAccess": false,
-    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
-    "purpose": "PRIVATE",
-    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/me-west1",
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/me-west1/subnetworks/default",
-    "stackType": "IPV4_ONLY"
-  },
-  {
-    "creationTimestamp": "2023-05-21T20:14:02.790-07:00",
-    "fingerprint": "eibcnlYr0fU=",
-    "gatewayAddress": "10.210.0.1",
-    "id": "2489464168605246229",
-    "ipCidrRange": "10.210.0.0/20",
-    "kind": "compute#subnetwork",
-    "name": "default",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
-    "privateIpGoogleAccess": false,
-    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
-    "purpose": "PRIVATE",
-    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west12",
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west12/subnetworks/default",
-    "stackType": "IPV4_ONLY"
-  },
-  {
-    "creationTimestamp": "2023-05-21T20:14:03.574-07:00",
-    "fingerprint": "rATX5jeFgV8=",
-    "gatewayAddress": "10.212.0.1",
-    "id": "2906688982639665940",
-    "ipCidrRange": "10.212.0.0/20",
-    "kind": "compute#subnetwork",
-    "name": "default",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
-    "privateIpGoogleAccess": false,
-    "privateIpv6GoogleAccess": "DISABLE_GOOGLE_ACCESS",
-    "purpose": "PRIVATE",
-    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/me-central1",
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/me-central1/subnetworks/default",
-    "stackType": "IPV4_ONLY"
-  },
-  {
-    "creationTimestamp": "2023-07-01T16:18:47.044-07:00",
-    "fingerprint": "YmZ42G6z3Pc=",
-    "gatewayAddress": "10.214.0.1",
-    "id": "5634814039672294072",
-    "ipCidrRange": "10.214.0.0/20",
-    "kind": "compute#subnetwork",
-    "name": "default",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
-    "privateIpGoogleAccess": false,
-    "purpose": "PRIVATE",
-    "region": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west10",
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/regions/europe-west10/subnetworks/default",
-    "stackType": "IPV4_ONLY"
-  }
-]
+NAME: gkenode
+REGION: asia-east1
+NETWORK: gkenetwork
+RANGE: 10.0.0.0/24
+STACK_TYPE: IPV4_ONLY
+IPV6_ACCESS_TYPE: 
+INTERNAL_IPV6_PREFIX: 
+EXTERNAL_IPV6_PREFIX: 
 ```
-`gcloud compute firewall-rules list --format json`
+`gcloud compute firewall-rules list `
 ```
-[
-  {
-    "allowed": [
-      {
-        "IPProtocol": "all"
-      }
-    ],
-    "creationTimestamp": "2023-05-21T20:15:39.366-07:00",
-    "description": "",
-    "direction": "INGRESS",
-    "disabled": false,
-    "id": "5858433534880342196",
-    "kind": "compute#firewall",
-    "logConfig": {
-      "enable": false
-    },
-    "name": "defaultall",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/default",
-    "priority": 1000,
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/firewalls/defaultall",
-    "sourceRanges": [
-      "0.0.0.0/0"
-    ]
-  },
-  {
-    "allowed": [
-      {
-        "IPProtocol": "all"
-      }
-    ],
-    "creationTimestamp": "2023-08-01T22:28:23.821-07:00",
-    "description": "",
-    "direction": "INGRESS",
-    "disabled": false,
-    "id": "6367929502150186904",
-    "kind": "compute#firewall",
-    "logConfig": {
-      "enable": false
-    },
-    "name": "gkenetwork-allow-custom",
-    "network": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/networks/gkenetwork",
-    "priority": 100,
-    "selfLink": "https://www.googleapis.com/compute/v1/projects/cfos-384323/global/firewalls/gkenetwork-allow-custom",
-    "sourceRanges": [
-      "0.0.0.0/0"
-    ]
-  }
-]
+NAME: defaultall
+NETWORK: default
+DIRECTION: INGRESS
+PRIORITY: 1000
+ALLOW: all
+DENY: 
+DISABLED: False
+
+NAME: gkenetwork-allow-custom
+NETWORK: gkenetwork
+DIRECTION: INGRESS
+PRIORITY: 100
+ALLOW: all
+DENY: 
+DISABLED: False
 ```
 
 
@@ -868,15 +138,15 @@ projectName=$(gcloud config list --format="value(core.project)")
 region=$(gcloud config get compute/region)
 
 gcloud services enable container.googleapis.com  && 
-gcloud container clusters create my-first-cluster-1  	--no-enable-basic-auth 	--cluster-version 1.26.5-gke.1400 	--release-channel "stable" 	--machine-type e2-standard-2 	--image-type "UBUNTU_CONTAINERD" 	--disk-type "pd-balanced" 	--disk-size "32" 	--metadata disable-legacy-endpoints=true 	--scopes "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" 	--max-pods-per-node "110" 	--num-nodes 2 	--enable-ip-alias 	--network "projects//global/networks/gkenetwork" 	--subnetwork "projects//regions//subnetworks/gkenode"        	--no-enable-intra-node-visibility 	--default-max-pods-per-node "110" 	--no-enable-master-authorized-networks 	--addons HorizontalPodAutoscaling,HttpLoadBalancing,GcePersistentDiskCsiDriver 	--enable-autoupgrade 	--enable-autorepair        	--max-surge-upgrade 1 	--max-unavailable-upgrade 0 	--enable-shielded-nodes 	--services-ipv4-cidr 10.144.0.0/20         --cluster-ipv4-cidr  10.140.0.0/14
+gcloud container clusters create my-first-cluster-1  	--no-enable-basic-auth 	--cluster-version 1.26.5-gke.1400 	--release-channel "stable" 	--machine-type e2-standard-2 	--image-type "UBUNTU_CONTAINERD" 	--disk-type "pd-balanced" 	--disk-size "32" 	--metadata disable-legacy-endpoints=true 	--scopes "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" 	--max-pods-per-node "110" 	--num-nodes 2 	--enable-ip-alias 	--network "projects//global/networks/gkenetwork" 	--subnetwork "projects//regions/asia-east1/subnetworks/gkenode"        	--no-enable-intra-node-visibility 	--default-max-pods-per-node "110" 	--no-enable-master-authorized-networks 	--addons HorizontalPodAutoscaling,HttpLoadBalancing,GcePersistentDiskCsiDriver 	--enable-autoupgrade 	--enable-autorepair        	--max-surge-upgrade 1 	--max-unavailable-upgrade 0 	--enable-shielded-nodes 	--services-ipv4-cidr 10.144.0.0/20         --cluster-ipv4-cidr  10.140.0.0/14
 ```
 - check the result
 
 ```kubectl get node -o wide```
 ```
 NAME                                                STATUS   ROLES    AGE   VERSION            INTERNAL-IP   EXTERNAL-IP      OS-IMAGE             KERNEL-VERSION    CONTAINER-RUNTIME
-gke-my-first-cluster-1-default-pool-ff147692-d2bb   Ready    <none>   32s   v1.26.5-gke.1400   10.0.0.3      34.81.167.133    Ubuntu 22.04.2 LTS   5.15.0-1033-gke   containerd://1.6.18
-gke-my-first-cluster-1-default-pool-ff147692-t2kd   Ready    <none>   42s   v1.26.5-gke.1400   10.0.0.4      35.236.166.204   Ubuntu 22.04.2 LTS   5.15.0-1033-gke   containerd://1.6.18
+gke-my-first-cluster-1-default-pool-db48e700-j93d   Ready    <none>   34s   v1.26.5-gke.1400   10.0.0.3      35.236.166.204   Ubuntu 22.04.2 LTS   5.15.0-1033-gke   containerd://1.6.18
+gke-my-first-cluster-1-default-pool-db48e700-v84r   Ready    <none>   32s   v1.26.5-gke.1400   10.0.0.4      34.81.167.133    Ubuntu 22.04.2 LTS   5.15.0-1033-gke   containerd://1.6.18
 ```
 
 
@@ -1181,8 +451,8 @@ kubectl rollout status ds/kube-multus-ds -n kube-system
  you shall see output 
 ```
 daemon set "kube-multus-ds" successfully rolled out
-2023-08-02T05:37:03+00:00 Generating Multus configuration file using files in /host/etc/cni/net.d...
-2023-08-02T05:37:03+00:00 Using MASTER_PLUGIN: 10-containerd-net.conflist
+2023-08-02T07:21:53+00:00 Generating Multus configuration file using files in /host/etc/cni/net.d...
+2023-08-02T07:21:53+00:00 Using MASTER_PLUGIN: 10-containerd-net.conflist
 ```
 
 
@@ -1231,12 +501,12 @@ items:
 - apiVersion: k8s.cni.cncf.io/v1
   kind: NetworkAttachmentDefinition
   metadata:
-    creationTimestamp: "2023-08-02T05:37:06Z"
+    creationTimestamp: "2023-08-02T07:21:56Z"
     generation: 1
     name: cfosdefaultcni5
     namespace: default
-    resourceVersion: "2333"
-    uid: 05af6690-6ab8-4aad-aa53-bab1702b33b1
+    resourceVersion: "2285"
+    uid: 2851ceac-2808-49e7-9b97-cd6b6c4ee3df
   spec:
     config: '{ "cniVersion": "0.3.1", "type": "macvlan", "master": "ens4", "mode":
       "bridge", "ipam": { "type": "host-local", "subnet": "10.1.200.0/24", "rangeStart":
@@ -1300,12 +570,12 @@ items:
 - apiVersion: k8s.cni.cncf.io/v1
   kind: NetworkAttachmentDefinition
   metadata:
-    creationTimestamp: "2023-08-02T05:37:07Z"
+    creationTimestamp: "2023-08-02T07:21:56Z"
     generation: 1
     name: cfosapp
     namespace: default
-    resourceVersion: "2338"
-    uid: 997b8972-15ee-4983-b856-a8d91e531b7b
+    resourceVersion: "2291"
+    uid: e9eb484c-662c-4b71-8f0a-cf6e170b2264
   spec:
     config: |-
       { "cniVersion": "0.3.1", "type": "macvlan", "master": "ens4", "mode": "bridge", "ipam": { "type": "host-local", "subnet": "10.1.200.0/24", "routes": [
@@ -1313,12 +583,12 @@ items:
 - apiVersion: k8s.cni.cncf.io/v1
   kind: NetworkAttachmentDefinition
   metadata:
-    creationTimestamp: "2023-08-02T05:37:06Z"
+    creationTimestamp: "2023-08-02T07:21:56Z"
     generation: 1
     name: cfosdefaultcni5
     namespace: default
-    resourceVersion: "2333"
-    uid: 05af6690-6ab8-4aad-aa53-bab1702b33b1
+    resourceVersion: "2285"
+    uid: 2851ceac-2808-49e7-9b97-cd6b6c4ee3df
   spec:
     config: '{ "cniVersion": "0.3.1", "type": "macvlan", "master": "ens4", "mode":
       "bridge", "ipam": { "type": "host-local", "subnet": "10.1.200.0/24", "rangeStart":
@@ -1384,10 +654,10 @@ deployment "multitool01-deployment" successfully rolled out
 `kubectl get pod -l app=multitool01`
 ```
 NAME                                      READY   STATUS    RESTARTS   AGE
-multitool01-deployment-7f5bf4b7cd-drvqw   1/1     Running   0          7s
-multitool01-deployment-7f5bf4b7cd-gbsjm   1/1     Running   0          7s
-multitool01-deployment-7f5bf4b7cd-n5rcm   1/1     Running   0          7s
-multitool01-deployment-7f5bf4b7cd-rc8rd   1/1     Running   0          7s
+multitool01-deployment-7f5bf4b7cd-92xrw   1/1     Running   0          8s
+multitool01-deployment-7f5bf4b7cd-9pt8w   1/1     Running   0          8s
+multitool01-deployment-7f5bf4b7cd-l867l   1/1     Running   0          8s
+multitool01-deployment-7f5bf4b7cd-qmggq   1/1     Running   0          8s
 ```
 `
 nodeName=$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}') && for node in $nodeName; do podName=$(kubectl get pods -l app=multitool01 --field-selector spec.nodeName="$node" -o jsonpath='{.items[*].metadata.name}') ; kubectl exec -it po/$podName -- ip route && kubectl exec -t po/$podName -- ip address ; done
@@ -1395,31 +665,9 @@ nodeName=$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}') && for nod
 ```
 default via 10.140.0.1 dev eth0 
 1.1.1.1 via 10.1.200.252 dev net1 
-10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.21 
-10.140.0.0/24 via 10.140.0.1 dev eth0 src 10.140.0.6 
-10.140.0.1 dev eth0 scope link src 10.140.0.6 
-89.238.73.97 via 10.1.200.252 dev net1 
-104.17.0.0/16 via 10.1.200.252 dev net1 
-104.18.0.0/16 via 10.1.200.252 dev net1 
-104.21.42.126 via 10.1.200.252 dev net1 
-172.67.162.8 via 10.1.200.252 dev net1 
-1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
-    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-    inet 127.0.0.1/8 scope host lo
-       valid_lft forever preferred_lft forever
-2: eth0@if8: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether 46:31:d3:76:7d:93 brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet 10.140.0.6/24 brd 10.140.0.255 scope global eth0
-       valid_lft forever preferred_lft forever
-3: net1@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether 0a:ee:fd:81:39:9c brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet 10.1.200.21/24 brd 10.1.200.255 scope global net1
-       valid_lft forever preferred_lft forever
-default via 10.140.1.1 dev eth0 
-1.1.1.1 via 10.1.200.252 dev net1 
 10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.20 
-10.140.1.0/24 via 10.140.1.1 dev eth0 src 10.140.1.9 
-10.140.1.1 dev eth0 scope link src 10.140.1.9 
+10.140.0.0/24 via 10.140.0.1 dev eth0 src 10.140.0.9 
+10.140.0.1 dev eth0 scope link src 10.140.0.9 
 89.238.73.97 via 10.1.200.252 dev net1 
 104.17.0.0/16 via 10.1.200.252 dev net1 
 104.18.0.0/16 via 10.1.200.252 dev net1 
@@ -1430,12 +678,34 @@ default via 10.140.1.1 dev eth0
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
 2: eth0@if11: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether da:07:10:ae:b4:f9 brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet 10.140.1.9/24 brd 10.140.1.255 scope global eth0
+    link/ether fe:1f:68:75:79:3d brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.140.0.9/24 brd 10.140.0.255 scope global eth0
        valid_lft forever preferred_lft forever
 3: net1@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether c2:63:3f:43:96:c9 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    link/ether 7a:9d:17:c0:d5:73 brd ff:ff:ff:ff:ff:ff link-netnsid 0
     inet 10.1.200.20/24 brd 10.1.200.255 scope global net1
+       valid_lft forever preferred_lft forever
+default via 10.140.1.1 dev eth0 
+1.1.1.1 via 10.1.200.252 dev net1 
+10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.21 
+10.140.1.0/24 via 10.140.1.1 dev eth0 src 10.140.1.6 
+10.140.1.1 dev eth0 scope link src 10.140.1.6 
+89.238.73.97 via 10.1.200.252 dev net1 
+104.17.0.0/16 via 10.1.200.252 dev net1 
+104.18.0.0/16 via 10.1.200.252 dev net1 
+104.21.42.126 via 10.1.200.252 dev net1 
+172.67.162.8 via 10.1.200.252 dev net1 
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+2: eth0@if8: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
+    link/ether 72:6c:95:99:1a:8b brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.140.1.6/24 brd 10.140.1.255 scope global eth0
+       valid_lft forever preferred_lft forever
+3: net1@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
+    link/ether 7e:8a:9e:fe:13:0f brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.1.200.21/24 brd 10.1.200.255 scope global net1
        valid_lft forever preferred_lft forever
 ```
 
@@ -1565,11 +835,11 @@ read-configmaps   ClusterRole/configmap-reader   0s
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  creationTimestamp: "2023-08-02T05:37:17Z"
+  creationTimestamp: "2023-08-02T07:22:07Z"
   name: read-secrets
   namespace: default
-  resourceVersion: "2461"
-  uid: c680008c-476d-4538-9d17-05f2986235b4
+  resourceVersion: "2413"
+  uid: ef50700d-0b20-4f60-8c0d-17c18c4cbe81
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -1672,8 +942,8 @@ kubectl rollout status ds/fos-deployment && kubectl get pod -l app=fos
 ```
 daemon set "fos-deployment" successfully rolled out
 NAME                   READY   STATUS    RESTARTS   AGE
-fos-deployment-45tls   1/1     Running   0          10s
-fos-deployment-f6jmr   1/1     Running   0          10s
+fos-deployment-5w62c   1/1     Running   0          9s
+fos-deployment-6m44k   1/1     Running   0          9s
 ```
 check routing table and ip address
 
@@ -1683,15 +953,15 @@ nodeName=$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}') && for nod
 ```
 default via 10.140.0.1 dev eth0 
 10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.252 
-10.140.0.0/24 via 10.140.0.1 dev eth0 src 10.140.0.7 
-10.140.0.1 dev eth0 scope link src 10.140.0.7 
+10.140.0.0/24 via 10.140.0.1 dev eth0 src 10.140.0.11 
+10.140.0.1 dev eth0 scope link src 10.140.0.11 
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
-2: eth0@if9: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether 4e:bc:91:0b:05:b5 brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet 10.140.0.7/24 brd 10.140.0.255 scope global eth0
+2: eth0@if13: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
+    link/ether aa:2d:9f:39:e5:8c brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.140.0.11/24 brd 10.140.0.255 scope global eth0
        valid_lft forever preferred_lft forever
 3: net1@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
     link/ether ca:fe:c0:ff:00:02 brd ff:ff:ff:ff:ff:ff link-netnsid 0
@@ -1699,15 +969,15 @@ default via 10.140.0.1 dev eth0
        valid_lft forever preferred_lft forever
 default via 10.140.1.1 dev eth0 
 10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.252 
-10.140.1.0/24 via 10.140.1.1 dev eth0 src 10.140.1.11 
-10.140.1.1 dev eth0 scope link src 10.140.1.11 
+10.140.1.0/24 via 10.140.1.1 dev eth0 src 10.140.1.7 
+10.140.1.1 dev eth0 scope link src 10.140.1.7 
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
-2: eth0@if13: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether de:eb:ba:b8:43:23 brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet 10.140.1.11/24 brd 10.140.1.255 scope global eth0
+2: eth0@if9: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
+    link/ether 4a:89:69:dd:dd:25 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.140.1.7/24 brd 10.140.1.255 scope global eth0
        valid_lft forever preferred_lft forever
 3: net1@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
     link/ether ca:fe:c0:ff:00:02 brd ff:ff:ff:ff:ff:ff link-netnsid 0
@@ -1725,8 +995,8 @@ System is starting...
 
 Firmware version is 7.2.0.0231
 Preparing environment...
-INFO: 2023/08/02 05:37:28 importing license...
-INFO: 2023/08/02 05:37:28 license is imported successfuly!
+INFO: 2023/08/02 07:22:17 importing license...
+INFO: 2023/08/02 07:22:17 license is imported successfuly!
 WARNING: System is running in restricted mode due to lack of valid license!
 Starting services...
 
@@ -1734,8 +1004,8 @@ System is starting...
 
 Firmware version is 7.2.0.0231
 Preparing environment...
-INFO: 2023/08/02 05:37:28 importing license...
-INFO: 2023/08/02 05:37:28 license is imported successfuly!
+INFO: 2023/08/02 07:22:17 importing license...
+INFO: 2023/08/02 07:22:17 license is imported successfuly!
 WARNING: System is running in restricted mode due to lack of valid license!
 Starting services...
 ```
@@ -1811,14 +1081,14 @@ data:
   type: partial
 kind: ConfigMap
 metadata:
-  creationTimestamp: "2023-08-02T05:37:30Z"
+  creationTimestamp: "2023-08-02T07:22:20Z"
   labels:
     app: fos
     category: config
   name: foscfgfirewallpolicy
   namespace: default
-  resourceVersion: "2586"
-  uid: adb107f3-0644-4501-8052-df9cd7ec545f
+  resourceVersion: "2537"
+  uid: 7614fe75-6f09-40f8-a340-1e497ad43d29
 ```
 check cfos log for retrive config from configmap
 `
@@ -1830,22 +1100,22 @@ System is starting...
 
 Firmware version is 7.2.0.0231
 Preparing environment...
-INFO: 2023/08/02 05:37:28 importing license...
-INFO: 2023/08/02 05:37:28 license is imported successfuly!
+INFO: 2023/08/02 07:22:17 importing license...
+INFO: 2023/08/02 07:22:17 license is imported successfuly!
 WARNING: System is running in restricted mode due to lack of valid license!
 Starting services...
+System is ready.
+
+2023-08-02_07:22:18.74840 ok: run: /run/fcn_service/certd: (pid 273) 1s, normally down
 
 System is starting...
 
 Firmware version is 7.2.0.0231
 Preparing environment...
-INFO: 2023/08/02 05:37:28 importing license...
-INFO: 2023/08/02 05:37:28 license is imported successfuly!
+INFO: 2023/08/02 07:22:17 importing license...
+INFO: 2023/08/02 07:22:17 license is imported successfuly!
 WARNING: System is running in restricted mode due to lack of valid license!
 Starting services...
-System is ready.
-
-2023-08-02_05:37:29.13412 ok: run: /run/fcn_service/certd: (pid 276) 1s, normally down
 ```
 
 
@@ -1860,7 +1130,7 @@ when use configmap to apply firewallpolicy to cFOS, if it's the first time to co
 ```
 kubectl rollout status ds/fos-deployment && kubectl rollout restart ds/fos-deployment && kubectl rollout status ds/fos-deployment  
 podname=$(kubectl get pod -l app=fos  | grep Running | grep fos | cut -d " " -f 1) 
-echo   'check cfos iptables for snat entry' && kubectl exec -it po/ -- iptables -L -t nat --verbose | grep MASQ 
+echo   'check cfos iptables for snat entry' && kubectl exec -it po/$podname -- iptables -L -t nat --verbose | grep MASQ 
 echo "check whether application pod can reach "
 echo "check deployment multi"
 echo sleep 30
@@ -1887,9 +1157,9 @@ nodeName=$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}') && for nod
 ;  kubectl exec -it po/$podName -- iptables -L -t nat --verbose | grep MASQ ; done
 `
 ```
-fos-deployment-kfzhwn
+fos-deployment-hnql5n
    29  2416 MASQUERADE  all  --  any    eth0    anywhere             anywhere            
-fos-deployment-p2gvcn
+fos-deployment-kk49hn
    29  2416 MASQUERADE  all  --  any    eth0    anywhere             anywhere            
 ```
 check ping result
@@ -1898,34 +1168,34 @@ check ping result
 kubectl get pod | grep multi | grep -v termin  | awk '{print $1}'  | while read line; do echo pod $line; kubectl exec -t po/$line -- ping -c1 1.1.1.1 ; done
 `
 ```
-pod multitool01-deployment-7f5bf4b7cd-drvqw
+pod multitool01-deployment-7f5bf4b7cd-92xrw
 PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
-64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=4.46 ms
+64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=4.15 ms
 
 --- 1.1.1.1 ping statistics ---
 1 packets transmitted, 1 received, 0% packet loss, time 0ms
-rtt min/avg/max/mdev = 4.456/4.456/4.456/0.000 ms
-pod multitool01-deployment-7f5bf4b7cd-gbsjm
+rtt min/avg/max/mdev = 4.148/4.148/4.148/0.000 ms
+pod multitool01-deployment-7f5bf4b7cd-9pt8w
 PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
-64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=4.34 ms
+64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=4.88 ms
 
 --- 1.1.1.1 ping statistics ---
 1 packets transmitted, 1 received, 0% packet loss, time 0ms
-rtt min/avg/max/mdev = 4.338/4.338/4.338/0.000 ms
-pod multitool01-deployment-7f5bf4b7cd-n5rcm
+rtt min/avg/max/mdev = 4.881/4.881/4.881/0.000 ms
+pod multitool01-deployment-7f5bf4b7cd-l867l
 PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
-64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=4.94 ms
+64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=4.32 ms
 
 --- 1.1.1.1 ping statistics ---
 1 packets transmitted, 1 received, 0% packet loss, time 0ms
-rtt min/avg/max/mdev = 4.943/4.943/4.943/0.000 ms
-pod multitool01-deployment-7f5bf4b7cd-rc8rd
+rtt min/avg/max/mdev = 4.323/4.323/4.323/0.000 ms
+pod multitool01-deployment-7f5bf4b7cd-qmggq
 PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
-64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=5.43 ms
+64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=4.44 ms
 
 --- 1.1.1.1 ping statistics ---
 1 packets transmitted, 1 received, 0% packet loss, time 0ms
-rtt min/avg/max/mdev = 5.432/5.432/5.432/0.000 ms
+rtt min/avg/max/mdev = 4.442/4.442/4.442/0.000 ms
 ```
 
 
@@ -1953,10 +1223,10 @@ kubectl get pod | grep fos | awk '{print }'  | while read line; do kubectl exec 
 kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/ips.0 | grep 300  ; done
 `
 ```
-date=2023-08-02 time=05:39:24 eventtime=1690954764 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.21 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=6 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=59678 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=47185921 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
-date=2023-08-02 time=05:39:34 eventtime=1690954774 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.20 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=6 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=56166 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=47185922 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
-date=2023-08-02 time=05:39:19 eventtime=1690954759 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.20 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=6 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=56968 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=140509185 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
-date=2023-08-02 time=05:39:29 eventtime=1690954769 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.21 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=6 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=35522 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=140509186 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-08-02 time=07:24:14 eventtime=1690961054 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.20 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=7 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=34280 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=31457281 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-08-02 time=07:24:19 eventtime=1690961059 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.21 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=5 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=55164 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=31457282 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-08-02 time=07:24:09 eventtime=1690961049 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.21 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=5 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=43812 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=2097153 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-08-02 time=07:24:24 eventtime=1690961064 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.20 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=7 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=34964 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=2097154 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
 ```
 
 
@@ -1982,10 +1252,10 @@ kubectl get pod | grep fos | awk '{print }'  | while read line; do kubectl exec 
 kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/webf.0 | grep 300 ; done
 `
 ```
-date=2023-08-02 time=05:39:41 eventtime=1690954781 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=300 sessionid=8 srcip=10.1.200.21 srcport=47734 srcintf="net1" dstip=104.17.142.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
-date=2023-08-02 time=05:39:42 eventtime=1690954782 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=300 sessionid=8 srcip=10.1.200.20 srcport=38228 srcintf="net1" dstip=104.17.142.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
-date=2023-08-02 time=05:39:41 eventtime=1690954781 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=300 sessionid=8 srcip=10.1.200.20 srcport=50262 srcintf="net1" dstip=104.17.143.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
-date=2023-08-02 time=05:39:42 eventtime=1690954782 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=300 sessionid=10 srcip=10.1.200.21 srcport=55550 srcintf="net1" dstip=104.17.143.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-08-02 time=07:24:32 eventtime=1690961072 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=300 sessionid=9 srcip=10.1.200.20 srcport=55808 srcintf="net1" dstip=104.17.142.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-08-02 time=07:24:32 eventtime=1690961072 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=300 sessionid=7 srcip=10.1.200.21 srcport=58574 srcintf="net1" dstip=104.17.143.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-08-02 time=07:24:31 eventtime=1690961071 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=300 sessionid=7 srcip=10.1.200.21 srcport=57610 srcintf="net1" dstip=104.17.142.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-08-02 time=07:24:32 eventtime=1690961072 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=300 sessionid=9 srcip=10.1.200.20 srcport=44166 srcintf="net1" dstip=104.17.142.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
 ```
 
 
@@ -2013,25 +1283,25 @@ done
 kubectl get pod | grep multi | grep -v termin  | awk '{print $1}'  | while read line; do echo -e pod $line; kubectl exec -t po/$line -- ping -c1 1.1.1.1 ; done
 `
 ```
-pod multitool01-deployment-7f5bf4b7cd-drvqw
+pod multitool01-deployment-7f5bf4b7cd-92xrw
 PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
 
 --- 1.1.1.1 ping statistics ---
 1 packets transmitted, 0 received, 100% packet loss, time 0ms
 
-pod multitool01-deployment-7f5bf4b7cd-gbsjm
+pod multitool01-deployment-7f5bf4b7cd-9pt8w
 PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
 
 --- 1.1.1.1 ping statistics ---
 1 packets transmitted, 0 received, 100% packet loss, time 0ms
 
-pod multitool01-deployment-7f5bf4b7cd-n5rcm
+pod multitool01-deployment-7f5bf4b7cd-l867l
 PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
 
 --- 1.1.1.1 ping statistics ---
 1 packets transmitted, 0 received, 100% packet loss, time 0ms
 
-pod multitool01-deployment-7f5bf4b7cd-rc8rd
+pod multitool01-deployment-7f5bf4b7cd-qmggq
 PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
 
 --- 1.1.1.1 ping statistics ---
@@ -2148,7 +1418,7 @@ kubectl get pod policymanager && kubectl exec -it po/policymanager -- curl -X GE
 `
 ```
 NAME            READY   STATUS    RESTARTS   AGE
-policymanager   1/1     Running   0          12s
+policymanager   1/1     Running   0          11s
 {
   "status": "success",
   "http_status": 200,
@@ -2184,10 +1454,10 @@ kubectl get pod | grep fos | awk '{print }'  | while read line; do kubectl exec 
 kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/ips.0 | grep policyid=101 ; done
 `
 ```
-date=2023-08-02 time=05:41:01 eventtime=1690954861 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.21 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=3 action="dropped" proto=6 service="HTTPS" policyid=101 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=44022 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=47185923 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
-date=2023-08-02 time=05:41:07 eventtime=1690954867 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.20 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=3 action="dropped" proto=6 service="HTTPS" policyid=101 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=49952 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=47185924 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
-date=2023-08-02 time=05:40:56 eventtime=1690954856 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.20 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=3 action="dropped" proto=6 service="HTTPS" policyid=101 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=40948 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=140509187 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
-date=2023-08-02 time=05:41:02 eventtime=1690954862 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.21 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=2 action="dropped" proto=6 service="HTTPS" policyid=101 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=46478 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=140509188 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-08-02 time=07:25:52 eventtime=1690961152 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.20 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=2 action="dropped" proto=6 service="HTTPS" policyid=101 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=35696 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=31457283 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-08-02 time=07:25:57 eventtime=1690961157 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.21 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=4 action="dropped" proto=6 service="HTTPS" policyid=101 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=42666 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=31457284 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-08-02 time=07:25:47 eventtime=1690961147 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.21 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=3 action="dropped" proto=6 service="HTTPS" policyid=101 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=52902 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=2097155 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-08-02 time=07:26:02 eventtime=1690961162 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.20 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=2 action="dropped" proto=6 service="HTTPS" policyid=101 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=54266 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=2097156 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
 ```
 
 
@@ -2208,10 +1478,10 @@ kubectl get pod | grep fos | awk '{print }'  | while read line; do kubectl exec 
 kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/webf.0 | grep policyid=101  ; done
 `
 ```
-date=2023-08-02 time=05:41:13 eventtime=1690954873 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=5 srcip=10.1.200.21 srcport=54774 srcintf="net1" dstip=104.17.143.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
-date=2023-08-02 time=05:41:14 eventtime=1690954874 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=5 srcip=10.1.200.20 srcport=34786 srcintf="net1" dstip=104.17.143.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
-date=2023-08-02 time=05:41:13 eventtime=1690954873 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=4 srcip=10.1.200.20 srcport=38060 srcintf="net1" dstip=104.17.143.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
-date=2023-08-02 time=05:41:14 eventtime=1690954874 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=5 srcip=10.1.200.21 srcport=58086 srcintf="net1" dstip=104.17.142.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-08-02 time=07:26:09 eventtime=1690961169 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=4 srcip=10.1.200.20 srcport=40320 srcintf="net1" dstip=104.17.142.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-08-02 time=07:26:09 eventtime=1690961169 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=6 srcip=10.1.200.21 srcport=59580 srcintf="net1" dstip=104.17.142.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-08-02 time=07:26:09 eventtime=1690961169 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=5 srcip=10.1.200.21 srcport=57758 srcintf="net1" dstip=104.17.142.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-08-02 time=07:26:10 eventtime=1690961170 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=4 srcip=10.1.200.20 srcport=50126 srcintf="net1" dstip=104.17.142.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
 ```
 
 
@@ -2251,13 +1521,13 @@ done
 kubectl logs ds/kube-multus-ds -n kube-system
 `
 ```
-2023-08-02T05:42:10+00:00 Generating Multus configuration file using files in /host/etc/cni/net.d...
-2023-08-02T05:42:10+00:00 Using MASTER_PLUGIN: 10-containerd-net.conflist
-2023-08-02T05:42:11+00:00 Nested capabilities string: "capabilities": {"portMappings": true},
-2023-08-02T05:42:11+00:00 Using /host/etc/cni/net.d/10-containerd-net.conflist as a source to generate the Multus configuration
-2023-08-02T05:42:12+00:00 Config file created @ /host/etc/cni/net.d/00-multus.conf
+2023-08-02T07:27:03+00:00 Generating Multus configuration file using files in /host/etc/cni/net.d...
+2023-08-02T07:27:03+00:00 Using MASTER_PLUGIN: 10-containerd-net.conflist
+2023-08-02T07:27:05+00:00 Nested capabilities string: "capabilities": {"portMappings": true},
+2023-08-02T07:27:05+00:00 Using /host/etc/cni/net.d/10-containerd-net.conflist as a source to generate the Multus configuration
+2023-08-02T07:27:05+00:00 Config file created @ /host/etc/cni/net.d/00-multus.conf
 { "cniVersion": "0.3.1", "name": "multus-cni-network", "type": "multus", "capabilities": {"portMappings": true}, "kubeconfig": "/etc/cni/net.d/multus.d/multus.kubeconfig", "delegates": [ { "name": "k8s-pod-network", "cniVersion": "0.3.1", "plugins": [ { "type": "ptp", "mtu": 1460, "ipam": { "type": "host-local", "subnet": "10.140.1.0/24", "routes": [ { "dst": "0.0.0.0/0" } , {"dst": "10.144.0.0/20"}, {"dst": "10.140.0.0/14"} ] } }, { "type": "portmap", "capabilities": { "portMappings": true } } ] } ] }
-2023-08-02T05:42:12+00:00 Entering sleep (success)...
+2023-08-02T07:27:05+00:00 Entering sleep (success)...
 ```
 
 
@@ -2331,9 +1601,9 @@ nodeName=$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}') && for nod
 default via 10.1.200.252 dev net1 
 1.1.1.1 via 10.1.200.252 dev net1 
 10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.22 
-10.140.0.0/24 via 10.140.0.1 dev eth0 src 10.140.0.10 
+10.140.0.0/24 via 10.140.0.1 dev eth0 src 10.140.0.13 
 10.140.0.0/14 via 10.140.0.1 dev eth0 
-10.140.0.1 dev eth0 scope link src 10.140.0.10 
+10.140.0.1 dev eth0 scope link src 10.140.0.13 
 10.144.0.0/20 via 10.140.0.1 dev eth0 
 89.238.73.97 via 10.1.200.252 dev net1 
 104.17.0.0/16 via 10.1.200.252 dev net1 
@@ -2344,20 +1614,20 @@ default via 10.1.200.252 dev net1
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
-2: eth0@if12: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether 7e:80:04:75:e2:e5 brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet 10.140.0.10/24 brd 10.140.0.255 scope global eth0
+2: eth0@if15: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
+    link/ether b6:08:0f:b6:d3:d8 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.140.0.13/24 brd 10.140.0.255 scope global eth0
        valid_lft forever preferred_lft forever
 3: net1@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether 22:69:4d:90:c7:84 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    link/ether f2:93:5a:03:d7:89 brd ff:ff:ff:ff:ff:ff link-netnsid 0
     inet 10.1.200.22/24 brd 10.1.200.255 scope global net1
        valid_lft forever preferred_lft forever
 default via 10.1.200.252 dev net1 
 1.1.1.1 via 10.1.200.252 dev net1 
-10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.23 
+10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.22 
 10.140.0.0/14 via 10.140.1.1 dev eth0 
-10.140.1.0/24 via 10.140.1.1 dev eth0 src 10.140.1.14 
-10.140.1.1 dev eth0 scope link src 10.140.1.14 
+10.140.1.0/24 via 10.140.1.1 dev eth0 src 10.140.1.10 
+10.140.1.1 dev eth0 scope link src 10.140.1.10 
 10.144.0.0/20 via 10.140.1.1 dev eth0 
 89.238.73.97 via 10.1.200.252 dev net1 
 104.17.0.0/16 via 10.1.200.252 dev net1 
@@ -2368,13 +1638,13 @@ default via 10.1.200.252 dev net1
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
-2: eth0@if16: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether 6e:01:84:88:03:f9 brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet 10.140.1.14/24 brd 10.140.1.255 scope global eth0
+2: eth0@if12: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
+    link/ether 52:a2:46:c5:51:5b brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.140.1.10/24 brd 10.140.1.255 scope global eth0
        valid_lft forever preferred_lft forever
 3: net1@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether ee:a8:b7:ae:57:bc brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet 10.1.200.23/24 brd 10.1.200.255 scope global net1
+    link/ether d6:f9:52:3f:64:22 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.1.200.22/24 brd 10.1.200.255 scope global net1
        valid_lft forever preferred_lft forever
 ```
 
@@ -2396,14 +1666,14 @@ kubectl get pod | grep fos | awk '{print }'  | while read line; do kubectl exec 
 kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/webf.0 | grep policyid=101  ; done
 `
 ```
-date=2023-08-02 time=05:41:13 eventtime=1690954873 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=5 srcip=10.1.200.21 srcport=54774 srcintf="net1" dstip=104.17.143.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
-date=2023-08-02 time=05:41:14 eventtime=1690954874 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=5 srcip=10.1.200.20 srcport=34786 srcintf="net1" dstip=104.17.143.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
-date=2023-08-02 time=05:43:02 eventtime=1690954982 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=7 srcip=10.1.200.22 srcport=55972 srcintf="net1" dstip=104.18.25.243 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="xoso.com.vn" profile="default" action="blocked" reqtype="direct" url="https://xoso.com.vn/" sentbyte=106 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
-date=2023-08-02 time=05:43:02 eventtime=1690954982 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=7 srcip=10.1.200.23 srcport=37186 srcintf="net1" dstip=104.18.24.243 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="xoso.com.vn" profile="default" action="blocked" reqtype="direct" url="https://xoso.com.vn/" sentbyte=106 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
-date=2023-08-02 time=05:41:13 eventtime=1690954873 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=4 srcip=10.1.200.20 srcport=38060 srcintf="net1" dstip=104.17.143.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
-date=2023-08-02 time=05:41:14 eventtime=1690954874 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=5 srcip=10.1.200.21 srcport=58086 srcintf="net1" dstip=104.17.142.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
-date=2023-08-02 time=05:43:01 eventtime=1690954981 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=6 srcip=10.1.200.23 srcport=59336 srcintf="net1" dstip=104.18.24.243 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="xoso.com.vn" profile="default" action="blocked" reqtype="direct" url="https://xoso.com.vn/" sentbyte=106 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
-date=2023-08-02 time=05:43:03 eventtime=1690954983 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=8 srcip=10.1.200.22 srcport=36436 srcintf="net1" dstip=104.18.25.243 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="xoso.com.vn" profile="default" action="blocked" reqtype="direct" url="https://xoso.com.vn/" sentbyte=106 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-08-02 time=07:26:09 eventtime=1690961169 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=4 srcip=10.1.200.20 srcport=40320 srcintf="net1" dstip=104.17.142.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-08-02 time=07:26:09 eventtime=1690961169 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=6 srcip=10.1.200.21 srcport=59580 srcintf="net1" dstip=104.17.142.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-08-02 time=07:27:55 eventtime=1690961275 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=6 srcip=10.1.200.22 srcport=56852 srcintf="net1" dstip=104.18.24.243 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="xoso.com.vn" profile="default" action="blocked" reqtype="direct" url="https://xoso.com.vn/" sentbyte=106 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-08-02 time=07:27:56 eventtime=1690961276 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=8 srcip=10.1.200.23 srcport=43056 srcintf="net1" dstip=104.18.24.243 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="xoso.com.vn" profile="default" action="blocked" reqtype="direct" url="https://xoso.com.vn/" sentbyte=106 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-08-02 time=07:26:09 eventtime=1690961169 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=5 srcip=10.1.200.21 srcport=57758 srcintf="net1" dstip=104.17.142.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-08-02 time=07:26:10 eventtime=1690961170 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=4 srcip=10.1.200.20 srcport=50126 srcintf="net1" dstip=104.17.142.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-08-02 time=07:27:55 eventtime=1690961275 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=6 srcip=10.1.200.22 srcport=58848 srcintf="net1" dstip=104.18.24.243 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="xoso.com.vn" profile="default" action="blocked" reqtype="direct" url="https://xoso.com.vn/" sentbyte=106 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-08-02 time=07:27:56 eventtime=1690961276 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=7 srcip=10.1.200.23 srcport=38348 srcintf="net1" dstip=104.18.25.243 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="xoso.com.vn" profile="default" action="blocked" reqtype="direct" url="https://xoso.com.vn/" sentbyte=106 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
 ```
 
 
@@ -2687,11 +1957,11 @@ items:
 - apiVersion: templates.gatekeeper.sh/v1
   kind: ConstraintTemplate
   metadata:
-    creationTimestamp: "2023-08-02T05:43:26Z"
+    creationTimestamp: "2023-08-02T07:28:26Z"
     generation: 1
     name: k8segressnetworkpolicytocfosutmpolicy
-    resourceVersion: "5665"
-    uid: 75ea158b-c242-4f96-bf5c-5b3c9bd2ba2a
+    resourceVersion: "5694"
+    uid: 20870c37-64d2-49c9-a4cd-a0a2880353bd
   spec:
     crd:
       spec:
@@ -2857,11 +2127,11 @@ items:
 - apiVersion: constraints.gatekeeper.sh/v1beta1
   kind: K8sEgressNetworkPolicyToCfosUtmPolicy
   metadata:
-    creationTimestamp: "2023-08-02T05:43:30Z"
+    creationTimestamp: "2023-08-02T07:28:29Z"
     generation: 1
     name: cfosnetworkpolicy
-    resourceVersion: "5719"
-    uid: 68ffc49d-4b18-4af9-b41a-bf7a80c872f1
+    resourceVersion: "5726"
+    uid: 6388ceb7-e60d-4bfe-9325-ab8fdda1fcb0
   spec:
     enforcementAction: deny
     match:
@@ -2884,30 +2154,6 @@ items:
       srcintf: any
       sslsshprofile: deep-inspection
       utmstatus: enable
-  status:
-    byPod:
-    - constraintUID: 68ffc49d-4b18-4af9-b41a-bf7a80c872f1
-      enforced: true
-      id: gatekeeper-audit-7fb8f4c95c-rjht5
-      observedGeneration: 1
-      operations:
-      - audit
-      - mutation-status
-      - status
-    - constraintUID: 68ffc49d-4b18-4af9-b41a-bf7a80c872f1
-      enforced: true
-      id: gatekeeper-controller-manager-7db564f9f4-dmrpp
-      observedGeneration: 1
-      operations:
-      - mutation-webhook
-      - webhook
-    - constraintUID: 68ffc49d-4b18-4af9-b41a-bf7a80c872f1
-      enforced: true
-      id: gatekeeper-controller-manager-7db564f9f4-z2n9m
-      observedGeneration: 1
-      operations:
-      - mutation-webhook
-      - webhook
 kind: List
 metadata:
   resourceVersion: ""
@@ -3156,10 +2402,10 @@ kubectl get pod | grep fos | awk '{print }'  | while read line; do kubectl exec 
 kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/ips.0 | grep policyid=200 ; done
 `
 ```
-date=2023-08-02 time=05:45:28 eventtime=1690955128 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.24 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=3 action="dropped" proto=6 service="HTTPS" policyid=200 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=54374 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=47185925 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
-date=2023-08-02 time=05:45:39 eventtime=1690955139 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.25 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=5 action="dropped" proto=6 service="HTTPS" policyid=200 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=39862 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=47185926 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
-date=2023-08-02 time=05:45:33 eventtime=1690955133 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.25 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=4 action="dropped" proto=6 service="HTTPS" policyid=200 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=41050 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=140509189 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
-date=2023-08-02 time=05:45:44 eventtime=1690955144 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.24 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=2 action="dropped" proto=6 service="HTTPS" policyid=200 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=34328 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=140509190 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-08-02 time=07:30:04 eventtime=1690961404 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.25 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=3 action="dropped" proto=6 service="HTTPS" policyid=200 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=36176 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=31457285 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-08-02 time=07:30:20 eventtime=1690961420 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.24 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=3 action="dropped" proto=6 service="HTTPS" policyid=200 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=53476 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=31457286 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-08-02 time=07:30:10 eventtime=1690961410 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.24 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=2 action="dropped" proto=6 service="HTTPS" policyid=200 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=44462 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=2097157 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-08-02 time=07:30:15 eventtime=1690961415 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.25 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=4 action="dropped" proto=6 service="HTTPS" policyid=200 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=48228 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=2097158 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
 ```
 
 
@@ -3180,10 +2426,10 @@ kubectl get pod | grep fos | awk '{print }'  | while read line; do kubectl exec 
 kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/webf.0 | grep policyid=200  ; done
 `
 ```
-date=2023-08-02 time=05:45:51 eventtime=1690955151 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=200 sessionid=3 srcip=10.1.200.24 srcport=55450 srcintf="net1" dstip=104.17.142.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
-date=2023-08-02 time=05:45:51 eventtime=1690955151 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=200 sessionid=5 srcip=10.1.200.25 srcport=44338 srcintf="net1" dstip=104.17.143.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
-date=2023-08-02 time=05:45:51 eventtime=1690955151 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=200 sessionid=6 srcip=10.1.200.25 srcport=45968 srcintf="net1" dstip=104.17.142.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
-date=2023-08-02 time=05:45:52 eventtime=1690955152 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=200 sessionid=8 srcip=10.1.200.24 srcport=33898 srcintf="net1" dstip=104.17.142.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-08-02 time=07:30:27 eventtime=1690961427 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=200 sessionid=5 srcip=10.1.200.25 srcport=53958 srcintf="net1" dstip=104.17.143.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-08-02 time=07:30:27 eventtime=1690961427 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=200 sessionid=5 srcip=10.1.200.24 srcport=46482 srcintf="net1" dstip=104.17.142.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-08-02 time=07:30:27 eventtime=1690961427 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=200 sessionid=4 srcip=10.1.200.24 srcport=47064 srcintf="net1" dstip=104.17.143.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-08-02 time=07:30:27 eventtime=1690961427 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=200 sessionid=6 srcip=10.1.200.25 srcport=46656 srcintf="net1" dstip=104.17.143.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
 ```
 
 
