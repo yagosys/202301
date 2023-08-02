@@ -1,6 +1,9 @@
-#!/bin/bash
+#!/bin/bash -x
 #filename="./../04_create_nad_for_cfos.sh"
 filename="./../04_create_nad_for_cfos.sh.shell.sh.yml.sh"
+[[ -z $net_attach_def_name_for_cfos ]] && net_attach_def_name_for_cfos="cfosdefaultcni5"
+[[ -z $master_interface_on_worker_node ]] && master_interface_on_worker_node="ens4"
+
 echo -e '- create net-attach-def for cfos  \n' > "${filename}.md"
 
 cat << EOF >> "${filename}.md"
@@ -24,6 +27,7 @@ echo -e '- check the result\n' >> "${filename}.md"
 command="kubectl get net-attach-def $net_attach_def_name_for_cfos -o yaml "
 
 echo -e "\`$command\`" >> "${filename}.md"
+
 echo -e '```' >> "${filename}.md"
 echo -e "$($command)"  >> "${filename}.md"
 echo -e '```' >> "${filename}.md"
