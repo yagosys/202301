@@ -866,7 +866,7 @@ cFOS image will be pulled from Docker Hub with pull secret.
 
 - paste below command to create cfos DaemonSet
 ```
-project=cfos-384323
+project=$(gcloud config list --format="value(core.project)")
 cat << EOF | kubectl create -f  -
 ---
 apiVersion: v1
@@ -942,8 +942,8 @@ kubectl rollout status ds/fos-deployment && kubectl get pod -l app=fos
 ```
 daemon set "fos-deployment" successfully rolled out
 NAME                   READY   STATUS    RESTARTS   AGE
-fos-deployment-twv99   1/1     Running   0          71s
-fos-deployment-vv5t5   1/1     Running   0          71s
+fos-deployment-twv99   1/1     Running   0          35m
+fos-deployment-vv5t5   1/1     Running   0          35m
 ```
 check routing table and ip address
 
