@@ -1,6 +1,8 @@
 #!/bin/bash -xe 
 filename="09_create_cfos_ds.sh.shell.sh.yml.sh"
-[[ $cfos_image == "" ]] && cfos_image="gcr.io/cfos-384323/fos:7231"
+project=$(gcloud config list --format="value(core.project)")
+#[[ $cfos_image == "" ]] && cfos_image="gcr.io/cfos-384323/fos:7231"
+[[ $cfos_image == "" ]] && cfos_image="gcr.io/\$project/fos:7231"
 [[ $cfosIp == "" ]] && cfosIp="10.1.200.252/32"
 [[ -z $cfos_label ]] && cfos_label="fos"
 [[ -z $cfos_data_host_path ]] && cfos_data_host_path="/home/kubernetes/cfosdata"
@@ -11,6 +13,7 @@ filename="09_create_cfos_ds.sh.shell.sh.yml.sh"
 annotations="k8s.v1.cni.cncf.io/networks: '[ { \"name\": \"$net_attach_def_name_for_cfos\",  \"ips\": [ \"$cfosIp\" ], \"mac\": \"CA:FE:C0:FF:00:02\" } ]'"
 
 cat << OUTER_EOF > $filename
+project=$(gcloud config list --format="value(core.project)")
 cat << EOF | kubectl create -f  -
 ---
 apiVersion: v1
