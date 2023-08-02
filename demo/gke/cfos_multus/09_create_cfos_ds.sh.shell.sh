@@ -1,6 +1,6 @@
 #!/bin/bash -xe 
 filename="09_create_cfos_ds.sh.shell.sh.yml.sh"
-[[ $cfos_image == "" ]] && cfos_image="interbeing/fos:v7231x86"
+[[ $cfos_image == "" ]] && cfos_image="gcr.io/cfos-384323/fos:7231"
 [[ $cfosIp == "" ]] && cfosIp="10.1.200.252/32"
 [[ -z $cfos_label ]] && cfos_label="fos"
 [[ -z $cfos_data_host_path ]] && cfos_data_host_path="/home/kubernetes/cfosdata"
@@ -69,7 +69,7 @@ spec:
         - mountPath: /data
           name: data-volume
       imagePullSecrets:
-      - name: dockerinterbeing
+      #- name: dockerinterbeing
       volumes:
       - name: data-volume
         #persistentVolumeClaim:
