@@ -59,11 +59,13 @@ echo $cfos_image
 ```
 - check the result
 
+```
 `docker images`
 ```
+```
 REPOSITORY               TAG       IMAGE ID       CREATED        SIZE
-fos                      latest    68ddf4677772   8 months ago   144MB
 gcr.io/cfos-384323/fos   7231      68ddf4677772   8 months ago   144MB
+fos                      latest    68ddf4677772   8 months ago   144MB
 ```
 
 
