@@ -866,6 +866,7 @@ cFOS image will be pulled from Docker Hub with pull secret.
 
 - paste below command to create cfos DaemonSet
 ```
+project=cfos-384323
 cat << EOF | kubectl create -f  -
 ---
 apiVersion: v1
@@ -905,7 +906,7 @@ spec:
     spec:
       containers:
       - name: fos
-        image: gcr.io/cfos-384323/fos:7231
+        image: gcr.io/$project/fos:7231
         #image: 732600308177.dkr.ecr.ap-east-1.amazonaws.com/fos:v7231x86
         imagePullPolicy: Always
         securityContext:
@@ -941,8 +942,8 @@ kubectl rollout status ds/fos-deployment && kubectl get pod -l app=fos
 ```
 daemon set "fos-deployment" successfully rolled out
 NAME                   READY   STATUS    RESTARTS   AGE
-fos-deployment-htbgr   1/1     Running   0          10s
-fos-deployment-pb5xl   1/1     Running   0          10s
+fos-deployment-twv99   1/1     Running   0          71s
+fos-deployment-vv5t5   1/1     Running   0          71s
 ```
 check routing table and ip address
 
@@ -950,33 +951,33 @@ check routing table and ip address
 nodeName=$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}') && for node in $nodeName; do podName=$(kubectl get pods -l app=fos --field-selector spec.nodeName="$node" -o jsonpath='{.items[*].metadata.name}') ; kubectl exec -it po/$podName -- ip route && kubectl exec -t po/$podName -- ip address ; done
 `
 ```
-default via 10.140.0.1 dev eth0 
+default via 10.140.1.1 dev eth0 
 10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.252 
-10.140.0.0/24 via 10.140.0.1 dev eth0 src 10.140.0.11 
-10.140.0.1 dev eth0 scope link src 10.140.0.11 
+10.140.1.0/24 via 10.140.1.1 dev eth0 src 10.140.1.12 
+10.140.1.1 dev eth0 scope link src 10.140.1.12 
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
-2: eth0@if13: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether 76:0d:29:6e:cb:79 brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet 10.140.0.11/24 brd 10.140.0.255 scope global eth0
+2: eth0@if14: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
+    link/ether 72:06:21:57:5a:54 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.140.1.12/24 brd 10.140.1.255 scope global eth0
        valid_lft forever preferred_lft forever
 3: net1@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
     link/ether ca:fe:c0:ff:00:02 brd ff:ff:ff:ff:ff:ff link-netnsid 0
     inet 10.1.200.252/24 brd 10.1.200.255 scope global net1
        valid_lft forever preferred_lft forever
-default via 10.140.1.1 dev eth0 
+default via 10.140.0.1 dev eth0 
 10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.252 
-10.140.1.0/24 via 10.140.1.1 dev eth0 src 10.140.1.7 
-10.140.1.1 dev eth0 scope link src 10.140.1.7 
+10.140.0.0/24 via 10.140.0.1 dev eth0 src 10.140.0.6 
+10.140.0.1 dev eth0 scope link src 10.140.0.6 
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
-2: eth0@if9: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether b6:2f:2c:e9:a8:02 brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet 10.140.1.7/24 brd 10.140.1.255 scope global eth0
+2: eth0@if8: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
+    link/ether b2:fb:fa:c6:6f:d8 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.140.0.6/24 brd 10.140.0.255 scope global eth0
        valid_lft forever preferred_lft forever
 3: net1@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
     link/ether ca:fe:c0:ff:00:02 brd ff:ff:ff:ff:ff:ff link-netnsid 0
@@ -994,19 +995,31 @@ System is starting...
 
 Firmware version is 7.2.0.0231
 Preparing environment...
-INFO: 2023/08/02 10:56:19 importing license...
-INFO: 2023/08/02 10:56:19 license is imported successfuly!
+INFO: 2023/08/02 21:02:28 importing license...
+INFO: 2023/08/02 21:02:28 license is imported successfuly!
 WARNING: System is running in restricted mode due to lack of valid license!
 Starting services...
+System is ready.
+
+2023-08-02_21:02:29.72072 ok: run: /run/fcn_service/certd: (pid 275) 0s, normally down
+2023-08-02_21:02:34.91256 INFO: 2023/08/02 21:02:34 received a new fos configmap
+2023-08-02_21:02:34.91262 INFO: 2023/08/02 21:02:34 configmap name: fos-license, labels: map[app:fos category:license]
+2023-08-02_21:02:34.91263 INFO: 2023/08/02 21:02:34 got a fos license
 
 System is starting...
 
 Firmware version is 7.2.0.0231
 Preparing environment...
-INFO: 2023/08/02 10:56:19 importing license...
-INFO: 2023/08/02 10:56:19 license is imported successfuly!
+INFO: 2023/08/02 21:02:28 importing license...
+INFO: 2023/08/02 21:02:28 license is imported successfuly!
 WARNING: System is running in restricted mode due to lack of valid license!
 Starting services...
+System is ready.
+
+2023-08-02_21:02:29.81991 ok: run: /run/fcn_service/certd: (pid 273) 0s, normally down
+2023-08-02_21:02:34.94806 INFO: 2023/08/02 21:02:34 received a new fos configmap
+2023-08-02_21:02:34.94807 INFO: 2023/08/02 21:02:34 configmap name: fos-license, labels: map[app:fos category:license]
+2023-08-02_21:02:34.94807 INFO: 2023/08/02 21:02:34 got a fos license
 ```
 
 
