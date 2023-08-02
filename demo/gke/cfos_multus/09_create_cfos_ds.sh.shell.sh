@@ -25,7 +25,6 @@ spec:
   - port: 80
     protocol: TCP
     targetPort: 80
-  #sessionAffinity: ClientIP
   selector:
     app: $cfos_label
   type: ClusterIP
@@ -69,7 +68,6 @@ spec:
         - mountPath: /data
           name: data-volume
       imagePullSecrets:
-      #- name: dockerinterbeing
       volumes:
       - name: data-volume
         #persistentVolumeClaim:
