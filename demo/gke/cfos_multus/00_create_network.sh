@@ -10,7 +10,7 @@ filename="00_create_network.sh.gen.sh"
  
 cat << EOF > $filename
 gcloud compute networks create $networkName --subnet-mode custom --bgp-routing-mode  regional 
-gcloud compute networks subnets create $subnetName --network=$networkName --range=$ipcidrRange &&  \
+gcloud compute networks subnets create $subnetName --network=$networkName --range=$ipcidrRange 
 gcloud compute firewall-rules create $firewallruleName --network $networkName --allow $firewallallowProtocol --direction ingress --priority  100 
 EOF
 chmod +x $filename
