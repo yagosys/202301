@@ -1,5 +1,6 @@
 #!/bin/bash
 #filename="./../06_create_app_deployment_multitool.sh"
+source variable.sh
 filename="./../06_create_app_deployment_multitool.sh.shell.sh.yml.sh"
 [[ -z $app_deployment_label ]] && app_deployment_label="multitool01"
 
@@ -38,9 +39,12 @@ echo -e "$($command)"  >> "${filename}.md"
 echo -e '```' >> "${filename}.md"
 
 command="nodeName=\$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}') && for node in \$nodeName; do podName=\$(kubectl get pods -l app=$app_deployment_label --field-selector spec.nodeName=\"\$node\" -o jsonpath='{.items[*].metadata.name}') ; kubectl exec -it po/\$podName -- ip route && kubectl exec -t po/\$podName -- ip address ; done" 
-echo -e '`' >> "${filename}.md"
+#echo -e '`' >> "${filename}.md"
+echo -e '```' >> "${filename}.md"
 echo -e "$command" >> "${filename}.md"
-echo -e '`' >> "${filename}.md"
+echo -e '```' >> "${filename}.md"
+#echo -e '`' >> "${filename}.md"
+
 echo -e '```' >> "${filename}.md"
 eval "$command" >> "${filename}.md"
 echo -e '```' >> "${filename}.md"
