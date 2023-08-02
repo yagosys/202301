@@ -1,13 +1,17 @@
-file="$HOME/license/dockerpullsecret.yaml"
-[ -e $file ] && echo found dockerpullsecret $file || echo "$file  does not exist, exit" && 
-file="$HOME/license/fos_license.yaml"
-[ -e $file ] && echo found cfos license file $file || echo "$file  does not exist,exit" &&
 startdate=$(date)
-./00_gcloud_env.sh && 
+./00_a_gcloud_env.sh 
+cd doc
+./00_a_doc.sh
+cd ./../
 
 ./00_create_network.sh 
 cd doc 
 ./00_doc.sh
+cd ./../
+
+./00_create_cfos_image.sh
+cd doc
+./00_create_image.doc.sh
 cd ./../
 
 ./01_gke.sh 
@@ -174,6 +178,6 @@ echo "-----------"
 echo deploy start from $startdate to $(date)
 echo 'done'
 echo "-----------"
-echo 'do not forget delete resource created in this demo script use ./del_cluster.sh && ./del_networks.sh'
+echo 'do not forget delete resource created in this demo script use ./00_a_gcloud_env.sh && ./del_cluster.sh && ./del_networks.sh'
 
 
