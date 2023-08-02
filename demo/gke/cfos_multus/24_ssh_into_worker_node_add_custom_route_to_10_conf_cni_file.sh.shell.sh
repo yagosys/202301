@@ -12,8 +12,8 @@ pod_netmask=${cluster_ipv4_cidr#*/}
 filename="24_ssh_into_worker_node_add_custom_route_to_10_conf_cni_file.sh.shell.sh.gen.sh"
 cat << EOF > $filename
 
-clustersearchstring=$(gcloud container clusters list --format="value(name)" --limit=1) 
-namelist=\$(gcloud compute instances list --filter="name~'$clustersearchstring'"  --format="value(name)" ) 
+clustersearchstring=\$(gcloud container clusters list --format="value(name)" --limit=1) 
+namelist=\$(gcloud compute instances list --filter="name~\$clustersearchstring"  --format="value(name)" ) 
 for name in \$namelist ; do {
 
 route_exists=\$(gcloud compute ssh \$name --command="sudo grep -E '\"dst\": \"$services_ip\\/$services_netmask\"|\"dst\": \"$pod_ip\\/$pod_netmask\"' /etc/cni/net.d/10-containerd-net.conflist")

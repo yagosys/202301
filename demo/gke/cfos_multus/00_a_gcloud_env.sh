@@ -1,10 +1,11 @@
 #/bin/bash -xe
 filename="00_a_gcloud_env.sh.gen.sh"
-
 cat << EOF > $filename
 project=\$(gcloud config list --format="value(core.project)")
-export region="asia-east1"
-export zone="asia-east1-a"
+[[ -z \$region ]] && region="us-central1"
+[[ -z \$zone ]] && zone="us-central1-a"
+export region=\$region
+export zone=\$zone
 gcloud config set project \$project
 gcloud config set compute/region \$region
 gcloud config set compute/zone \$zone

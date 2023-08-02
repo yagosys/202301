@@ -13,7 +13,7 @@ project=$(gcloud config list --format="value(core.project)")
 annotations="k8s.v1.cni.cncf.io/networks: '[ { \"name\": \"$net_attach_def_name_for_cfos\",  \"ips\": [ \"$cfosIp\" ], \"mac\": \"CA:FE:C0:FF:00:02\" } ]'"
 
 cat << OUTER_EOF > $filename
-project=$(gcloud config list --format="value(core.project)")
+project=\$(gcloud config list --format="value(core.project)")
 cat << EOF | kubectl create -f  -
 ---
 apiVersion: v1
