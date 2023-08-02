@@ -1,6 +1,6 @@
 #!/bin/bash -x
 filename="./../26_create_app_deployment_multtool_with_defaultroute.sh.shell.sh.yml.sh"
-
+source ./../variable.sh
 echo -e '- create application deployment \n' > "${filename}.md"
 
 cat << EOF >> "${filename}.md"

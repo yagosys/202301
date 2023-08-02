@@ -1,6 +1,6 @@
 #!/bin/bash -x
 filename="./../10_config_cfos_firewallpolicy.sh.shell.sh.yml.sh"
-source variable.sh
+source ./../variable.sh
 echo -e '- create configmap for cfos to get firewall policy configuration/n ' > "${filename}.md"
 
 cat << EOF >> "${filename}.md"

@@ -1,6 +1,6 @@
 #!/bin/bash
 #filename="./../06_create_app_deployment_multitool.sh"
-source variable.sh
+source ./../variable.sh
 filename="./../06_create_app_deployment_multitool.sh.shell.sh.yml.sh"
 [[ -z $app_deployment_label ]] && app_deployment_label="multitool01"
 
