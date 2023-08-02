@@ -745,6 +745,8 @@ default via 10.140.1.1 dev eth0
 
 
 here we create cfos license with fortigate VM license and generate configmap for cfos to fetch license
+you can upload your fortigate VM license to gcloud shell via gcloud SHELL Terminal "upload" feature. 
+please upload your VM license to the directory where you run your script 
 - paste below command to create and apply license 
 
 ```
@@ -780,7 +782,7 @@ file="$HOME/license/cfos_license.yaml"
 `kubectl  get cm fos-license`
 ```
 NAME          DATA   AGE
-fos-license   1      0s
+fos-license   1      20m
 ```
 
 
