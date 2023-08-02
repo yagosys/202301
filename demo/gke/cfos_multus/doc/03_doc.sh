@@ -23,8 +23,11 @@ echo -e '```' >> "${filename}.md"
 echo -e '- check the result\n' >> "${filename}.md"
 
 
-echo -e '`kubectl rollout status ds/kube-multus-ds -n kube-system`' >> "${filename}.md"
-echo -e '`kubectl logs ds/kube-multus-ds -c kube-multus -n kube-system)`' >> "${filename}.md" 
+echo -e '```' >> "${filename}.md"
+echo -e 'kubectl rollout status ds/kube-multus-ds -n kube-system\n' >> "${filename}.md"
+echo -e 'kubectl logs ds/kube-multus-ds -c kube-multus -n kube-system\n' >> "${filename}.md" 
+echo -e '```' >> "${filename}.md"
+
 echo -e ' you shall see output ' >> "${filename}.md" 
 echo -e '```' >> "${filename}.md"
 echo -e "$(kubectl rollout status ds/kube-multus-ds -n kube-system)"  >> "${filename}.md"

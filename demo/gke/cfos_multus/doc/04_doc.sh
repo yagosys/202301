@@ -27,5 +27,3 @@ echo -e "\`$command\`" >> "${filename}.md"
 echo -e '```' >> "${filename}.md"
 echo -e "$($command)"  >> "${filename}.md"
 echo -e '```' >> "${filename}.md"
-
-

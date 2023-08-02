@@ -22,7 +22,10 @@ echo -e '```' >> "${filename}.md"
 echo -e '- check the result\n' >> "${filename}.md"
 
 
-echo -e '`kubectl get node -o wide`' >> "${filename}.md"
+echo -e '```' >> "${filename}.md"
+echo -e 'kubectl get node -o wide' >> "${filename}.md"
+echo -e '```' >> "${filename}.md"
+
 echo -e '```' >> "${filename}.md"
 echo -e "$(kubectl get node -o wide)"  >> "${filename}.md"
 echo -e '```' >> "${filename}.md"

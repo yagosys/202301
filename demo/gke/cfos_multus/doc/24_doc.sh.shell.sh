@@ -11,8 +11,8 @@ we will need then insert a default route into application pod, for this purpose,
 EOF
 
 echo -e '- paste below command to modify default GKE cni config to insert route \n' >> "${filename}.md" 
-
 echo -e '```' >> "${filename}.md"
+echo 'set +H' >> "${filename}.md"
 cat $filename >> "${filename}.md"
 echo -e '```' >> "${filename}.md"
 

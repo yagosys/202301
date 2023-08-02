@@ -1,6 +1,7 @@
 #!/bin/bash
 [[ $networkName == "" ]] && networkName="gkenetwork"
 gkeNetworkName=$(gcloud compute networks list --format="value(name)" --filter="name="$networkName""  --limit=1)
+source ./../variable.sh
 filename="./../00_create_network.sh"
 doc_ext="gen.sh"
 
@@ -23,17 +24,27 @@ echo -e  '```' >> "${filename}.md"
 echo -e  '- check the result\n' >> "${filename}.md"
 
 
-echo -e  '`gcloud compute networks list `' >> "${filename}.md"
+echo -e  '```' >> "${filename}.md"
+echo -e  'gcloud compute networks list ' >> "${filename}.md"
+echo -e  '```' >> "${filename}.md"
+
 echo -e  '```' >> "${filename}.md"
 echo -e  "$(gcloud compute networks list )" >> "${filename}.md"
 echo -e  '```' >> "${filename}.md"
 
-echo -e  '`gcloud compute networks subnets list `' >> "${filename}.md"
+
+echo -e  '```' >> "${filename}.md"
+echo -e  'gcloud compute networks subnets list ' >> "${filename}.md"
+echo -e  '```' >> "${filename}.md"
+
 echo -e  '```' >> "${filename}.md"
 echo -e  "$(gcloud compute networks subnets list --network $gkeNetworkName)" >> "${filename}.md"
 echo -e  '```' >> "${filename}.md"
 
-echo -e  '`gcloud compute firewall-rules list `' >> "${filename}.md"
+echo -e  '```' >> "${filename}.md"
+echo -e  'gcloud compute firewall-rules list ' >> "${filename}.md"
+echo -e  '```' >> "${filename}.md"
+
 echo -e  '```' >> "${filename}.md"
 echo -e  "$(gcloud compute firewall-rules list )"  >> "${filename}.md"
 echo -e  '```' >> "${filename}.md"
