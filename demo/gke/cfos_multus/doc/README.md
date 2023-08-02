@@ -599,7 +599,7 @@ We will create net-attach-def with mac-vlan CNI ,multus CNI will use this net-at
 We use host-local as IPAM CNI. this net-attach-def is for cfos to attach. 
 the cni config of macvlan use bridge mode and associated with    interface on worker node. if the master interface on worker node is other than . you need change that to match the actual one on the host node 
 you can ssh into worker node to check master interface name. 
-the net-attach-def has name 
+the net-attach-def has name cfosdefaultcni5
 - paste below command to create net-attach-def
 
 ```
@@ -629,41 +629,21 @@ kubectl get net-attach-def cfosdefaultcni5 -o yaml
 ```
 - check the result
 
+`kubectl get net-attach-def cfosdefaultcni5 -o yaml `
 ```
-`kubectl get net-attach-def  -o yaml `
-```
-```
-apiVersion: v1
-items:
-- apiVersion: k8s.cni.cncf.io/v1
-  kind: NetworkAttachmentDefinition
-  metadata:
-    creationTimestamp: "2023-08-02T07:21:56Z"
-    generation: 1
-    name: cfosapp
-    namespace: default
-    resourceVersion: "2291"
-    uid: e9eb484c-662c-4b71-8f0a-cf6e170b2264
-  spec:
-    config: |-
-      { "cniVersion": "0.3.1", "type": "macvlan", "master": "ens4", "mode": "bridge", "ipam": { "type": "host-local", "subnet": "10.1.200.0/24", "routes": [
-      { "dst": "104.18.0.0/16", "gw": "10.1.200.252" }, { "dst": "89.238.73.97/32", "gw": "10.1.200.252"}, { "dst": "172.67.162.8/32", "gw": "10.1.200.252"}, { "dst": "104.21.42.126/32","gw": "10.1.200.252"}, { "dst": "104.17.0.0/16","gw": "10.1.200.252"}, { "dst": "1.1.1.1/32", "gw": "10.1.200.252"} ], "rangeStart": "10.1.200.20", "rangeEnd": "10.1.200.251", "gateway": "10.1.200.1" } }
-- apiVersion: k8s.cni.cncf.io/v1
-  kind: NetworkAttachmentDefinition
-  metadata:
-    creationTimestamp: "2023-08-02T07:21:56Z"
-    generation: 1
-    name: cfosdefaultcni5
-    namespace: default
-    resourceVersion: "2285"
-    uid: 2851ceac-2808-49e7-9b97-cd6b6c4ee3df
-  spec:
-    config: '{ "cniVersion": "0.3.1", "type": "macvlan", "master": "ens4", "mode":
-      "bridge", "ipam": { "type": "host-local", "subnet": "10.1.200.0/24", "rangeStart":
-      "10.1.200.251", "rangeEnd": "10.1.200.253", "gateway": "10.1.200.1" } }'
-kind: List
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition
 metadata:
-  resourceVersion: ""
+  creationTimestamp: "2023-08-02T07:21:56Z"
+  generation: 1
+  name: cfosdefaultcni5
+  namespace: default
+  resourceVersion: "2285"
+  uid: 2851ceac-2808-49e7-9b97-cd6b6c4ee3df
+spec:
+  config: '{ "cniVersion": "0.3.1", "type": "macvlan", "master": "ens4", "mode": "bridge",
+    "ipam": { "type": "host-local", "subnet": "10.1.200.0/24", "rangeStart": "10.1.200.251",
+    "rangeEnd": "10.1.200.253", "gateway": "10.1.200.1" } }'
 ```
 
 
