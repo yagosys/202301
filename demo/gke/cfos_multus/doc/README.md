@@ -8,8 +8,10 @@ README
 - paste below command to config glcoud environment  
 ```
 project=$(gcloud config list --format="value(core.project)")
-export region="asia-east1"
-export zone="asia-east1-a"
+[[ -z $region ]] && region="us-central1"
+[[ -z $zone ]] && zone="us-central1-a"
+export region=$region
+export zone=$zone
 gcloud config set project $project
 gcloud config set compute/region $region
 gcloud config set compute/zone $zone
@@ -27,13 +29,13 @@ cfos-384323
 gcloud config get compute/region
 ```
 ```
-asia-east1
+us-central1
 ```
 ```
 gcloud config get compute/zone
 ```
 ```
-asia-east1-a
+us-central1-a
 ```
 
 
@@ -105,7 +107,7 @@ gcloud compute networks subnets list
 ```
 ```
 NAME: gkenode
-REGION: asia-east1
+REGION: us-central1
 NETWORK: gkenetwork
 RANGE: 10.0.0.0/24
 STACK_TYPE: IPV4_ONLY
@@ -160,9 +162,9 @@ gcloud container clusters create my-first-cluster-1  	--no-enable-basic-auth 	--
 kubectl get node -o wide
 ```
 ```
-NAME                                                STATUS   ROLES    AGE   VERSION            INTERNAL-IP   EXTERNAL-IP      OS-IMAGE             KERNEL-VERSION    CONTAINER-RUNTIME
-gke-my-first-cluster-1-default-pool-9b95254e-4lk6   Ready    <none>   35s   v1.26.5-gke.1400   10.0.0.4      34.81.140.4      Ubuntu 22.04.2 LTS   5.15.0-1033-gke   containerd://1.6.18
-gke-my-first-cluster-1-default-pool-9b95254e-h1b5   Ready    <none>   35s   v1.26.5-gke.1400   10.0.0.3      35.189.170.110   Ubuntu 22.04.2 LTS   5.15.0-1033-gke   containerd://1.6.18
+NAME                                                STATUS   ROLES    AGE   VERSION            INTERNAL-IP   EXTERNAL-IP    OS-IMAGE             KERNEL-VERSION    CONTAINER-RUNTIME
+gke-my-first-cluster-1-default-pool-928bf364-1r63   Ready    <none>   42s   v1.26.5-gke.1400   10.0.0.3      34.121.54.69   Ubuntu 22.04.2 LTS   5.15.0-1033-gke   containerd://1.6.18
+gke-my-first-cluster-1-default-pool-928bf364-6xbx   Ready    <none>   44s   v1.26.5-gke.1400   10.0.0.4      34.67.70.79    Ubuntu 22.04.2 LTS   5.15.0-1033-gke   containerd://1.6.18
 ```
 
 
@@ -471,7 +473,13 @@ kubectl logs ds/kube-multus-ds -c kube-multus -n kube-system
  you shall see output 
 ```
 daemon set "kube-multus-ds" successfully rolled out
-2023-08-02T21:56:18+00:00 Generating Multus configuration file using files in /host/etc/cni/net.d...
+2023-08-02T22:40:31+00:00 Generating Multus configuration file using files in /host/etc/cni/net.d...
+2023-08-02T22:40:31+00:00 Using MASTER_PLUGIN: 10-containerd-net.conflist
+2023-08-02T22:40:33+00:00 Nested capabilities string: "capabilities": {"portMappings": true},
+2023-08-02T22:40:33+00:00 Using /host/etc/cni/net.d/10-containerd-net.conflist as a source to generate the Multus configuration
+2023-08-02T22:40:33+00:00 Config file created @ /host/etc/cni/net.d/00-multus.conf
+{ "cniVersion": "0.3.1", "name": "multus-cni-network", "type": "multus", "capabilities": {"portMappings": true}, "kubeconfig": "/etc/cni/net.d/multus.d/multus.kubeconfig", "delegates": [ { "name": "k8s-pod-network", "cniVersion": "0.3.1", "plugins": [ { "type": "ptp", "mtu": 1460, "ipam": { "type": "host-local", "subnet": "10.140.1.0/24", "routes": [ { "dst": "0.0.0.0/0" } ] } }, { "type": "portmap", "capabilities": { "portMappings": true } } ] } ] }
+2023-08-02T22:40:33+00:00 Entering sleep (success)...
 ```
 
 
@@ -518,12 +526,12 @@ kubectl get net-attach-def cfosdefaultcni5 -o yaml
 apiVersion: k8s.cni.cncf.io/v1
 kind: NetworkAttachmentDefinition
 metadata:
-  creationTimestamp: "2023-08-02T21:56:20Z"
+  creationTimestamp: "2023-08-02T22:40:38Z"
   generation: 1
   name: cfosdefaultcni5
   namespace: default
-  resourceVersion: "2188"
-  uid: 8583c4c8-d979-4bed-81d8-7b466ee10c5a
+  resourceVersion: "2325"
+  uid: 73c0a29e-de04-460b-bda5-5580b912e47a
 spec:
   config: '{ "cniVersion": "0.3.1", "type": "macvlan", "master": "ens4", "mode": "bridge",
     "ipam": { "type": "host-local", "subnet": "10.1.200.0/24", "rangeStart": "10.1.200.251",
@@ -582,12 +590,12 @@ kubectl get net-attach-def cfosapp -o yaml
 apiVersion: k8s.cni.cncf.io/v1
 kind: NetworkAttachmentDefinition
 metadata:
-  creationTimestamp: "2023-08-02T21:56:21Z"
+  creationTimestamp: "2023-08-02T22:40:42Z"
   generation: 1
   name: cfosapp
   namespace: default
-  resourceVersion: "2189"
-  uid: c0176d3c-8050-4801-a281-a478adc1ecee
+  resourceVersion: "2358"
+  uid: e3f23ad9-aa4b-43d0-8fc8-cbc72b5b6ade
 spec:
   config: |-
     { "cniVersion": "0.3.1", "type": "macvlan", "master": "ens4", "mode": "bridge", "ipam": { "type": "host-local", "subnet": "10.1.200.0/24", "routes": [
@@ -650,20 +658,20 @@ deployment "multitool01-deployment" successfully rolled out
 `kubectl get pod -l app=multitool01`
 ```
 NAME                                      READY   STATUS    RESTARTS   AGE
-multitool01-deployment-7f5bf4b7cd-2ltx9   1/1     Running   0          7s
-multitool01-deployment-7f5bf4b7cd-hzxmd   1/1     Running   0          7s
-multitool01-deployment-7f5bf4b7cd-rngz7   1/1     Running   0          7s
-multitool01-deployment-7f5bf4b7cd-tjzbv   1/1     Running   0          7s
+multitool01-deployment-7f5bf4b7cd-7n9ml   1/1     Running   0          6s
+multitool01-deployment-7f5bf4b7cd-cphh7   1/1     Running   0          6s
+multitool01-deployment-7f5bf4b7cd-qqp6r   1/1     Running   0          5s
+multitool01-deployment-7f5bf4b7cd-zmcjn   1/1     Running   0          6s
 ```
 ```
 nodeName=$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}') && for node in $nodeName; do podName=$(kubectl get pods -l app=multitool01 --field-selector spec.nodeName="$node" -o jsonpath='{.items[*].metadata.name}') ; kubectl exec -it po/$podName -- ip route && kubectl exec -t po/$podName -- ip address ; done
 ```
 ```
-default via 10.140.1.1 dev eth0 
+default via 10.140.0.1 dev eth0 
 1.1.1.1 via 10.1.200.252 dev net1 
 10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.20 
-10.140.1.0/24 via 10.140.1.1 dev eth0 src 10.140.1.5 
-10.140.1.1 dev eth0 scope link src 10.140.1.5 
+10.140.0.0/24 via 10.140.0.1 dev eth0 src 10.140.0.5 
+10.140.0.1 dev eth0 scope link src 10.140.0.5 
 89.238.73.97 via 10.1.200.252 dev net1 
 104.17.0.0/16 via 10.1.200.252 dev net1 
 104.18.0.0/16 via 10.1.200.252 dev net1 
@@ -674,18 +682,18 @@ default via 10.140.1.1 dev eth0
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
 2: eth0@if7: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether 76:e7:92:ac:bd:c4 brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet 10.140.1.5/24 brd 10.140.1.255 scope global eth0
+    link/ether a6:da:ea:b1:ec:86 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.140.0.5/24 brd 10.140.0.255 scope global eth0
        valid_lft forever preferred_lft forever
 3: net1@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether c6:3e:a3:72:3f:96 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    link/ether fe:91:d8:c8:8e:03 brd ff:ff:ff:ff:ff:ff link-netnsid 0
     inet 10.1.200.20/24 brd 10.1.200.255 scope global net1
        valid_lft forever preferred_lft forever
-default via 10.140.0.1 dev eth0 
+default via 10.140.1.1 dev eth0 
 1.1.1.1 via 10.1.200.252 dev net1 
 10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.21 
-10.140.0.0/24 via 10.140.0.1 dev eth0 src 10.140.0.10 
-10.140.0.1 dev eth0 scope link src 10.140.0.10 
+10.140.1.0/24 via 10.140.1.1 dev eth0 src 10.140.1.10 
+10.140.1.1 dev eth0 scope link src 10.140.1.10 
 89.238.73.97 via 10.1.200.252 dev net1 
 104.17.0.0/16 via 10.1.200.252 dev net1 
 104.18.0.0/16 via 10.1.200.252 dev net1 
@@ -696,11 +704,11 @@ default via 10.140.0.1 dev eth0
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
 2: eth0@if12: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether 8a:3c:07:24:46:58 brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet 10.140.0.10/24 brd 10.140.0.255 scope global eth0
+    link/ether 9e:2d:60:c4:a1:50 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.140.1.10/24 brd 10.140.1.255 scope global eth0
        valid_lft forever preferred_lft forever
 3: net1@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether 6e:f6:33:ac:bd:f2 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    link/ether fe:c1:74:e3:0c:09 brd ff:ff:ff:ff:ff:ff link-netnsid 0
     inet 10.1.200.21/24 brd 10.1.200.255 scope global net1
        valid_lft forever preferred_lft forever
 ```
@@ -749,7 +757,7 @@ file="$HOME/license/cfos_license.yaml"
 `kubectl  get cm fos-license`
 ```
 NAME          DATA   AGE
-fos-license   1      0s
+fos-license   1      1s
 ```
 
 
@@ -833,11 +841,11 @@ read-configmaps   ClusterRole/configmap-reader   1s
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  creationTimestamp: "2023-08-02T21:56:31Z"
+  creationTimestamp: "2023-08-02T22:41:06Z"
   name: read-secrets
   namespace: default
-  resourceVersion: "2309"
-  uid: bfab6f57-7945-41d3-a5a3-c63c42d66243
+  resourceVersion: "2584"
+  uid: a52bfd01-e0bf-41a1-a5fb-75361a998c2d
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -941,8 +949,8 @@ kubectl rollout status ds/fos-deployment && kubectl get pod -l app=fos
 ```
 daemon set "fos-deployment" successfully rolled out
 NAME                   READY   STATUS    RESTARTS   AGE
-fos-deployment-2krrj   1/1     Running   0          9s
-fos-deployment-7zzbk   1/1     Running   0          9s
+fos-deployment-vdtpg   1/1     Running   0          7s
+fos-deployment-xv6kp   1/1     Running   0          7s
 ```
 check routing table and ip address
 
@@ -950,33 +958,33 @@ check routing table and ip address
 nodeName=$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}') && for node in $nodeName; do podName=$(kubectl get pods -l app=fos --field-selector spec.nodeName="$node" -o jsonpath='{.items[*].metadata.name}') ; kubectl exec -it po/$podName -- ip route && kubectl exec -t po/$podName -- ip address ; done
 `
 ```
-default via 10.140.1.1 dev eth0 
+default via 10.140.0.1 dev eth0 
 10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.252 
-10.140.1.0/24 via 10.140.1.1 dev eth0 src 10.140.1.7 
-10.140.1.1 dev eth0 scope link src 10.140.1.7 
+10.140.0.0/24 via 10.140.0.1 dev eth0 src 10.140.0.7 
+10.140.0.1 dev eth0 scope link src 10.140.0.7 
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
 2: eth0@if9: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether f2:94:e3:9c:e6:5d brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet 10.140.1.7/24 brd 10.140.1.255 scope global eth0
+    link/ether f6:3a:53:21:ff:65 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.140.0.7/24 brd 10.140.0.255 scope global eth0
        valid_lft forever preferred_lft forever
 3: net1@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
     link/ether ca:fe:c0:ff:00:02 brd ff:ff:ff:ff:ff:ff link-netnsid 0
     inet 10.1.200.252/24 brd 10.1.200.255 scope global net1
        valid_lft forever preferred_lft forever
-default via 10.140.0.1 dev eth0 
+default via 10.140.1.1 dev eth0 
 10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.252 
-10.140.0.0/24 via 10.140.0.1 dev eth0 src 10.140.0.11 
-10.140.0.1 dev eth0 scope link src 10.140.0.11 
+10.140.1.0/24 via 10.140.1.1 dev eth0 src 10.140.1.11 
+10.140.1.1 dev eth0 scope link src 10.140.1.11 
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
 2: eth0@if13: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether 2e:e1:d7:fe:03:7e brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet 10.140.0.11/24 brd 10.140.0.255 scope global eth0
+    link/ether 5e:94:03:9f:6e:03 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.140.1.11/24 brd 10.140.1.255 scope global eth0
        valid_lft forever preferred_lft forever
 3: net1@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
     link/ether ca:fe:c0:ff:00:02 brd ff:ff:ff:ff:ff:ff link-netnsid 0
@@ -994,19 +1002,31 @@ System is starting...
 
 Firmware version is 7.2.0.0231
 Preparing environment...
-INFO: 2023/08/02 21:56:44 importing license...
-INFO: 2023/08/02 21:56:44 license is imported successfuly!
+INFO: 2023/08/02 22:41:16 importing license...
+INFO: 2023/08/02 22:41:16 license is imported successfuly!
 WARNING: System is running in restricted mode due to lack of valid license!
 Starting services...
+System is ready.
+
+2023-08-02_22:41:17.78932 ok: run: /run/fcn_service/certd: (pid 276) 0s, normally down
+2023-08-02_22:41:22.88596 INFO: 2023/08/02 22:41:22 received a new fos configmap
+2023-08-02_22:41:22.88603 INFO: 2023/08/02 22:41:22 configmap name: fos-license, labels: map[app:fos category:license]
+2023-08-02_22:41:22.88603 INFO: 2023/08/02 22:41:22 got a fos license
 
 System is starting...
 
 Firmware version is 7.2.0.0231
 Preparing environment...
-INFO: 2023/08/02 21:56:44 importing license...
-INFO: 2023/08/02 21:56:44 license is imported successfuly!
+INFO: 2023/08/02 22:41:17 importing license...
+INFO: 2023/08/02 22:41:17 license is imported successfuly!
 WARNING: System is running in restricted mode due to lack of valid license!
 Starting services...
+System is ready.
+
+2023-08-02_22:41:17.88161 ok: run: /run/fcn_service/certd: (pid 274) 0s, normally down
+2023-08-02_22:41:22.94035 INFO: 2023/08/02 22:41:22 received a new fos configmap
+2023-08-02_22:41:22.94043 INFO: 2023/08/02 22:41:22 configmap name: fos-license, labels: map[app:fos category:license]
+2023-08-02_22:41:22.94045 INFO: 2023/08/02 22:41:22 got a fos license
 ```
 
 
@@ -1080,14 +1100,14 @@ data:
   type: partial
 kind: ConfigMap
 metadata:
-  creationTimestamp: "2023-08-02T21:56:46Z"
+  creationTimestamp: "2023-08-02T22:41:34Z"
   labels:
     app: fos
     category: config
   name: foscfgfirewallpolicy
   namespace: default
-  resourceVersion: "2449"
-  uid: 73bf6aca-e5ad-4f8e-9eff-bc40e280f137
+  resourceVersion: "2828"
+  uid: 4641679c-427a-46aa-a8be-4fcde41bb76a
 ```
 check cfos log for retrive config from configmap
 `
@@ -1099,25 +1119,41 @@ System is starting...
 
 Firmware version is 7.2.0.0231
 Preparing environment...
-INFO: 2023/08/02 21:56:44 importing license...
-INFO: 2023/08/02 21:56:44 license is imported successfuly!
+INFO: 2023/08/02 22:41:16 importing license...
+INFO: 2023/08/02 22:41:16 license is imported successfuly!
 WARNING: System is running in restricted mode due to lack of valid license!
 Starting services...
 System is ready.
 
-2023-08-02_21:56:44.97628 ok: run: /run/fcn_service/certd: (pid 282) 0s, normally down
+2023-08-02_22:41:17.78932 ok: run: /run/fcn_service/certd: (pid 276) 0s, normally down
+2023-08-02_22:41:22.88596 INFO: 2023/08/02 22:41:22 received a new fos configmap
+2023-08-02_22:41:22.88603 INFO: 2023/08/02 22:41:22 configmap name: fos-license, labels: map[app:fos category:license]
+2023-08-02_22:41:22.88603 INFO: 2023/08/02 22:41:22 got a fos license
+2023-08-02_22:41:34.13442 INFO: 2023/08/02 22:41:34 received a new fos configmap
+2023-08-02_22:41:34.13443 INFO: 2023/08/02 22:41:34 configmap name: foscfgfirewallpolicy, labels: map[app:fos category:config]
+2023-08-02_22:41:34.13443 INFO: 2023/08/02 22:41:34 got a fos config
+2023-08-02_22:41:34.13472 INFO: 2023/08/02 22:41:34 applying a partial fos config...
+2023-08-02_22:41:34.56027 INFO: 2023/08/02 22:41:34 fos config is applied successfully.
 
 System is starting...
 
 Firmware version is 7.2.0.0231
 Preparing environment...
-INFO: 2023/08/02 21:56:44 importing license...
-INFO: 2023/08/02 21:56:44 license is imported successfuly!
+INFO: 2023/08/02 22:41:17 importing license...
+INFO: 2023/08/02 22:41:17 license is imported successfuly!
 WARNING: System is running in restricted mode due to lack of valid license!
 Starting services...
 System is ready.
 
-2023-08-02_21:56:45.24160 ok: run: /run/fcn_service/certd: (pid 272) 1s, normally down
+2023-08-02_22:41:17.88161 ok: run: /run/fcn_service/certd: (pid 274) 0s, normally down
+2023-08-02_22:41:22.94035 INFO: 2023/08/02 22:41:22 received a new fos configmap
+2023-08-02_22:41:22.94043 INFO: 2023/08/02 22:41:22 configmap name: fos-license, labels: map[app:fos category:license]
+2023-08-02_22:41:22.94045 INFO: 2023/08/02 22:41:22 got a fos license
+2023-08-02_22:41:34.13519 INFO: 2023/08/02 22:41:34 received a new fos configmap
+2023-08-02_22:41:34.13520 INFO: 2023/08/02 22:41:34 configmap name: foscfgfirewallpolicy, labels: map[app:fos category:config]
+2023-08-02_22:41:34.13521 INFO: 2023/08/02 22:41:34 got a fos config
+2023-08-02_22:41:34.13544 INFO: 2023/08/02 22:41:34 applying a partial fos config...
+2023-08-02_22:41:34.56839 INFO: 2023/08/02 22:41:34 fos config is applied successfully.
 ```
 
 
@@ -1159,9 +1195,9 @@ nodeName=$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}') && for nod
 ;  kubectl exec -it po/$podName -- iptables -L -t nat --verbose | grep MASQ ; done
 `
 ```
-fos-deployment-nxzm9n
+fos-deployment-6jshkn
    29  2416 MASQUERADE  all  --  any    eth0    anywhere             anywhere            
-fos-deployment-shftkn
+fos-deployment-m86dvn
    29  2416 MASQUERADE  all  --  any    eth0    anywhere             anywhere            
 ```
 check ping result
@@ -1170,34 +1206,34 @@ check ping result
 kubectl get pod | grep multi | grep -v termin  | awk '{print $1}'  | while read line; do echo pod $line; kubectl exec -t po/$line -- ping -c1 1.1.1.1 ; done
 `
 ```
-pod multitool01-deployment-7f5bf4b7cd-2ltx9
+pod multitool01-deployment-7f5bf4b7cd-7n9ml
 PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
-64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=4.36 ms
+64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=11.8 ms
 
 --- 1.1.1.1 ping statistics ---
 1 packets transmitted, 1 received, 0% packet loss, time 0ms
-rtt min/avg/max/mdev = 4.359/4.359/4.359/0.000 ms
-pod multitool01-deployment-7f5bf4b7cd-hzxmd
+rtt min/avg/max/mdev = 11.815/11.815/11.815/0.000 ms
+pod multitool01-deployment-7f5bf4b7cd-cphh7
 PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
-64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=4.30 ms
+64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=12.1 ms
 
 --- 1.1.1.1 ping statistics ---
 1 packets transmitted, 1 received, 0% packet loss, time 0ms
-rtt min/avg/max/mdev = 4.300/4.300/4.300/0.000 ms
-pod multitool01-deployment-7f5bf4b7cd-rngz7
+rtt min/avg/max/mdev = 12.051/12.051/12.051/0.000 ms
+pod multitool01-deployment-7f5bf4b7cd-qqp6r
 PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
-64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=4.41 ms
+64 bytes from 1.1.1.1: icmp_seq=1 ttl=59 time=13.4 ms
 
 --- 1.1.1.1 ping statistics ---
 1 packets transmitted, 1 received, 0% packet loss, time 0ms
-rtt min/avg/max/mdev = 4.411/4.411/4.411/0.000 ms
-pod multitool01-deployment-7f5bf4b7cd-tjzbv
+rtt min/avg/max/mdev = 13.368/13.368/13.368/0.000 ms
+pod multitool01-deployment-7f5bf4b7cd-zmcjn
 PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
-64 bytes from 1.1.1.1: icmp_seq=1 ttl=60 time=4.19 ms
+64 bytes from 1.1.1.1: icmp_seq=1 ttl=59 time=11.2 ms
 
 --- 1.1.1.1 ping statistics ---
 1 packets transmitted, 1 received, 0% packet loss, time 0ms
-rtt min/avg/max/mdev = 4.188/4.188/4.188/0.000 ms
+rtt min/avg/max/mdev = 11.230/11.230/11.230/0.000 ms
 ```
 
 
@@ -1225,10 +1261,10 @@ kubectl get pod | grep fos | awk '{print }'  | while read line; do kubectl exec 
 kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/ips.0 | grep 300  ; done
 `
 ```
-date=2023-08-02 time=21:58:44 eventtime=1691013524 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.20 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=10 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=41500 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=20971521 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
-date=2023-08-02 time=21:58:49 eventtime=1691013529 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.21 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=12 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=55840 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=20971522 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
-date=2023-08-02 time=21:58:34 eventtime=1691013514 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.21 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=2 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=56336 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=246415361 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
-date=2023-08-02 time=21:58:39 eventtime=1691013519 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.20 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=4 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=60256 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=246415362 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-08-02 time=22:44:15 eventtime=1691016255 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.20 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=9 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=46302 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=204472321 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-08-02 time=22:44:22 eventtime=1691016262 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.21 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=11 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=38152 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=204472322 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-08-02 time=22:44:29 eventtime=1691016269 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.21 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=9 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=49134 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=200278017 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-08-02 time=22:44:35 eventtime=1691016275 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.20 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=11 action="dropped" proto=6 service="HTTPS" policyid=300 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=47504 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=200278018 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
 ```
 
 
@@ -1254,10 +1290,10 @@ kubectl get pod | grep fos | awk '{print }'  | while read line; do kubectl exec 
 kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/webf.0 | grep 300 ; done
 `
 ```
-date=2023-08-02 time=21:58:57 eventtime=1691013537 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=300 sessionid=14 srcip=10.1.200.20 srcport=52864 srcintf="net1" dstip=104.17.142.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
-date=2023-08-02 time=21:58:57 eventtime=1691013537 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=300 sessionid=16 srcip=10.1.200.21 srcport=47532 srcintf="net1" dstip=104.17.143.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
-date=2023-08-02 time=21:58:56 eventtime=1691013536 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=300 sessionid=10 srcip=10.1.200.21 srcport=39438 srcintf="net1" dstip=104.17.143.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
-date=2023-08-02 time=21:58:56 eventtime=1691013536 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=300 sessionid=6 srcip=10.1.200.20 srcport=49318 srcintf="net1" dstip=104.17.142.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-08-02 time=22:44:52 eventtime=1691016292 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=300 sessionid=13 srcip=10.1.200.20 srcport=33808 srcintf="net1" dstip=104.17.142.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-08-02 time=22:44:54 eventtime=1691016294 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=300 sessionid=3 srcip=10.1.200.21 srcport=40024 srcintf="net1" dstip=104.17.142.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-08-02 time=22:44:56 eventtime=1691016296 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=300 sessionid=13 srcip=10.1.200.21 srcport=57094 srcintf="net1" dstip=104.17.143.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-08-02 time=22:44:58 eventtime=1691016298 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=300 sessionid=3 srcip=10.1.200.20 srcport=42422 srcintf="net1" dstip=104.17.142.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
 ```
 
 
@@ -1285,25 +1321,25 @@ done
 kubectl get pod | grep multi | grep -v termin  | awk '{print $1}'  | while read line; do echo -e pod $line; kubectl exec -t po/$line -- ping -c1 1.1.1.1 ; done
 `
 ```
-pod multitool01-deployment-7f5bf4b7cd-2ltx9
+pod multitool01-deployment-7f5bf4b7cd-7n9ml
 PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
 
 --- 1.1.1.1 ping statistics ---
 1 packets transmitted, 0 received, 100% packet loss, time 0ms
 
-pod multitool01-deployment-7f5bf4b7cd-hzxmd
+pod multitool01-deployment-7f5bf4b7cd-cphh7
 PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
 
 --- 1.1.1.1 ping statistics ---
 1 packets transmitted, 0 received, 100% packet loss, time 0ms
 
-pod multitool01-deployment-7f5bf4b7cd-rngz7
+pod multitool01-deployment-7f5bf4b7cd-qqp6r
 PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
 
 --- 1.1.1.1 ping statistics ---
 1 packets transmitted, 0 received, 100% packet loss, time 0ms
 
-pod multitool01-deployment-7f5bf4b7cd-tjzbv
+pod multitool01-deployment-7f5bf4b7cd-zmcjn
 PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
 
 --- 1.1.1.1 ping statistics ---
@@ -1420,14 +1456,38 @@ kubectl get pod policymanager && kubectl exec -it po/policymanager -- curl -X GE
 `
 ```
 NAME            READY   STATUS    RESTARTS   AGE
-policymanager   1/1     Running   0          13s
+policymanager   1/1     Running   0          12s
 {
   "status": "success",
   "http_status": 200,
   "path": "firewall",
   "name": "addrgrp",
   "http_method": "GET",
-  "results": [],
+  "results": [
+    {
+      "name": "defaultappmultitool",
+      "type": "default",
+      "category": "default",
+      "member": [
+        {
+          "name": "10.1.200.20"
+        },
+        {
+          "name": "10.1.200.21"
+        },
+        {
+          "name": "10.1.200.20"
+        }
+      ],
+      "comment": "",
+      "exclude": "disable",
+      "exclude-member": [
+        {
+          "name": "none"
+        }
+      ]
+    }
+  ],
   "serial": "FGVMULTM23000044",
   "version": "v7.2.0",
   "build": "231"
@@ -1456,10 +1516,10 @@ kubectl get pod | grep fos | awk '{print }'  | while read line; do kubectl exec 
 kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/ips.0 | grep policyid=101 ; done
 `
 ```
-date=2023-08-02 time=22:00:17 eventtime=1691013617 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.20 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=3 action="dropped" proto=6 service="HTTPS" policyid=101 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=47786 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=20971523 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
-date=2023-08-02 time=22:00:22 eventtime=1691013622 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.21 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=3 action="dropped" proto=6 service="HTTPS" policyid=101 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=45842 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=20971524 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
-date=2023-08-02 time=22:00:12 eventtime=1691013612 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.21 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=3 action="dropped" proto=6 service="HTTPS" policyid=101 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=49582 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=246415363 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
-date=2023-08-02 time=22:00:12 eventtime=1691013612 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.20 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=2 action="dropped" proto=6 service="HTTPS" policyid=101 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=45600 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=246415364 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-08-02 time=22:46:41 eventtime=1691016401 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.20 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=3 action="dropped" proto=6 service="HTTPS" policyid=101 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=39308 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=204472323 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-08-02 time=22:46:48 eventtime=1691016408 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.21 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=5 action="dropped" proto=6 service="HTTPS" policyid=101 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=48580 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=204472324 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-08-02 time=22:46:55 eventtime=1691016415 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.21 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=3 action="dropped" proto=6 service="HTTPS" policyid=101 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=43184 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=200278019 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-08-02 time=22:47:02 eventtime=1691016422 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.20 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=5 action="dropped" proto=6 service="HTTPS" policyid=101 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=59504 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=200278020 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
 ```
 
 
@@ -1480,10 +1540,10 @@ kubectl get pod | grep fos | awk '{print }'  | while read line; do kubectl exec 
 kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/webf.0 | grep policyid=101  ; done
 `
 ```
-date=2023-08-02 time=22:00:29 eventtime=1691013629 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=5 srcip=10.1.200.20 srcport=32876 srcintf="net1" dstip=104.17.143.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
-date=2023-08-02 time=22:00:30 eventtime=1691013630 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=7 srcip=10.1.200.21 srcport=55868 srcintf="net1" dstip=104.17.143.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
-date=2023-08-02 time=22:00:29 eventtime=1691013629 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=4 srcip=10.1.200.21 srcport=48276 srcintf="net1" dstip=104.17.143.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
-date=2023-08-02 time=22:00:29 eventtime=1691013629 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=6 srcip=10.1.200.20 srcport=56536 srcintf="net1" dstip=104.17.143.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-08-02 time=22:47:18 eventtime=1691016438 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=7 srcip=10.1.200.20 srcport=47202 srcintf="net1" dstip=104.17.143.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-08-02 time=22:47:20 eventtime=1691016440 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=3 srcip=10.1.200.21 srcport=52940 srcintf="net1" dstip=104.17.143.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-08-02 time=22:47:22 eventtime=1691016442 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=7 srcip=10.1.200.21 srcport=32986 srcintf="net1" dstip=104.17.143.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-08-02 time=22:47:24 eventtime=1691016444 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=3 srcip=10.1.200.20 srcport=34394 srcintf="net1" dstip=104.17.142.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
 ```
 
 
@@ -1524,13 +1584,13 @@ done
 kubectl logs ds/kube-multus-ds -n kube-system
 `
 ```
-2023-08-02T22:01:25+00:00 Generating Multus configuration file using files in /host/etc/cni/net.d...
-2023-08-02T22:01:25+00:00 Using MASTER_PLUGIN: 10-containerd-net.conflist
-2023-08-02T22:01:27+00:00 Nested capabilities string: "capabilities": {"portMappings": true},
-2023-08-02T22:01:27+00:00 Using /host/etc/cni/net.d/10-containerd-net.conflist as a source to generate the Multus configuration
-2023-08-02T22:01:27+00:00 Config file created @ /host/etc/cni/net.d/00-multus.conf
-{ "cniVersion": "0.3.1", "name": "multus-cni-network", "type": "multus", "capabilities": {"portMappings": true}, "kubeconfig": "/etc/cni/net.d/multus.d/multus.kubeconfig", "delegates": [ { "name": "k8s-pod-network", "cniVersion": "0.3.1", "plugins": [ { "type": "ptp", "mtu": 1460, "ipam": { "type": "host-local", "subnet": "10.140.1.0/24", "routes": [ { "dst": "0.0.0.0/0" } , {"dst": "10.144.0.0/20"}, {"dst": "10.140.0.0/14"} ] } }, { "type": "portmap", "capabilities": { "portMappings": true } } ] } ] }
-2023-08-02T22:01:27+00:00 Entering sleep (success)...
+2023-08-02T22:48:42+00:00 Generating Multus configuration file using files in /host/etc/cni/net.d...
+2023-08-02T22:48:42+00:00 Using MASTER_PLUGIN: 10-containerd-net.conflist
+2023-08-02T22:48:44+00:00 Nested capabilities string: "capabilities": {"portMappings": true},
+2023-08-02T22:48:44+00:00 Using /host/etc/cni/net.d/10-containerd-net.conflist as a source to generate the Multus configuration
+2023-08-02T22:48:44+00:00 Config file created @ /host/etc/cni/net.d/00-multus.conf
+{ "cniVersion": "0.3.1", "name": "multus-cni-network", "type": "multus", "capabilities": {"portMappings": true}, "kubeconfig": "/etc/cni/net.d/multus.d/multus.kubeconfig", "delegates": [ { "name": "k8s-pod-network", "cniVersion": "0.3.1", "plugins": [ { "type": "ptp", "mtu": 1460, "ipam": { "type": "host-local", "subnet": "10.140.0.0/24", "routes": [ { "dst": "0.0.0.0/0" } , {"dst": "10.144.0.0/20"}, {"dst": "10.140.0.0/14"} ] } }, { "type": "portmap", "capabilities": { "portMappings": true } } ] } ] }
+2023-08-02T22:48:44+00:00 Entering sleep (success)...
 ```
 
 
@@ -1604,10 +1664,10 @@ nodeName=$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}') && for nod
 default via 10.1.200.252 dev net1 
 1.1.1.1 via 10.1.200.252 dev net1 
 10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.22 
-10.140.0.0/14 via 10.140.1.1 dev eth0 
-10.140.1.0/24 via 10.140.1.1 dev eth0 src 10.140.1.10 
-10.140.1.1 dev eth0 scope link src 10.140.1.10 
-10.144.0.0/20 via 10.140.1.1 dev eth0 
+10.140.0.0/24 via 10.140.0.1 dev eth0 src 10.140.0.10 
+10.140.0.0/14 via 10.140.0.1 dev eth0 
+10.140.0.1 dev eth0 scope link src 10.140.0.10 
+10.144.0.0/20 via 10.140.0.1 dev eth0 
 89.238.73.97 via 10.1.200.252 dev net1 
 104.17.0.0/16 via 10.1.200.252 dev net1 
 104.18.0.0/16 via 10.1.200.252 dev net1 
@@ -1618,18 +1678,20 @@ default via 10.1.200.252 dev net1
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
 2: eth0@if12: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether fa:88:76:f1:e8:bb brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet 10.140.1.10/24 brd 10.140.1.255 scope global eth0
+    link/ether c6:45:a1:10:82:e2 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.140.0.10/24 brd 10.140.0.255 scope global eth0
        valid_lft forever preferred_lft forever
 3: net1@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether a2:0c:f0:53:b2:1e brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    link/ether 7a:40:b6:5e:1e:24 brd ff:ff:ff:ff:ff:ff link-netnsid 0
     inet 10.1.200.22/24 brd 10.1.200.255 scope global net1
        valid_lft forever preferred_lft forever
 default via 10.1.200.252 dev net1 
 1.1.1.1 via 10.1.200.252 dev net1 
 10.1.200.0/24 dev net1 proto kernel scope link src 10.1.200.23 
-10.140.0.0/24 via 10.140.0.1 dev eth0 src 10.140.0.14 
-10.140.0.1 dev eth0 scope link src 10.140.0.14 
+10.140.0.0/14 via 10.140.1.1 dev eth0 
+10.140.1.0/24 via 10.140.1.1 dev eth0 src 10.140.1.14 
+10.140.1.1 dev eth0 scope link src 10.140.1.14 
+10.144.0.0/20 via 10.140.1.1 dev eth0 
 89.238.73.97 via 10.1.200.252 dev net1 
 104.17.0.0/16 via 10.1.200.252 dev net1 
 104.18.0.0/16 via 10.1.200.252 dev net1 
@@ -1640,11 +1702,11 @@ default via 10.1.200.252 dev net1
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
 2: eth0@if16: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether 32:8e:24:6a:60:6c brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet 10.140.0.14/24 brd 10.140.0.255 scope global eth0
+    link/ether 66:58:cb:6d:52:ab brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.140.1.14/24 brd 10.140.1.255 scope global eth0
        valid_lft forever preferred_lft forever
 3: net1@if2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1460 qdisc noqueue state UP group default 
-    link/ether 16:b9:fc:67:13:e5 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    link/ether b6:cb:ce:01:6a:0f brd ff:ff:ff:ff:ff:ff link-netnsid 0
     inet 10.1.200.23/24 brd 10.1.200.255 scope global net1
        valid_lft forever preferred_lft forever
 ```
@@ -1667,14 +1729,14 @@ kubectl get pod | grep fos | awk '{print }'  | while read line; do kubectl exec 
 kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/webf.0 | grep policyid=101  ; done
 `
 ```
-date=2023-08-02 time=22:00:29 eventtime=1691013629 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=5 srcip=10.1.200.20 srcport=32876 srcintf="net1" dstip=104.17.143.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
-date=2023-08-02 time=22:00:30 eventtime=1691013630 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=7 srcip=10.1.200.21 srcport=55868 srcintf="net1" dstip=104.17.143.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
-date=2023-08-02 time=22:02:17 eventtime=1691013737 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=5 srcip=10.1.200.22 srcport=37492 srcintf="net1" dstip=104.18.25.243 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="xoso.com.vn" profile="default" action="blocked" reqtype="direct" url="https://xoso.com.vn/" sentbyte=106 rcvdbyte=40 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
-date=2023-08-02 time=22:02:18 eventtime=1691013738 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=9 srcip=10.1.200.23 srcport=40070 srcintf="net1" dstip=104.18.25.243 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="xoso.com.vn" profile="default" action="blocked" reqtype="direct" url="https://xoso.com.vn/" sentbyte=106 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
-date=2023-08-02 time=22:00:29 eventtime=1691013629 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=4 srcip=10.1.200.21 srcport=48276 srcintf="net1" dstip=104.17.143.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
-date=2023-08-02 time=22:00:29 eventtime=1691013629 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=6 srcip=10.1.200.20 srcport=56536 srcintf="net1" dstip=104.17.143.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
-date=2023-08-02 time=22:02:17 eventtime=1691013737 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=8 srcip=10.1.200.23 srcport=47598 srcintf="net1" dstip=104.18.25.243 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="xoso.com.vn" profile="default" action="blocked" reqtype="direct" url="https://xoso.com.vn/" sentbyte=106 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
-date=2023-08-02 time=22:02:18 eventtime=1691013738 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=16 srcip=10.1.200.22 srcport=56752 srcintf="net1" dstip=104.18.24.243 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="xoso.com.vn" profile="default" action="blocked" reqtype="direct" url="https://xoso.com.vn/" sentbyte=106 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-08-02 time=22:47:18 eventtime=1691016438 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=7 srcip=10.1.200.20 srcport=47202 srcintf="net1" dstip=104.17.143.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-08-02 time=22:47:20 eventtime=1691016440 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=3 srcip=10.1.200.21 srcport=52940 srcintf="net1" dstip=104.17.143.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-08-02 time=22:49:48 eventtime=1691016588 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=5 srcip=10.1.200.22 srcport=33688 srcintf="net1" dstip=104.18.25.243 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="xoso.com.vn" profile="default" action="blocked" reqtype="direct" url="https://xoso.com.vn/" sentbyte=106 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-08-02 time=22:49:50 eventtime=1691016590 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=7 srcip=10.1.200.23 srcport=36058 srcintf="net1" dstip=104.18.25.243 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="xoso.com.vn" profile="default" action="blocked" reqtype="direct" url="https://xoso.com.vn/" sentbyte=106 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-08-02 time=22:47:22 eventtime=1691016442 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=7 srcip=10.1.200.21 srcport=32986 srcintf="net1" dstip=104.17.143.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-08-02 time=22:47:24 eventtime=1691016444 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=3 srcip=10.1.200.20 srcport=34394 srcintf="net1" dstip=104.17.142.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-08-02 time=22:49:53 eventtime=1691016593 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=5 srcip=10.1.200.23 srcport=34788 srcintf="net1" dstip=104.18.25.243 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="xoso.com.vn" profile="default" action="blocked" reqtype="direct" url="https://xoso.com.vn/" sentbyte=106 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-08-02 time=22:49:54 eventtime=1691016594 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=101 sessionid=7 srcip=10.1.200.22 srcport=39580 srcintf="net1" dstip=104.18.24.243 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="xoso.com.vn" profile="default" action="blocked" reqtype="direct" url="https://xoso.com.vn/" sentbyte=106 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
 ```
 
 
@@ -1958,11 +2020,11 @@ items:
 - apiVersion: templates.gatekeeper.sh/v1
   kind: ConstraintTemplate
   metadata:
-    creationTimestamp: "2023-08-02T22:02:43Z"
+    creationTimestamp: "2023-08-02T22:50:43Z"
     generation: 1
     name: k8segressnetworkpolicytocfosutmpolicy
-    resourceVersion: "5538"
-    uid: e97ae85f-0afd-4ad2-8b95-d95b15556348
+    resourceVersion: "7387"
+    uid: d4d888e1-8b0d-442e-bd86-a60392fda513
   spec:
     crd:
       spec:
@@ -2069,6 +2131,40 @@ items:
         \                          )\n      } \n"
       target: admission.k8s.gatekeeper.sh
   status:
+    byPod:
+    - errors:
+      - code: create_error
+        message: 'Could not create CRD: customresourcedefinitions.apiextensions.k8s.io
+          "k8segressnetworkpolicytocfosutmpolicy.constraints.gatekeeper.sh" already
+          exists'
+      id: gatekeeper-controller-manager-7db564f9f4-jmnrc
+      observedGeneration: 1
+      operations:
+      - mutation-webhook
+      - webhook
+      templateUID: d4d888e1-8b0d-442e-bd86-a60392fda513
+    - errors:
+      - code: create_error
+        message: 'Could not create CRD: customresourcedefinitions.apiextensions.k8s.io
+          "k8segressnetworkpolicytocfosutmpolicy.constraints.gatekeeper.sh" already
+          exists'
+      id: gatekeeper-controller-manager-7db564f9f4-q9z59
+      observedGeneration: 1
+      operations:
+      - mutation-webhook
+      - webhook
+      templateUID: d4d888e1-8b0d-442e-bd86-a60392fda513
+    - errors:
+      - code: create_error
+        message: 'Could not create CRD: customresourcedefinitions.apiextensions.k8s.io
+          "k8segressnetworkpolicytocfosutmpolicy.constraints.gatekeeper.sh" already
+          exists'
+      id: gatekeeper-controller-manager-7db564f9f4-vl5sp
+      observedGeneration: 1
+      operations:
+      - mutation-webhook
+      - webhook
+      templateUID: d4d888e1-8b0d-442e-bd86-a60392fda513
     created: false
 kind: List
 metadata:
@@ -2128,11 +2224,11 @@ items:
 - apiVersion: constraints.gatekeeper.sh/v1beta1
   kind: K8sEgressNetworkPolicyToCfosUtmPolicy
   metadata:
-    creationTimestamp: "2023-08-02T22:02:46Z"
+    creationTimestamp: "2023-08-02T22:50:48Z"
     generation: 1
     name: cfosnetworkpolicy
-    resourceVersion: "5579"
-    uid: e62ceea9-5bf0-4f45-93c8-8601ea945ec4
+    resourceVersion: "7433"
+    uid: 1eab402b-03df-4408-a717-60e4aebf7965
   spec:
     enforcementAction: deny
     match:
@@ -2155,6 +2251,37 @@ items:
       srcintf: any
       sslsshprofile: deep-inspection
       utmstatus: enable
+  status:
+    byPod:
+    - constraintUID: 1eab402b-03df-4408-a717-60e4aebf7965
+      enforced: true
+      id: gatekeeper-audit-7fb8f4c95c-wmz77
+      observedGeneration: 1
+      operations:
+      - audit
+      - mutation-status
+      - status
+    - constraintUID: 1eab402b-03df-4408-a717-60e4aebf7965
+      enforced: true
+      id: gatekeeper-controller-manager-7db564f9f4-jmnrc
+      observedGeneration: 1
+      operations:
+      - mutation-webhook
+      - webhook
+    - constraintUID: 1eab402b-03df-4408-a717-60e4aebf7965
+      enforced: true
+      id: gatekeeper-controller-manager-7db564f9f4-q9z59
+      observedGeneration: 1
+      operations:
+      - mutation-webhook
+      - webhook
+    - constraintUID: 1eab402b-03df-4408-a717-60e4aebf7965
+      enforced: true
+      id: gatekeeper-controller-manager-7db564f9f4-vl5sp
+      observedGeneration: 1
+      operations:
+      - mutation-webhook
+      - webhook
 kind: List
 metadata:
   resourceVersion: ""
@@ -2403,10 +2530,10 @@ kubectl get pod | grep fos | awk '{print }'  | while read line; do kubectl exec 
 kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/ips.0 | grep policyid=200 ; done
 `
 ```
-date=2023-08-02 time=22:04:27 eventtime=1691013867 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.24 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=3 action="dropped" proto=6 service="HTTPS" policyid=200 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=48890 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=20971525 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
-date=2023-08-02 time=22:04:32 eventtime=1691013872 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.25 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=5 action="dropped" proto=6 service="HTTPS" policyid=200 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=57678 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=20971526 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
-date=2023-08-02 time=22:04:37 eventtime=1691013877 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.25 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=4 action="dropped" proto=6 service="HTTPS" policyid=200 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=46148 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=246415365 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
-date=2023-08-02 time=22:04:43 eventtime=1691013883 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.24 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=6 action="dropped" proto=6 service="HTTPS" policyid=200 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=39254 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=246415366 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-08-02 time=22:52:53 eventtime=1691016773 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.25 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=3 action="dropped" proto=6 service="HTTPS" policyid=200 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=37728 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=204472325 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-08-02 time=22:53:14 eventtime=1691016794 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.24 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=5 action="dropped" proto=6 service="HTTPS" policyid=200 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=59964 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=204472326 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-08-02 time=22:53:00 eventtime=1691016780 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.24 dstip=104.18.8.132 srcintf="net1" dstintf="eth0" sessionid=2 action="dropped" proto=6 service="HTTPS" policyid=200 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=34926 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=200278021 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
+date=2023-08-02 time=22:53:07 eventtime=1691016787 tz="+0000" logid="0419016384" type="utm" subtype="ips" eventtype="signature" level="alert" severity="critical" srcip=10.1.200.25 dstip=104.18.9.132 srcintf="net1" dstintf="eth0" sessionid=4 action="dropped" proto=6 service="HTTPS" policyid=200 attack="Bash.Function.Definitions.Remote.Code.Execution" srcport=52936 dstport=443 hostname="www.hackthebox.eu" url="/" direction="outgoing" attackid=39294 profile="default" incidentserialno=200278022 msg="applications3: Bash.Function.Definitions.Remote.Code.Execution"
 ```
 
 
@@ -2427,10 +2554,10 @@ kubectl get pod | grep fos | awk '{print }'  | while read line; do kubectl exec 
 kubectl get pod | grep fos | awk '{print $1}'  | while read line; do kubectl exec -t po/$line -- tail  /data/var/log/log/webf.0 | grep policyid=200  ; done
 `
 ```
-date=2023-08-02 time=22:04:49 eventtime=1691013889 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=200 sessionid=7 srcip=10.1.200.24 srcport=59424 srcintf="net1" dstip=104.17.143.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
-date=2023-08-02 time=22:04:49 eventtime=1691013889 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=200 sessionid=9 srcip=10.1.200.25 srcport=60496 srcintf="net1" dstip=104.17.142.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
-date=2023-08-02 time=22:04:50 eventtime=1691013890 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=200 sessionid=2 srcip=10.1.200.25 srcport=46236 srcintf="net1" dstip=104.17.142.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
-date=2023-08-02 time=22:04:50 eventtime=1691013890 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=200 sessionid=8 srcip=10.1.200.24 srcport=55114 srcintf="net1" dstip=104.17.143.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-08-02 time=22:53:30 eventtime=1691016810 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=200 sessionid=3 srcip=10.1.200.25 srcport=45240 srcintf="net1" dstip=104.17.142.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-08-02 time=22:53:36 eventtime=1691016816 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=200 sessionid=7 srcip=10.1.200.24 srcport=54076 srcintf="net1" dstip=104.17.143.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=118 rcvdbyte=49 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-08-02 time=22:53:32 eventtime=1691016812 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=200 sessionid=6 srcip=10.1.200.24 srcport=39468 srcintf="net1" dstip=104.17.142.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
+date=2023-08-02 time=22:53:34 eventtime=1691016814 tz="+0000" logid="0316013056" type="utm" subtype="webfilter" eventtype="ftgd_blk" level="warning" policyid=200 sessionid=8 srcip=10.1.200.25 srcport=55782 srcintf="net1" dstip=104.17.143.29 dstport=443 dstintf="eth0" proto=6 service="HTTPS" hostname="www.casino.org" profile="default" action="blocked" reqtype="direct" url="https://www.casino.org/" sentbyte=109 rcvdbyte=0 direction="outgoing" msg="URL belongs to a denied category in policy" method="domain" cat=11 catdesc="Gambling"
 ```
 
 
