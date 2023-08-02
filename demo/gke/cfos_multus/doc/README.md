@@ -17,15 +17,21 @@ gcloud config list
 ```
 - check the result
 
-`gcloud config get project`
+```
+gcloud config get project
+```
 ```
 cfos-384323
 ```
-`gcloud config get compute/region`
+```
+gcloud config get compute/region
+```
 ```
 asia-east1
 ```
-`gcloud config get compute/zone`
+```
+gcloud config get compute/zone
+```
 ```
 asia-east1-a
 ```
