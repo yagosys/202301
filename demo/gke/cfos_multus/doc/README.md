@@ -1,6 +1,38 @@
 README
 
 
+- setup gcloud environment 
+
+
+
+- paste below command to config glcoud environment  
+```
+project=$(gcloud config list --format="value(core.project)")
+export region="asia-east1"
+export zone="asia-east1-a"
+gcloud config set project $project
+gcloud config set compute/region $region
+gcloud config set compute/zone $zone
+gcloud config list
+```
+- check the result
+
+`gcloud config get project`
+```
+cfos-384323
+```
+`gcloud config get compute/region`
+```
+asia-east1
+```
+`gcloud config get compute/zone`
+```
+asia-east1-a
+```
+
+
+
+
 - create network for gke cluster 
 
 create network for GKE VM instances.
@@ -785,6 +817,38 @@ gcloud compute networks subnets create gkenode --network=gkenetwork --range=10.0
     ]
   }
 ]
+```
+
+
+
+
+- setup gcloud environment 
+
+
+
+- paste below command to config glcoud environment  
+```
+project=$(gcloud config list --format="value(core.project)")
+export region="asia-east1"
+export zone="asia-east1-a"
+gcloud config set project $project
+gcloud config set compute/region $region
+gcloud config set compute/zone $zone
+gcloud config list
+```
+- check the result
+
+`gcloud config get project`
+```
+cfos-384323
+```
+`gcloud config get compute/region`
+```
+asia-east1
+```
+`gcloud config get compute/zone`
+```
+asia-east1-a
 ```
 
 
