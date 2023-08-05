@@ -16,6 +16,7 @@ spec:
         app: fortimanager
     spec:
       nodeSelector: 
+        os: linux0
       containers:
         - name: fortimanager
           image: fortinet/fortimanager:7.4
