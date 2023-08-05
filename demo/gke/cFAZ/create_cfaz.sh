@@ -1,6 +1,15 @@
 #!/bin/bash -x
-kubectl create namespace fortianalyzer
-[[ -z $namespace ]] && namespace="fortianalyzer"
+nodeList=$(kubectl get node | grep "Ready" | awk '{ print $1 }')
+index=0
+for name in $nodeList; do {
+	echo $name
+	kubectl label node $name os=linux$index --overwrite
+	(( index++))
+}
+done
+
+kubectl create namespace $1
+[[ -z $1 ]] && namespace="default" || namespace=$1
 kubectl create -f pvc.yaml -n $namespace
 kubectl create -f fazcontainer.yaml -n $namespace
 kubectl rollout status deployment fortianalyzer-deployment -n $namespace
