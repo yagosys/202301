@@ -6,7 +6,7 @@
 [[ $num_nodes == "" ]] && num_nodes="2"
 [[ $services_ipv4_cidr == "" ]] && services_ipv4_cidr="10.144.0.0/20"
 [[ $cluster_ipv4_cidr == "" ]] && cluster_ipv4_cidr="10.140.0.0/14"
-[[ $cluster_version == "" ]] && cluster_version="1.26.5-gke.1400"
+[[ $cluster_version == "" ]] && cluster_version="1.26.5-gke.2100"
 
 filename="01_gke.sh.gen.sh"
 
@@ -28,7 +28,7 @@ gcloud container clusters create $gkeClusterName  \
 	--machine-type $machineType \
 	--image-type "UBUNTU_CONTAINERD" \
 	--disk-type "pd-balanced" \
-	--disk-size "32" \
+	--disk-size "64" \
 	--metadata disable-legacy-endpoints=true \
 	--scopes "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" \
 	--max-pods-per-node "110" \
