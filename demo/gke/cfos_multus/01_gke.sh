@@ -6,7 +6,9 @@
 [[ $num_nodes == "" ]] && num_nodes="2"
 [[ $services_ipv4_cidr == "" ]] && services_ipv4_cidr="10.144.0.0/20"
 [[ $cluster_ipv4_cidr == "" ]] && cluster_ipv4_cidr="10.140.0.0/14"
-[[ $cluster_version == "" ]] && cluster_version="1.26.5-gke.2100"
+[[ $cluster_version == "" ]] && cluster_version=$(gcloud container get-server-config --zone us-central1-a --format=json | jq 'first(.validMasterVersions[] | select(startswith("1.26.5")))')
+
+
 
 filename="01_gke.sh.gen.sh"
 
